@@ -1,0 +1,9 @@
+{
+  "name": "타임오프클럽",
+  "short_name": "타임오프",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#d97706",
+  "icons": []
+}
