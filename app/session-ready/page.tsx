@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function SessionReadyPage() {
+function SessionReadyContent() {
   const [reservation, setReservation] = useState<any>(null);
   const [participants, setParticipants] = useState<any[]>([]);
   const [randomQuestion, setRandomQuestion] = useState('');
@@ -140,5 +140,13 @@ export default function SessionReadyPage() {
         </button>
       </main>
     </div>
+  );
+}
+
+export default function SessionReadyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-950"><div className="text-gray-400">로딩 중...</div></div>}>
+      <SessionReadyContent />
+    </Suspense>
   );
 }

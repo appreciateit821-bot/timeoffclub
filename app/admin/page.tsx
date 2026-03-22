@@ -242,7 +242,7 @@ export default function AdminPage() {
     return acc;
   }, {} as Record<string, { date: string; spot: string; users: string[] }>);
 
-  const groupedArray = Object.values(groupedReservations).sort((a, b) => {
+  const groupedArray = Object.values(groupedReservations).sort((a: any, b: any) => {
     return b.date.localeCompare(a.date);
   });
 
@@ -367,7 +367,7 @@ export default function AdminPage() {
             </div>
 
             <div className="grid gap-4">
-              {groupedArray.map((group) => (
+              {groupedArray.map((group: any) => (
                 <div
                   key={`${group.date}_${group.spot}`}
                   className="bg-gray-800 rounded-lg p-6 border border-gray-700"
@@ -382,7 +382,7 @@ export default function AdminPage() {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {group.users.map((userName, idx) => (
+                    {group.users.map((userName: string, idx: number) => (
                       <span
                         key={idx}
                         className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full text-sm"
