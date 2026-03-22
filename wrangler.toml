@@ -1,0 +1,8 @@
+name = "timeoffclub"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "timeoffclub-db"
+database_id = "2f2b43cb-935d-4b01-89dd-a609eb0de7fc"

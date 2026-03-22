@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const runtime = 'edge';
+
 const ALL_QUESTIONS = [
   '지금 이 공간에서 가장 먼저 눈에 들어온 건 뭔가요?',
   '오늘 하루 중 가장 맛있었던 한 입은?',
