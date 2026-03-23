@@ -165,7 +165,7 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                             ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
                             : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                         }`}>
-                          {reservation.mode === 'reflection' ? '🧘 사색 모드' : '💬 스몰토크 모드'}
+                          {reservation.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
                         </div>
                         <div className="text-gray-300">{reservation.spot}</div>
                         {reservation.memo && (
