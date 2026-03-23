@@ -63,6 +63,50 @@ export default function SpotOperatorPage() {
   const noShowCount = checkinList.filter(r => r.check_in_status === 'no_show').length;
   const uncheckedCount = checkinList.filter(r => r.check_in_status === 'unchecked').length;
 
+  // 다음 세션 날짜 계산 (수요일=3, 일요일=0)
+  const getUpcomingSessions = () => {
+    const today = new Date();
+    const kstOffset = 9 * 60 * 60 * 1000;
+    const kstNow = new Date(today.getTime() + kstOffset + today.getTimezoneOffset() * 60 * 1000);
+    const sessions: { date: string; day: string; time: string }[] = [];
+
+    for (let i = 0; i < 14; i++) {
+      const d = new Date(kstNow);
+      d.setDate(d.getDate() + i);
+      const dow = d.getDay();
+      if (dow === 3 || dow === 0) {
+        const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        sessions.push({
+          date: dateStr,
+          day: dow === 3 ? '수요일' : '일요일',
+          time: dow === 3 ? '20:00' : '15:00'
+        });
+      }
+      if (sessions.length >= 4) break;
+    }
+    return sessions;
+  };
+
+  const [upcomingReservations, setUpcomingReservations] = useState<{ [date: string]: number }>({});
+
+  useEffect(() => {
+    const fetchUpcoming = async () => {
+      const sessions = getUpcomingSessions();
+      const counts: { [date: string]: number } = {};
+      for (const s of sessions) {
+        try {
+          const res = await fetch(`/api/admin/spot/checkin?date=${s.date}`);
+          if (res.ok) {
+            const data = await res.json();
+            counts[s.date] = data.reservations.length;
+          }
+        } catch {}
+      }
+      setUpcomingReservations(counts);
+    };
+    if (spotName) fetchUpcoming();
+  }, [spotName]);
+
   // 뒷4자리 표시 (이름에서 추출 불가하므로 user_name 마스킹)
   const maskName = (name: string) => {
     // DB에 저장된 phone_last4가 없으면 이름 마스킹
@@ -114,35 +158,31 @@ export default function SpotOperatorPage() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* 오늘 요약 */}
+        {/* 다가오는 세션 요약 */}
         <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-700/30 mb-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="text-xs text-gray-400">오늘 ({getTodayKST()})</div>
-              <div className="text-white font-bold text-lg mt-1">{spotName}</div>
-            </div>
-            <div className="flex gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-amber-400">
-                  {checkinDate === getTodayKST() ? checkinList.length : '-'}
+          <div className="mb-3">
+            <div className="text-white font-bold">{spotName}</div>
+            <div className="text-xs text-gray-400">다가오는 세션</div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {getUpcomingSessions().map(s => (
+              <button
+                key={s.date}
+                onClick={() => setCheckinDate(s.date)}
+                className={`rounded-lg p-3 text-center transition active:scale-95 ${
+                  checkinDate === s.date
+                    ? 'bg-amber-600/30 border border-amber-500/50'
+                    : 'bg-gray-800/80 border border-gray-700 hover:border-gray-600'
+                }`}
+              >
+                <div className="text-[10px] text-gray-400">{s.day} {s.time}</div>
+                <div className="text-xs text-white font-medium mt-0.5">{s.date.slice(5)}</div>
+                <div className="text-xl font-bold text-amber-400 mt-1">
+                  {upcomingReservations[s.date] !== undefined ? upcomingReservations[s.date] : '-'}
                 </div>
-                <div className="text-[10px] text-gray-400">예약</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-blue-400">
-                  {checkinDate === getTodayKST() 
-                    ? checkinList.filter(r => r.mode !== 'reflection').length : '-'}
-                </div>
-                <div className="text-[10px] text-gray-400">스몰토크</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-violet-400">
-                  {checkinDate === getTodayKST()
-                    ? checkinList.filter(r => r.mode === 'reflection').length : '-'}
-                </div>
-                <div className="text-[10px] text-gray-400">사색</div>
-              </div>
-            </div>
+                <div className="text-[9px] text-gray-500">명 예약</div>
+              </button>
+            ))}
           </div>
         </div>
 
