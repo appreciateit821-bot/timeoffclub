@@ -17,7 +17,21 @@ export default function SpotOperatorPage() {
   const [reqContent, setReqContent] = useState('');
   const [reqSubmitting, setReqSubmitting] = useState(false);
   const [reqSuccess, setReqSuccess] = useState('');
-  const [checkinDate, setCheckinDate] = useState(getTodayKST());
+  const [checkinDate, setCheckinDate] = useState(() => {
+    // 가장 가까운 세션 날짜 (수요일/일요일)로 자동 설정
+    const now = new Date();
+    const kstOffset = 9 * 60 * 60 * 1000;
+    const kst = new Date(now.getTime() + kstOffset + now.getTimezoneOffset() * 60 * 1000);
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(kst);
+      d.setDate(d.getDate() + i);
+      const dow = d.getDay();
+      if (dow === 3 || dow === 0) {
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+    }
+    return getTodayKST();
+  });
 
   const router = useRouter();
 
