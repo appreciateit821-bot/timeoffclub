@@ -315,10 +315,11 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
         <div className="p-4 bg-amber-900/15 border border-amber-700/20 rounded-lg space-y-2">
           <p className="text-sm text-amber-200 font-medium">📋 예약 안내</p>
           <ul className="text-xs text-amber-200/80 space-y-1.5">
-            <li>• 멤버십 기간 동안 <strong>횟수 제한 없이</strong> 자유롭게 예약할 수 있어요</li>
-            <li>• 스팟당 인원이 제한되어 있어, <strong>참석이 어려우시면 꼭 취소</strong> 부탁드려요</li>
-            <li>• 예약 변경/취소는 <strong>세션 2시간 전까지</strong> 가능해요</li>
-            <li>• 노쇼가 반복되면 다른 멤버의 기회가 줄어들어요 🙏</li>
+            <li>• 원하는 일정과 스팟에 <strong>횟수 제한 없이</strong> 참여 가능해요</li>
+            <li>• 예약 신청·변경·취소는 <strong>세션 2시간 전까지</strong> 가능해요</li>
+            <li>• 노쇼 시 <strong>패널티가 부과</strong>됩니다. 참석이 어려우면 꼭 취소해주세요 🙏</li>
+            <li>• 현장에서 전용 할인 적용, <strong>1인 1음료</strong> 주문 원칙</li>
+            <li>• 입장 시 <strong>스마트폰 보관함</strong>에 스마트폰을 맡겨주세요 📵</li>
           </ul>
         </div>
       )}
