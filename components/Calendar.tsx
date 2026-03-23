@@ -38,9 +38,9 @@ export default function Calendar({ selectedDates, onDatesChange }: CalendarProps
 
   const toggleDate = (dateStr: string) => {
     if (selectedDates.includes(dateStr)) {
-      onDatesChange(selectedDates.filter(d => d !== dateStr));
+      onDatesChange([]);
     } else {
-      onDatesChange([...selectedDates, dateStr]);
+      onDatesChange([dateStr]);
     }
   };
 
@@ -138,7 +138,7 @@ export default function Calendar({ selectedDates, onDatesChange }: CalendarProps
         </p>
         {selectedDates.length > 0 && (
           <p className="text-sm text-amber-400 mt-2 font-medium">
-            {selectedDates.length}개 날짜 선택됨
+            📅 {selectedDates[0]} 선택됨
           </p>
         )}
       </div>

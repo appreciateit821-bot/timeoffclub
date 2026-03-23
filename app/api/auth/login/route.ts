@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyPassword, createSession } from '@/lib/auth';
-import { getDB, initDB } from '@/lib/db';
+import { getDB } from '@/lib/db';
 
 export const runtime = 'edge';
 
 export async function POST(request: NextRequest) {
-  await initDB();
   const db = getDB();
   if (!db) return NextResponse.json({ error: 'DB 연결 실패' }, { status: 500 });
 

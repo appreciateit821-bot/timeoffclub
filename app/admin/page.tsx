@@ -22,7 +22,25 @@ export default function AdminPage() {
   const [trialTickets, setTrialTickets] = useState<any[]>([]);
   const [trialCount, setTrialCount] = useState(1);
   const [feedbackData, setFeedbackData] = useState<any>({ feedbacks: [], issues: [] });
+  const [maxCapacity, setMaxCapacity] = useState(10);
+  const [capacitySaving, setCapacitySaving] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch('/api/admin/settings').then(r => r.json()).then(d => { if (d.maxCapacity) setMaxCapacity(d.maxCapacity); }).catch(() => {});
+  }, []);
+
+  const handleSaveCapacity = async () => {
+    setCapacitySaving(true);
+    try {
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ maxCapacity })
+      });
+    } catch {}
+    finally { setCapacitySaving(false); }
+  };
 
   useEffect(() => {
     fetchData();
@@ -360,10 +378,19 @@ export default function AdminPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'reservations' && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <h2 className="text-xl font-semibold text-white">
                 전체 예약 현황 ({reservations.length}건)
               </h2>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-400">스팟당 최대 인원:</span>
+                <input type="number" value={maxCapacity} onChange={(e) => setMaxCapacity(parseInt(e.target.value) || 10)}
+                  className="w-16 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm text-center" min={1} max={50} />
+                <button onClick={handleSaveCapacity} disabled={capacitySaving}
+                  className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-sm disabled:opacity-50">
+                  {capacitySaving ? '...' : '저장'}
+                </button>
+              </div>
             </div>
 
             <div className="grid gap-4">

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { getDB, initDB } from '@/lib/db';
-import { MAX_CAPACITY, isBookingClosed } from '@/lib/constants';
+import { getDB } from '@/lib/db';
+import { isBookingClosed } from '@/lib/constants';
 
 export const runtime = 'edge';
 
 export async function PUT(request: NextRequest) {
-  await initDB();
   const db = getDB();
   const user = await getSession();
   if (!user || !db) return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
@@ -21,8 +20,10 @@ export async function PUT(request: NextRequest) {
     if (reservation.user_name !== user.name) return NextResponse.json({ error: '본인의 예약만 변경할 수 있습니다.' }, { status: 403 });
 
     if (reservation.spot !== spot) {
+      let maxCap = 10;
+      try { const s = await db.prepare("SELECT value FROM settings WHERE key = 'max_capacity'").first() as any; if (s) maxCap = parseInt(s.value); } catch {}
       const countResult = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ?').bind(reservation.date, spot).first() as any;
-      if (countResult?.count >= MAX_CAPACITY) return NextResponse.json({ error: '해당 스팟의 정원이 가득 찼습니다.' }, { status: 400 });
+      if (countResult?.count >= maxCap) return NextResponse.json({ error: '해당 스팟의 정원이 가득 찼습니다.' }, { status: 400 });
     }
 
     await db.prepare('UPDATE reservations SET spot = ? WHERE id = ?').bind(spot, id).run();

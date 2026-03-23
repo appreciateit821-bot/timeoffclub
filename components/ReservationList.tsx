@@ -107,22 +107,7 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
 
   return (
     <div className="bg-gray-800/80 backdrop-blur rounded-xl p-6 border border-amber-800/30 shadow-lg">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-amber-100">내 예약</h2>
-        {reservations.length > 0 && (
-          <button
-            onClick={() => {
-              const token = btoa(userName).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-              const calUrl = `${window.location.origin}/api/reservations/calendar?user=${encodeURIComponent(userName)}&token=${token}`;
-              navigator.clipboard.writeText(calUrl);
-              alert('캘린더 구독 URL이 복사되었습니다!\n\n구글 캘린더 → 다른 캘린더 추가 → URL로 추가에 붙여넣으세요.');
-            }}
-            className="px-3 py-1.5 bg-blue-600/80 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition active:scale-95"
-          >
-            📅 캘린더 구독
-          </button>
-        )}
-      </div>
+      <h2 className="text-xl font-bold text-amber-100 mb-4">내 예약</h2>
 
       {sortedReservations.length === 0 ? (
         <div className="text-center py-12 text-gray-400">

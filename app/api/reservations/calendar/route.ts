@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDB, initDB } from '@/lib/db';
+import { getDB } from '@/lib/db';
 import { getSessionStartTime, getSessionEndTime, SPOT_DETAILS } from '@/lib/constants';
 
 export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
-  await initDB();
   const db = getDB();
   if (!db) return new NextResponse('DB error', { status: 500 });
 

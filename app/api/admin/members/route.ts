@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDB, initDB } from '@/lib/db';
+import { getDB } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 
 export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
-  await initDB();
   const db = getDB();
   const session = await getSession();
   if (!session?.isAdmin || !db) return NextResponse.json({ error: '권한 없음' }, { status: 403 });
@@ -23,7 +22,6 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  await initDB();
   const db = getDB();
   const session = await getSession();
   if (!session?.isAdmin || !db) return NextResponse.json({ error: '권한 없음' }, { status: 403 });
@@ -40,7 +38,6 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  await initDB();
   const db = getDB();
   const session = await getSession();
   if (!session?.isAdmin || !db) return NextResponse.json({ error: '권한 없음' }, { status: 403 });
@@ -51,7 +48,6 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  await initDB();
   const db = getDB();
   const session = await getSession();
   if (!session?.isAdmin || !db) return NextResponse.json({ error: '권한 없음' }, { status: 403 });

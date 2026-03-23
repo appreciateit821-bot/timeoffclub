@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
-import { getDB, initDB } from '@/lib/db';
-import { MAX_CAPACITY, isBookingClosed } from '@/lib/constants';
+import { getDB } from '@/lib/db';
+import { isBookingClosed } from '@/lib/constants';
 
 export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
-  await initDB();
   const db = getDB();
   const user = await getSession();
   if (!user || !db) return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
@@ -30,7 +29,6 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  await initDB();
   const db = getDB();
   const user = await getSession();
   if (!user || !db) return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
@@ -50,8 +48,12 @@ export async function POST(request: NextRequest) {
     const existing = await db.prepare('SELECT * FROM reservations WHERE user_name = ? AND date = ?').bind(user.name, date).first();
     if (existing) return NextResponse.json({ error: '이미 해당 날짜에 예약이 있습니다.' }, { status: 400 });
 
+    // 동적 인원 제한
+    let maxCap = 10;
+    try { const s = await db.prepare("SELECT value FROM settings WHERE key = 'max_capacity'").first() as any; if (s) maxCap = parseInt(s.value); } catch {}
+
     const countResult = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ?').bind(date, spot).first() as any;
-    if (countResult?.count >= MAX_CAPACITY) return NextResponse.json({ error: '해당 스팟의 정원이 가득 찼습니다.' }, { status: 400 });
+    if (countResult?.count >= maxCap) return NextResponse.json({ error: '해당 스팟의 정원이 가득 찼습니다.' }, { status: 400 });
 
     await db.prepare('INSERT INTO reservations (user_name, date, spot, mode, memo, energy) VALUES (?, ?, ?, ?, ?, ?)').bind(user.name, date, spot, mode || 'smalltalk', memo || '', energy || 'normal').run();
     await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action) VALUES (?, ?, ?, ?)').bind(user.name, date, spot, 'CREATE').run();
@@ -64,7 +66,6 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  await initDB();
   const db = getDB();
   const user = await getSession();
   if (!user || !db) return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
