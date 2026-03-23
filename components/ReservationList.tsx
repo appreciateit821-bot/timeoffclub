@@ -154,14 +154,18 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                   return (
                     <>
                       <div className="mb-3">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
                           <span className="text-lg font-semibold text-white">{reservation.date}</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                            reservation.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
-                          }`}>{reservation.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
                           {closed && (
                             <span className="px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-[10px] font-medium">마감</span>
                           )}
+                        </div>
+                        <div className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3.5 py-1.5 rounded-full mb-2 ${
+                          reservation.mode === 'reflection'
+                            ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                            : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                        }`}>
+                          {reservation.mode === 'reflection' ? '🧘 사색 모드' : '💬 스몰토크 모드'}
                         </div>
                         <div className="text-gray-300">{reservation.spot}</div>
                         {reservation.memo && (

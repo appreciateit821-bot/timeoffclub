@@ -134,9 +134,9 @@ export default function MyHistoryPage() {
                     <div className="text-white text-sm font-medium">{r.date}</div>
                     <div className="text-gray-400 text-xs">{r.spot}</div>
                   </div>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                    r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
-                  }`}>{r.mode === 'reflection' ? '사색' : '스몰토크'}</span>
+                  <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                    r.mode === 'reflection' ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                  }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
                 </div>
               ))}
             </div>
@@ -156,9 +156,9 @@ export default function MyHistoryPage() {
                       <div className="text-gray-400 text-xs">{r.spot}</div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                        r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
-                      }`}>{r.mode === 'reflection' ? '사색' : '스몰토크'}</span>
+                      <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
+                        r.mode === 'reflection' ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                      }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
                       <button onClick={() => { setReportSession(r); setShowReport(true); }}
                         className="text-[10px] text-gray-500 hover:text-red-400">🚨</button>
                     </div>

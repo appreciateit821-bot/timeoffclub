@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { SPOTS } from '@/lib/constants';
 
 export default function FeedbackPage() {
+  const [activeTab, setActiveTab] = useState<'feedback' | 'request'>('feedback');
   const [sessions, setSessions] = useState<any[]>([]);
   const [selectedSession, setSelectedSession] = useState<any>(null);
   const [serviceRating, setServiceRating] = useState(5);
@@ -13,6 +15,14 @@ export default function FeedbackPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
+
+  // 운영자에게 바라는 점
+  const [reqCategory, setReqCategory] = useState('general');
+  const [reqSpot, setReqSpot] = useState('');
+  const [reqContent, setReqContent] = useState('');
+  const [reqSubmitting, setReqSubmitting] = useState(false);
+  const [reqSuccess, setReqSuccess] = useState('');
+  const [myRequests, setMyRequests] = useState<any[]>([]);
   const [momentText, setMomentText] = useState('');
   const [momentSession, setMomentSession] = useState<any>(null);
   const [momentSuccess, setMomentSuccess] = useState('');
@@ -41,7 +51,39 @@ export default function FeedbackPage() {
 
   useEffect(() => {
     fetchSessions();
+    fetchMyRequests();
   }, []);
+
+  const fetchMyRequests = async () => {
+    try {
+      const res = await fetch('/api/requests');
+      if (res.ok) {
+        const data = await res.json();
+        setMyRequests(data.requests);
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleRequestSubmit = async () => {
+    if (!reqContent.trim()) return;
+    setReqSubmitting(true);
+    setReqSuccess('');
+    try {
+      const res = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category: reqCategory, content: reqContent, spot: reqSpot || null })
+      });
+      if (res.ok) {
+        setReqSuccess('요청이 전달되었습니다. 감사합니다! 💛');
+        setReqContent('');
+        setReqCategory('general');
+        setReqSpot('');
+        fetchMyRequests();
+      }
+    } catch (e) { alert('제출 중 오류'); }
+    finally { setReqSubmitting(false); }
+  };
 
   const fetchSessions = async () => {
     try {
@@ -108,10 +150,116 @@ export default function FeedbackPage() {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        {/* 탭 전환 */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab('feedback')}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition ${
+              activeTab === 'feedback' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >💬 세션 피드백</button>
+          <button
+            onClick={() => setActiveTab('request')}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition ${
+              activeTab === 'request' ? 'bg-emerald-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >📮 운영자에게 바라는 점</button>
+        </div>
+
         {success && (
           <div className="bg-green-900/50 border border-green-700 text-green-200 px-4 py-3 rounded-lg">{success}</div>
         )}
 
+        {/* 운영자에게 바라는 점 탭 */}
+        {activeTab === 'request' && (
+          <div className="space-y-6">
+            {reqSuccess && (
+              <div className="bg-green-900/50 border border-green-700 text-green-200 px-4 py-3 rounded-lg">{reqSuccess}</div>
+            )}
+
+            <div className="bg-gray-800/80 backdrop-blur rounded-xl p-5 border border-emerald-800/30 space-y-4">
+              <div>
+                <h3 className="text-emerald-200 font-medium mb-1">📮 운영자에게 바라는 점</h3>
+                <p className="text-gray-400 text-xs">타임오프클럽 운영에 대한 건의사항, 개선 요청 등을 자유롭게 남겨주세요.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-300 mb-1.5">카테고리</label>
+                <select
+                  value={reqCategory}
+                  onChange={(e) => setReqCategory(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                >
+                  <option value="general">일반 건의</option>
+                  <option value="space">공간 관련</option>
+                  <option value="program">프로그램 관련</option>
+                  <option value="service">서비스 개선</option>
+                  <option value="etc">기타</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-300 mb-1.5">관련 스팟 (선택)</label>
+                <select
+                  value={reqSpot}
+                  onChange={(e) => setReqSpot(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                >
+                  <option value="">전체 / 해당없음</option>
+                  {SPOTS.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-300 mb-1.5">내용</label>
+                <textarea
+                  value={reqContent}
+                  onChange={(e) => setReqContent(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[120px] resize-y"
+                  placeholder="운영자에게 전달하고 싶은 내용을 자유롭게 작성해주세요..."
+                  maxLength={1000}
+                />
+              </div>
+
+              <button
+                onClick={handleRequestSubmit}
+                disabled={reqSubmitting || !reqContent.trim()}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition disabled:opacity-50 active:scale-95"
+              >
+                {reqSubmitting ? '전송 중...' : '요청 보내기'}
+              </button>
+            </div>
+
+            {/* 내가 보낸 요청 목록 */}
+            {myRequests.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-300 mb-3">📋 내가 보낸 요청</h3>
+                <div className="space-y-2">
+                  {myRequests.map((r: any) => (
+                    <div key={r.id} className="bg-gray-800/60 rounded-lg p-4 border border-gray-700/50">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-300 border border-emerald-700/30">
+                          {{ general: '일반', space: '공간', program: '프로그램', service: '서비스', etc: '기타' }[r.category as string] || r.category}
+                        </span>
+                        {r.spot && <span className="text-xs text-gray-500">{r.spot}</span>}
+                        <span className="text-xs text-gray-600 ml-auto">{r.created_at?.slice(0, 10)}</span>
+                      </div>
+                      <p className="text-gray-300 text-sm">{r.content}</p>
+                      {r.admin_reply && (
+                        <div className="mt-2 pt-2 border-t border-gray-700">
+                          <p className="text-xs text-amber-300">💬 운영자 답변</p>
+                          <p className="text-gray-300 text-sm mt-1">{r.admin_reply}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'feedback' && <>
         {/* 오늘의 한마디 */}
         {!selectedSession && !momentSession && sessions.filter(s => !s.hasFeedback).length > 0 && (
           <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-5">
@@ -277,6 +425,7 @@ export default function FeedbackPage() {
             </div>
           </form>
         )}
+        </>}
       </main>
     </div>
   );

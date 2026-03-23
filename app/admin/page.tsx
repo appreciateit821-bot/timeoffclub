@@ -9,7 +9,7 @@ export default function AdminPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices' | 'reports'>('reservations');
+  const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices' | 'reports' | 'requests'>('reservations');
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberPhone, setNewMemberPhone] = useState('');
   const [newMemberMonths, setNewMemberMonths] = useState('');
@@ -28,6 +28,9 @@ export default function AdminPage() {
   const [capacitySaving, setCapacitySaving] = useState(false);
   const [sessionCapacities, setSessionCapacities] = useState<any[]>([]);
   const [notices, setNotices] = useState<any[]>([]);
+  const [operatorRequests, setOperatorRequests] = useState<any[]>([]);
+  const [replyingId, setReplyingId] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState('');
   const [noticeTitle, setNoticeTitle] = useState('');
   const [noticeContent, setNoticeContent] = useState('');
   const [noticeTarget, setNoticeTarget] = useState('all');
@@ -277,6 +280,36 @@ export default function AdminPage() {
     } catch (e) { console.error(e); }
   };
 
+  const fetchRequests = async () => {
+    try {
+      const res = await fetch('/api/admin/requests');
+      if (res.ok) { const data = await res.json(); setOperatorRequests(data.requests); }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleReplyRequest = async (id: number) => {
+    if (!replyText.trim()) return;
+    try {
+      const res = await fetch('/api/admin/requests', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, adminReply: replyText.trim() })
+      });
+      if (res.ok) { setReplyingId(null); setReplyText(''); fetchRequests(); }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleMarkRead = async (id: number) => {
+    try {
+      await fetch('/api/admin/requests', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, markRead: true })
+      });
+      fetchRequests();
+    } catch (e) { console.error(e); }
+  };
+
   const handleCreateNotice = async () => {
     if (!noticeTitle || !noticeContent) return;
     try {
@@ -460,6 +493,16 @@ export default function AdminPage() {
               }`}
             >
               💬 피드백
+            </button>
+            <button
+              onClick={() => { setActiveTab('requests'); fetchRequests(); }}
+              className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
+                activeTab === 'requests'
+                  ? 'text-amber-400 border-amber-400'
+                  : 'text-gray-400 border-transparent hover:text-gray-300'
+              }`}
+            >
+              📮 요청
             </button>
             <button
               onClick={() => { setActiveTab('notices'); fetchNotices(); }}
@@ -1095,6 +1138,67 @@ export default function AdminPage() {
               ))}
               {feedbackData.feedbacks.length === 0 && <div className="text-center py-12 text-gray-400">피드백이 없습니다.</div>}
             </div>
+          </div>
+        )}
+        {/* 요청사항 관리 */}
+        {activeTab === 'requests' && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-white">📮 멤버 요청사항</h2>
+            <p className="text-gray-400 text-sm">멤버들이 운영자에게 보낸 건의/요청사항입니다.</p>
+
+            {operatorRequests.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">요청사항이 없습니다.</div>
+            ) : (
+              <div className="space-y-3">
+                {operatorRequests.map((r: any) => (
+                  <div key={r.id} className={`bg-gray-800 rounded-lg p-4 border ${r.is_read ? 'border-gray-700' : 'border-emerald-600/50 bg-emerald-900/10'}`}>
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
+                      <span className="text-white font-medium text-sm">{r.user_name}</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-300 border border-emerald-700/30">
+                        {{ general: '일반', space: '공간', program: '프로그램', service: '서비스', etc: '기타' }[r.category as string] || r.category}
+                      </span>
+                      {r.spot && <span className="text-xs text-gray-500">{r.spot}</span>}
+                      {!r.is_read && <span className="text-xs px-1.5 py-0.5 bg-red-600 text-white rounded">NEW</span>}
+                      <span className="text-xs text-gray-600 ml-auto">{formatKST(r.created_at)}</span>
+                    </div>
+                    <p className="text-gray-300 text-sm mb-2">{r.content}</p>
+
+                    {r.admin_reply && (
+                      <div className="bg-amber-900/20 border border-amber-700/30 rounded-lg p-3 mt-2">
+                        <p className="text-xs text-amber-300 mb-1">💬 답변</p>
+                        <p className="text-gray-300 text-sm">{r.admin_reply}</p>
+                      </div>
+                    )}
+
+                    <div className="flex gap-2 mt-3">
+                      {replyingId === r.id ? (
+                        <div className="w-full space-y-2">
+                          <textarea
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 min-h-[60px] resize-y"
+                            placeholder="답변 작성..."
+                          />
+                          <div className="flex gap-2">
+                            <button onClick={() => handleReplyRequest(r.id)} className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm">답변 저장</button>
+                            <button onClick={() => { setReplyingId(null); setReplyText(''); }} className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm">취소</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <button onClick={() => { setReplyingId(r.id); setReplyText(r.admin_reply || ''); }} className="px-3 py-1.5 bg-amber-600/80 hover:bg-amber-700 text-white rounded-lg text-xs">
+                            {r.admin_reply ? '답변 수정' : '답변 작성'}
+                          </button>
+                          {!r.is_read && (
+                            <button onClick={() => handleMarkRead(r.id)} className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-xs">읽음 처리</button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
         {/* 공지 관리 */}

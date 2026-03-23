@@ -37,6 +37,11 @@ CREATE TABLE IF NOT EXISTS session_moments (
   id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT NOT NULL, date TEXT NOT NULL, spot TEXT NOT NULL,
   moment_text TEXT NOT NULL, is_anonymous INTEGER DEFAULT 1, created_at DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(user_name, date, spot)
 );
+CREATE TABLE IF NOT EXISTS operator_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT NOT NULL, spot TEXT,
+  category TEXT DEFAULT 'general', content TEXT NOT NULL, is_read INTEGER DEFAULT 0,
+  admin_reply TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 INSERT OR IGNORE INTO spot_operators (name, spot_id, password) VALUES ('약수_스티키플로어', '약수_스티키플로어', 'yaksu2026');
 INSERT OR IGNORE INTO spot_operators (name, spot_id, password) VALUES ('망원_다시점', '망원_다시점', 'mangwon2026');
 INSERT OR IGNORE INTO spot_operators (name, spot_id, password) VALUES ('압구정로데오_벤슨 테이스팅 라운지', '압구정로데오_벤슨 테이스팅 라운지', 'apgujeong2026');
