@@ -134,7 +134,8 @@ export default function LoginPage() {
                     value={phoneLast4}
                     onChange={(e) => {
                       const val = e.target.value;
-                      if (val.startsWith('T-') || val.startsWith('t-')) {
+                      // 체험권 코드 (T-로 시작) 또는 숫자 뒷4자리
+                      if (val.startsWith('T-') || val.startsWith('t-') || val.match(/[a-zA-Z]/)) {
                         setPhoneLast4(val.toUpperCase().slice(0, 8));
                       } else {
                         setPhoneLast4(val.replace(/\D/g, '').slice(0, 4));
