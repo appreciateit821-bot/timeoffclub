@@ -51,8 +51,7 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-amber-100 mb-2">타임오프클럽</h1>
             <p className="text-lg text-amber-200/90 font-medium mb-3">목적 없는 즐거움,<br/>다정한 디지털 로그아웃 스몰토크를 제안합니다</p>
-            <p className="text-xs text-gray-400">매주 수요일 저녁 8시 · 일요일 오후 3시</p>
-            <div className="mt-3 inline-block px-4 py-1.5 bg-amber-900/30 border border-amber-700/30 rounded-full">
+            <div className="mt-2 inline-block px-4 py-1.5 bg-amber-900/30 border border-amber-700/30 rounded-full">
               <p className="text-xs text-amber-300">🌿 3월, <strong className="text-amber-200">44명</strong>의 멤버와 함께하고 있습니다</p>
             </div>
           </div>
@@ -83,6 +82,12 @@ export default function LoginPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* 루틴 안내 */}
+          <div className="mb-8 text-center">
+            <p className="text-amber-200/80 text-sm font-medium">매주 수요일 저녁 8시, 일요일 오후 3시</p>
+            <p className="text-gray-400 text-xs mt-1">일주일에 한 번 운동하듯, 나를 위한 정기적인 OFF를 루틴으로 만들어보세요</p>
           </div>
 
           {/* 로그인 모드 선택 */}
@@ -130,7 +135,7 @@ export default function LoginPage() {
                 </div>
                 <div>
                   <label htmlFor="phoneLast4" className="block text-sm font-medium text-gray-300 mb-2">
-                    연락처 뒷 4자리 또는 체험권 코드
+                    본인 확인 코드
                   </label>
                   <input
                     type="text"
@@ -146,11 +151,11 @@ export default function LoginPage() {
                       }
                     }}
                     className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
-                    placeholder="뒷4자리 또는 체험권 코드 (T-XXXX)"
+                    placeholder="연락처 뒷4자리 또는 체험권 코드"
                     maxLength={8}
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">체험권이 있는 경우 T-로 시작하는 코드를 입력하세요</p>
+                  <p className="text-xs text-gray-500 mt-1">가입 시 등록한 연락처 뒷 4자리 · 체험권은 T-로 시작하는 코드</p>
                 </div>
               </>
             ) : (
@@ -201,7 +206,7 @@ export default function LoginPage() {
 
         {/* 하단 푸터 */}
         <div className="mt-6 flex justify-center gap-6 text-sm">
-          <a href="https://pf.kakao.com/_well__moment" target="_blank" rel="noopener noreferrer"
+          <a href="https://center-pf.kakao.com/searches?query=well__moment" target="_blank" rel="noopener noreferrer"
             className="text-gray-500 hover:text-amber-400 transition">💬 카카오톡</a>
           <a href="https://www.instagram.com/well__moment" target="_blank" rel="noopener noreferrer"
             className="text-gray-500 hover:text-amber-400 transition">📸 인스타그램</a>

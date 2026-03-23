@@ -43,7 +43,7 @@ export default function Footer() {
             <h3 className="text-lg font-bold text-amber-300 mb-4">문의</h3>
             <div className="space-y-3 text-sm text-gray-300">
               <a
-                href="https://pf.kakao.com/_well__moment"
+                href="https://center-pf.kakao.com/searches?query=well__moment"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 hover:text-amber-400 transition"
