@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getTodayKST } from '@/lib/constants';
 
 export default function SpotOperatorPage() {
   const [reservations, setReservations] = useState<any[]>([]);
@@ -10,7 +11,7 @@ export default function SpotOperatorPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'checkin' | 'reservations' | 'logs' | 'notices'>('checkin');
   const [spotName, setSpotName] = useState('');
-  const [checkinDate, setCheckinDate] = useState(new Date().toISOString().split('T')[0]);
+  const [checkinDate, setCheckinDate] = useState(getTodayKST());
 
   const router = useRouter();
 
@@ -117,26 +118,26 @@ export default function SpotOperatorPage() {
         <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-700/30 mb-6">
           <div className="flex justify-between items-center">
             <div>
-              <div className="text-xs text-gray-400">오늘 ({new Date().toISOString().split('T')[0]})</div>
+              <div className="text-xs text-gray-400">오늘 ({getTodayKST()})</div>
               <div className="text-white font-bold text-lg mt-1">{spotName}</div>
             </div>
             <div className="flex gap-4 text-center">
               <div>
                 <div className="text-2xl font-bold text-amber-400">
-                  {checkinDate === new Date().toISOString().split('T')[0] ? checkinList.length : '-'}
+                  {checkinDate === getTodayKST() ? checkinList.length : '-'}
                 </div>
                 <div className="text-[10px] text-gray-400">예약</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-blue-400">
-                  {checkinDate === new Date().toISOString().split('T')[0] 
+                  {checkinDate === getTodayKST() 
                     ? checkinList.filter(r => r.mode !== 'reflection').length : '-'}
                 </div>
                 <div className="text-[10px] text-gray-400">스몰토크</div>
               </div>
               <div>
                 <div className="text-2xl font-bold text-violet-400">
-                  {checkinDate === new Date().toISOString().split('T')[0]
+                  {checkinDate === getTodayKST()
                     ? checkinList.filter(r => r.mode === 'reflection').length : '-'}
                 </div>
                 <div className="text-[10px] text-gray-400">사색</div>

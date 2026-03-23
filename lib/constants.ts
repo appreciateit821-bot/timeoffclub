@@ -89,11 +89,26 @@ export function getSessionEndTime(dateStr: string): Date {
   return new Date(start.getTime() + 2 * 60 * 60 * 1000);
 }
 
-// 2시간 전 마감 체크
+// KST 현재 시간
+export function getNowKST(): Date {
+  const now = new Date();
+  // UTC에 9시간 더해서 KST
+  return new Date(now.getTime() + (9 * 60 * 60 * 1000) + (now.getTimezoneOffset() * 60 * 1000));
+}
+
+// KST 오늘 날짜 문자열
+export function getTodayKST(): string {
+  const kst = getNowKST();
+  return `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}-${String(kst.getDate()).padStart(2, '0')}`;
+}
+
+// 2시간 전 마감 체크 (KST 기준)
 export function isBookingClosed(dateStr: string): boolean {
   const sessionStart = getSessionStartTime(dateStr);
   const deadline = new Date(sessionStart.getTime() - 2 * 60 * 60 * 1000);
-  return new Date() >= deadline;
+  // KST 기준으로 비교하기 위해 UTC → KST 변환된 timestamp 비교
+  const nowUTC = Date.now();
+  return nowUTC >= deadline.getTime();
 }
 
 // 마감 시간 텍스트

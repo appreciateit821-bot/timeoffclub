@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getTodayKST } from '@/lib/constants';
 
 export default function MyHistoryPage() {
   const [reservations, setReservations] = useState<any[]>([]);
@@ -57,7 +58,7 @@ export default function MyHistoryPage() {
   };
 
   const attended = reservations.filter(r => r.check_in_status === 'attended');
-  const upcoming = reservations.filter(r => r.date >= new Date().toISOString().split('T')[0] && r.check_in_status !== 'attended');
+  const upcoming = reservations.filter(r => r.date >= getTodayKST() && r.check_in_status !== 'attended');
   const uniqueSpots = [...new Set(attended.map(r => r.spot))];
 
   // 동기부여 메시지

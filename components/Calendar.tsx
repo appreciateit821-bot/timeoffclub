@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AVAILABLE_DAYS, TIME_SLOTS, isBookingClosed } from '@/lib/constants';
+import { AVAILABLE_DAYS, TIME_SLOTS, isBookingClosed, getTodayKST } from '@/lib/constants';
 
 interface CalendarProps {
   selectedDates: string[];
@@ -62,7 +62,8 @@ export default function Calendar({ selectedDates, onDatesChange }: CalendarProps
     const available = isAvailableDay(date);
     const selected = selectedDates.includes(dateStr);
     const timeSlot = getTimeSlot(date);
-    const isPast = date < new Date(new Date().setHours(0, 0, 0, 0));
+    const todayStr = getTodayKST();
+    const isPast = dateStr < todayStr;
     const closed = available && !isPast && isBookingClosed(dateStr);
 
     days.push(

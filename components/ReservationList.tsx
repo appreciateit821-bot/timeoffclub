@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SPOTS, isBookingClosed } from '@/lib/constants';
+import { SPOTS, isBookingClosed, getTodayKST } from '@/lib/constants';
 
 interface Reservation {
   id: number;
@@ -26,8 +26,7 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
   const [newMemo, setNewMemo] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const isToday = (dateStr: string) => {
-    const today = new Date().toISOString().split('T')[0];
-    return dateStr === today;
+    return dateStr === getTodayKST();
   };
 
   const handleDelete = async (id: number) => {
