@@ -55,9 +55,16 @@ export async function POST(request: NextRequest) {
     const existing = await db.prepare('SELECT * FROM reservations WHERE user_name = ? AND date = ?').bind(user.name, date).first();
     if (existing) return NextResponse.json({ error: '이미 해당 날짜에 예약이 있습니다.' }, { status: 400 });
 
-    // 동적 인원 제한
+    // 세션별 인원 제한 (커스텀 > 기본)
     let maxCap = 10;
-    try { const s = await db.prepare("SELECT value FROM settings WHERE key = 'max_capacity'").first() as any; if (s) maxCap = parseInt(s.value); } catch {}
+    try {
+      const custom = await db.prepare("SELECT max_capacity FROM session_capacity WHERE date = ? AND spot = ?").bind(date, spot).first() as any;
+      if (custom) { maxCap = custom.max_capacity; }
+      else {
+        const s = await db.prepare("SELECT value FROM settings WHERE key = 'max_capacity'").first() as any;
+        if (s) maxCap = parseInt(s.value);
+      }
+    } catch {}
 
     const countResult = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ?').bind(date, spot).first() as any;
     if (countResult?.count >= maxCap) return NextResponse.json({ error: '해당 스팟의 정원이 가득 찼습니다.' }, { status: 400 });

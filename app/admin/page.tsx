@@ -24,6 +24,7 @@ export default function AdminPage() {
   const [feedbackData, setFeedbackData] = useState<any>({ feedbacks: [], issues: [] });
   const [maxCapacity, setMaxCapacity] = useState(10);
   const [capacitySaving, setCapacitySaving] = useState(false);
+  const [sessionCapacities, setSessionCapacities] = useState<any[]>([]);
   const [notices, setNotices] = useState<any[]>([]);
   const [noticeTitle, setNoticeTitle] = useState('');
   const [noticeContent, setNoticeContent] = useState('');
@@ -36,6 +37,27 @@ export default function AdminPage() {
   useEffect(() => {
     fetch('/api/admin/settings').then(r => r.json()).then(d => { if (d.maxCapacity) setMaxCapacity(d.maxCapacity); }).catch(() => {});
   }, []);
+
+  const fetchSessionCapacities = async () => {
+    try {
+      const res = await fetch('/api/admin/capacity');
+      if (res.ok) { const d = await res.json(); setSessionCapacities(d.capacities || []); }
+    } catch {}
+  };
+
+  const handleSetSessionCapacity = async (date: string, spot: string, cap: number) => {
+    await fetch('/api/admin/capacity', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date, spot, maxCapacity: cap })
+    });
+    fetchSessionCapacities();
+  };
+
+  const getSessionCap = (date: string, spot: string) => {
+    const custom = sessionCapacities.find((c: any) => c.date === date && c.spot === spot);
+    return custom ? custom.max_capacity : maxCapacity;
+  };
 
   const handleSaveCapacity = async () => {
     setCapacitySaving(true);
@@ -77,6 +99,7 @@ export default function AdminPage() {
       // 대시보드용 데이터
       try { await fetchCheckin(); } catch {}
       try { await fetchReports(); } catch {}
+      try { await fetchSessionCapacities(); } catch {}
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -509,9 +532,17 @@ export default function AdminPage() {
                       <h3 className="text-lg font-semibold text-white">{group.date}</h3>
                       <p className="text-gray-400 text-sm mt-1">{group.spot}</p>
                     </div>
-                    <span className="px-3 py-1 bg-blue-900/50 text-blue-300 rounded-full text-sm font-medium">
-                      {group.users.length}/10명
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-300 text-sm font-medium">
+                        {group.users.length}/{getSessionCap(group.date, group.spot)}명
+                      </span>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => handleSetSessionCapacity(group.date, group.spot, Math.max(1, getSessionCap(group.date, group.spot) - 1))}
+                          className="w-6 h-6 bg-gray-700 hover:bg-gray-600 text-white rounded text-xs">-</button>
+                        <button onClick={() => handleSetSessionCapacity(group.date, group.spot, Math.min(50, getSessionCap(group.date, group.spot) + 1))}
+                          className="w-6 h-6 bg-gray-700 hover:bg-gray-600 text-white rounded text-xs">+</button>
+                      </div>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {group.users.map((userName: string, idx: number) => (

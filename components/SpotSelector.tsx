@@ -50,11 +50,23 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
   const [waitlistStatus, setWaitlistStatus] = useState<{ [key: string]: number }>({});
 
   const [maxCapacity, setMaxCapacity] = useState(MAX_CAPACITY);
+  const [spotCapacities, setSpotCapacities] = useState<{ [spot: string]: number }>({});
   const date = selectedDates[0];
 
   useEffect(() => {
     fetch('/api/admin/settings').then(r => r.json()).then(d => { if (d.maxCapacity) setMaxCapacity(d.maxCapacity); }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (date) {
+      fetch(`/api/admin/capacity?date=${date}`).then(r => r.json()).then(d => {
+        const caps: { [spot: string]: number } = {};
+        (d.capacities || []).forEach((c: any) => { caps[c.spot] = c.max_capacity; });
+        setSpotCapacities(caps);
+        if (d.defaultCapacity) setMaxCapacity(d.defaultCapacity);
+      }).catch(() => {});
+    }
+  }, [date]);
 
   // 랜덤 placeholder
   const smalltalkPlaceholder = useMemo(() =>
@@ -137,12 +149,15 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
     finally { setLoading(false); }
   };
 
+  // 스팟별 인원 제한
+  const getCapForSpot = (spotId: string) => spotCapacities[spotId] || maxCapacity;
+
   // 소인원 넛지
   const getLowestSpot = () => {
     let min = Infinity, minSpot = '';
     SPOTS.forEach(spot => {
       const count = availability[spot] || 0;
-      if (count < min && count < maxCapacity) { min = count; minSpot = spot; }
+      if (count < min && count < getCapForSpot(spot)) { min = count; minSpot = spot; }
     });
     return { spot: minSpot, count: min };
   };
@@ -199,7 +214,7 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
       <div className="grid gap-3">
         {shuffledSpots.map(spotInfo => {
           const count = availability[spotInfo.id] || 0;
-          const isFull = count >= maxCapacity;
+          const isFull = count >= getCapForSpot(spotInfo.id);
           const isSelected = selectedSpot === spotInfo.id;
           const stats = modeStats[spotInfo.id];
 
@@ -224,7 +239,7 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
                       isFull ? 'bg-red-900/50 text-red-300'
                       : isSelected ? 'bg-amber-700 text-amber-100'
                       : 'bg-gray-600 text-gray-300'
-                    }`}>{count}/{maxCapacity}명</span>
+                    }`}>{count}/{getCapForSpot(spotInfo.id)}명</span>
                   </div>
                 </div>
 

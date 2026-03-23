@@ -21,7 +21,11 @@ export async function PUT(request: NextRequest) {
 
     if (reservation.spot !== spot) {
       let maxCap = 10;
-      try { const s = await db.prepare("SELECT value FROM settings WHERE key = 'max_capacity'").first() as any; if (s) maxCap = parseInt(s.value); } catch {}
+      try {
+        const custom = await db.prepare("SELECT max_capacity FROM session_capacity WHERE date = ? AND spot = ?").bind(reservation.date, spot).first() as any;
+        if (custom) { maxCap = custom.max_capacity; }
+        else { const s = await db.prepare("SELECT value FROM settings WHERE key = 'max_capacity'").first() as any; if (s) maxCap = parseInt(s.value); }
+      } catch {}
       const countResult = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ?').bind(reservation.date, spot).first() as any;
       if (countResult?.count >= maxCap) return NextResponse.json({ error: '해당 스팟의 정원이 가득 찼습니다.' }, { status: 400 });
     }
