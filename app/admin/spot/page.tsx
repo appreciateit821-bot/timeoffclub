@@ -10,6 +10,7 @@ export default function SpotOperatorPage() {
   const [checkinList, setCheckinList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'checkin' | 'reservations' | 'logs' | 'notices'>('checkin');
+  const [notices, setNotices] = useState<any[]>([]);
   const [spotName, setSpotName] = useState('');
   const [checkinDate, setCheckinDate] = useState(getTodayKST());
 
@@ -30,7 +31,7 @@ export default function SpotOperatorPage() {
       setLogs((await logsRes.json()).logs);
       const userData = await userRes.json();
       setSpotName(userData.user?.spotId || '');
-
+      try { const nr = await fetch('/api/admin/notices'); if (nr.ok) setNotices((await nr.json()).notices); } catch {}
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -306,17 +307,24 @@ export default function SpotOperatorPage() {
           </div>
         )}
 
-        {/* 공지 — 노션 임베드 */}
+        {/* 공지 */}
         {activeTab === 'notices' && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-white">📢 웰모먼트 공지</h2>
-            <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden" style={{ height: 'calc(100vh - 200px)', minHeight: '500px' }}>
-              <iframe
-                src="https://adhesive-paperback-2d2.notion.site/spotowner?pvs=74"
-                className="w-full h-full border-0"
-                allowFullScreen
-              />
-            </div>
+            {notices.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">공지가 없습니다.</div>
+            ) : (
+              notices.map((n: any) => (
+                <div key={n.id} className={`bg-gray-800 rounded-lg p-4 border ${n.is_pinned ? 'border-amber-600/50' : 'border-gray-700'}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    {n.is_pinned && <span className="text-xs">📌</span>}
+                    <span className="text-white font-medium">{n.title}</span>
+                  </div>
+                  <p className="text-gray-300 text-sm whitespace-pre-wrap">{n.content}</p>
+                  <p className="text-gray-500 text-xs mt-2">{new Date(n.created_at).toLocaleString('ko-KR')}</p>
+                </div>
+              ))
+            )}
           </div>
         )}
       </main>
