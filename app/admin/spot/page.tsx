@@ -88,22 +88,27 @@ export default function SpotOperatorPage() {
     return sessions;
   };
 
-  const [upcomingReservations, setUpcomingReservations] = useState<{ [date: string]: number }>({});
+  const [upcomingData, setUpcomingData] = useState<{ [date: string]: { total: number; smalltalk: number; reflection: number } }>({});
 
   useEffect(() => {
     const fetchUpcoming = async () => {
       const sessions = getUpcomingSessions();
-      const counts: { [date: string]: number } = {};
+      const data: typeof upcomingData = {};
       for (const s of sessions) {
         try {
           const res = await fetch(`/api/admin/spot/checkin?date=${s.date}`);
           if (res.ok) {
-            const data = await res.json();
-            counts[s.date] = data.reservations.length;
+            const d = await res.json();
+            const rs = d.reservations || [];
+            data[s.date] = {
+              total: rs.length,
+              smalltalk: rs.filter((r: any) => r.mode !== 'reflection').length,
+              reflection: rs.filter((r: any) => r.mode === 'reflection').length
+            };
           }
         } catch {}
       }
-      setUpcomingReservations(counts);
+      setUpcomingData(data);
     };
     if (spotName) fetchUpcoming();
   }, [spotName]);
@@ -179,9 +184,15 @@ export default function SpotOperatorPage() {
                 <div className="text-[10px] text-gray-400">{s.day} {s.time}</div>
                 <div className="text-xs text-white font-medium mt-0.5">{s.date.slice(5)}</div>
                 <div className="text-xl font-bold text-amber-400 mt-1">
-                  {upcomingReservations[s.date] !== undefined ? upcomingReservations[s.date] : '-'}
+                  {upcomingData[s.date] !== undefined ? upcomingData[s.date].total : '-'}
                 </div>
                 <div className="text-[9px] text-gray-500">명 예약</div>
+                {upcomingData[s.date] && upcomingData[s.date].total > 0 && (
+                  <div className="flex justify-center gap-1.5 mt-1">
+                    <span className="text-[9px] text-blue-300">💬{upcomingData[s.date].smalltalk}</span>
+                    <span className="text-[9px] text-violet-300">🧘{upcomingData[s.date].reflection}</span>
+                  </div>
+                )}
               </button>
             ))}
           </div>
