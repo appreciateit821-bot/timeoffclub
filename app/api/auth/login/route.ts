@@ -45,8 +45,24 @@ export async function POST(request: NextRequest) {
     // 일반 멤버 로그인
     if (!phoneLast4) return NextResponse.json({ error: '연락처 뒷 4자리 또는 체험권 코드를 입력해주세요.' }, { status: 400 });
 
-    const member = await db.prepare('SELECT * FROM members WHERE name = ? AND phone_last4 = ? AND is_active = 1').bind(name, phoneLast4).first();
+    const member = await db.prepare('SELECT * FROM members WHERE name = ? AND phone_last4 = ?').bind(name, phoneLast4).first() as any;
     if (!member) return NextResponse.json({ error: '등록되지 않은 멤버입니다. 관리자에게 문의하세요.' }, { status: 403 });
+
+    // 활성 상태 체크
+    if (!member.is_active) {
+      return NextResponse.json({ error: '멤버십이 비활성 상태입니다. 관리자에게 문의하세요.' }, { status: 403 });
+    }
+
+    // 활성 월 체크 (active_months가 설정된 경우)
+    if (member.active_months) {
+      const now = new Date();
+      const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000 + now.getTimezoneOffset() * 60 * 1000);
+      const currentMonth = `${kstNow.getFullYear()}-${String(kstNow.getMonth() + 1).padStart(2, '0')}`;
+      const activeMonths = member.active_months.split(',').map((m: string) => m.trim());
+      if (!activeMonths.includes(currentMonth)) {
+        return NextResponse.json({ error: `${currentMonth} 멤버십이 활성화되지 않았습니다. 관리자에게 문의하세요.` }, { status: 403 });
+      }
+    }
 
     await db.prepare('INSERT OR REPLACE INTO users (name, is_admin) VALUES (?, 0)').bind(name).run();
     await createSession({ name, isAdmin: false, isSpotOperator: false, phoneLast4 });

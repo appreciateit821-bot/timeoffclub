@@ -11,6 +11,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices' | 'reports'>('reservations');
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberPhone, setNewMemberPhone] = useState('');
+  const [newMemberMonths, setNewMemberMonths] = useState('');
   const [memberSearch, setMemberSearch] = useState('');
   const [memberError, setMemberError] = useState('');
   const [memberSuccess, setMemberSuccess] = useState('');
@@ -154,7 +155,7 @@ export default function AdminPage() {
       const res = await fetch('/api/admin/members', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newMemberName, phoneLast4: newMemberPhone })
+        body: JSON.stringify({ name: newMemberName, phoneLast4: newMemberPhone, activeMonths: newMemberMonths })
       });
 
       const data = await res.json();
@@ -167,6 +168,7 @@ export default function AdminPage() {
       setMemberSuccess('멤버가 추가되었습니다.');
       setNewMemberName('');
       setNewMemberPhone('');
+      setNewMemberMonths('');
       fetchMembers(memberSearch);
     } catch (error) {
       setMemberError('멤버 추가 중 오류가 발생했습니다.');
@@ -639,13 +641,29 @@ export default function AdminPage() {
 
         {activeTab === 'members' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white">멤버 관리</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white">멤버 관리</h2>
+              <div className="flex gap-2">
+                <button onClick={async () => {
+                  if (!confirm('이번 달 활성 월이 설정되지 않은 멤버를 전부 비활성화합니다.')) return;
+                  const now = new Date();
+                  const kst = new Date(now.getTime() + 9*60*60*1000 + now.getTimezoneOffset()*60*1000);
+                  const cm = `${kst.getFullYear()}-${String(kst.getMonth()+1).padStart(2,'0')}`;
+                  for (const m of members as any[]) {
+                    if (m.active_months && !m.active_months.split(',').map((s:string)=>s.trim()).includes(cm)) {
+                      await fetch('/api/admin/members', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id:m.id, isActive:false}) });
+                    }
+                  }
+                  fetchMembers(memberSearch);
+                }} className="px-3 py-1.5 bg-red-600/80 hover:bg-red-700 text-white rounded-lg text-xs">만료 멤버 비활성화</button>
+              </div>
+            </div>
 
             {/* 멤버 추가 폼 */}
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
               <h3 className="text-lg font-semibold text-white mb-4">새 멤버 추가</h3>
               <form onSubmit={handleAddMember} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       이름
@@ -673,11 +691,17 @@ export default function AdminPage() {
                       required
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">활성 월</label>
+                    <input type="text" value={newMemberMonths}
+                      onChange={(e) => setNewMemberMonths(e.target.value)}
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                      placeholder="2026-04,2026-05" />
+                    <p className="text-[10px] text-gray-500 mt-1">콤마로 구분. 비우면 무제한</p>
+                  </div>
                   <div className="flex items-end">
-                    <button
-                      type="submit"
-                      className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium"
-                    >
+                    <button type="submit"
+                      className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium">
                       멤버 추가
                     </button>
                   </div>
@@ -773,7 +797,7 @@ export default function AdminPage() {
                         상태
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                        등록일
+                        활성 월
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         작업
@@ -801,7 +825,18 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {new Date(member.created_at).toLocaleDateString('ko-KR')}
+                          <input type="text" defaultValue={member.active_months || ''}
+                            onBlur={(e) => {
+                              if (e.target.value !== (member.active_months || '')) {
+                                fetch('/api/admin/members', {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ id: member.id, activeMonths: e.target.value })
+                                }).then(() => fetchMembers(memberSearch));
+                              }
+                            }}
+                            className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-white"
+                            placeholder="2026-04,2026-05" />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <div className="flex gap-2">

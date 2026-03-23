@@ -57,6 +57,17 @@ export async function POST(request: NextRequest) {
     const existing = await db.prepare('SELECT * FROM reservations WHERE user_name = ? AND date = ?').bind(user.name, date).first();
     if (existing) return NextResponse.json({ error: '이미 해당 날짜에 예약이 있습니다.' }, { status: 400 });
 
+    // 연속 3번 같은 스팟 방지
+    if (!isTrial) {
+      const { results: recentRes } = await db.prepare(
+        'SELECT spot FROM reservations WHERE user_name = ? ORDER BY date DESC LIMIT 2'
+      ).bind(user.name).all();
+      const recent = (recentRes as any[]).map(r => r.spot);
+      if (recent.length >= 2 && recent[0] === spot && recent[1] === spot) {
+        return NextResponse.json({ error: '같은 스팟은 연속 3회까지 예약할 수 없습니다. 다른 스팟을 경험해보세요! 🌿' }, { status: 400 });
+      }
+    }
+
     // 세션별 인원 제한 (커스텀 > 기본)
     let maxCap = 10;
     try {
