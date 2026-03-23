@@ -50,14 +50,14 @@ export default function LoginPage() {
         <div className="bg-gray-800/80 backdrop-blur rounded-2xl shadow-2xl p-5 sm:p-8 border border-amber-700/30">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-amber-100 mb-2">타임오프클럽</h1>
-            <p className="text-lg text-amber-200/90 font-medium mb-3">목적 없는 즐거움,<br/>다정한 디지털 로그아웃 스몰토크를 제안합니다</p>
+            <p className="text-base sm:text-lg text-amber-200/90 font-medium mb-3 leading-relaxed">목적 없는 즐거움,<br/>다정한 디지털 로그아웃<br className="sm:hidden" /> 스몰토크를 제안합니다</p>
             <div className="mt-2 inline-block px-4 py-1.5 bg-amber-900/30 border border-amber-700/30 rounded-full">
               <p className="text-xs text-amber-300">🌿 3월, <strong className="text-amber-200">44명</strong>의 멤버와 함께하고 있습니다</p>
             </div>
           </div>
 
           {/* 클럽 규칙 소개 */}
-          <div className="mb-8 p-5 bg-gray-700/50 rounded-xl border border-gray-600">
+          <div className="mb-8 p-4 sm:p-5 bg-gray-700/50 rounded-xl border border-gray-600">
             <h2 className="text-sm font-bold text-amber-300 mb-3 text-center">클럽 규칙</h2>
             <div className="space-y-3 text-sm text-gray-300">
               <div className="flex items-start gap-3">
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 <span className="text-amber-400 font-bold flex-shrink-0">💭</span>
                 <div>
                   <p className="font-semibold text-amber-100">Resume OFF</p>
-                  <p className="text-xs text-gray-400 mt-0.5">스몰토크를 할지 혼자 사색을 할지 정할 수 있습니다</p>
+                  <p className="text-xs text-gray-400 mt-0.5">스몰토크 또는 혼자 사색,<br className="sm:hidden" /> 직접 선택할 수 있습니다</p>
                 </div>
               </div>
             </div>
