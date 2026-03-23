@@ -73,6 +73,10 @@ export default function AdminPage() {
       setReservations(resData.reservations);
       setLogs(logsData.logs);
       setMembers(membersData.members);
+
+      // 대시보드용 데이터
+      try { await fetchCheckin(); } catch {}
+      try { await fetchReports(); } catch {}
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -457,6 +461,26 @@ export default function AdminPage() {
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 웰모먼트 대시보드 요약 — 항상 상단에 */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div className="bg-gradient-to-br from-amber-900/30 to-gray-800 rounded-xl p-4 border border-amber-700/30 text-center">
+            <div className="text-2xl font-bold text-amber-400">{reservations.length}</div>
+            <div className="text-[10px] text-gray-400 mt-1">전체 예약</div>
+          </div>
+          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
+            <div className="text-2xl font-bold text-blue-400">{members.length}</div>
+            <div className="text-[10px] text-gray-400 mt-1">활성 멤버</div>
+          </div>
+          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
+            <div className="text-2xl font-bold text-red-400">{checkinData.noShowStats?.length || 0}</div>
+            <div className="text-[10px] text-gray-400 mt-1">노쇼 멤버</div>
+          </div>
+          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
+            <div className="text-2xl font-bold text-orange-400">{reports.length}</div>
+            <div className="text-[10px] text-gray-400 mt-1">신고</div>
+          </div>
+        </div>
+
         {activeTab === 'reservations' && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">

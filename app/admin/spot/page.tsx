@@ -113,6 +113,38 @@ export default function SpotOperatorPage() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
+        {/* 오늘 요약 */}
+        <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-700/30 mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <div className="text-xs text-gray-400">오늘 ({new Date().toISOString().split('T')[0]})</div>
+              <div className="text-white font-bold text-lg mt-1">{spotName}</div>
+            </div>
+            <div className="flex gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-amber-400">
+                  {checkinDate === new Date().toISOString().split('T')[0] ? checkinList.length : '-'}
+                </div>
+                <div className="text-[10px] text-gray-400">예약</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-blue-400">
+                  {checkinDate === new Date().toISOString().split('T')[0] 
+                    ? checkinList.filter(r => r.mode !== 'reflection').length : '-'}
+                </div>
+                <div className="text-[10px] text-gray-400">스몰토크</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-violet-400">
+                  {checkinDate === new Date().toISOString().split('T')[0]
+                    ? checkinList.filter(r => r.mode === 'reflection').length : '-'}
+                </div>
+                <div className="text-[10px] text-gray-400">사색</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* 참가자 체크 */}
         {activeTab === 'checkin' && (
           <div className="space-y-4">
@@ -164,13 +196,13 @@ export default function SpotOperatorPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleCheckin(r.id, r.check_in_status === 'attended' ? 'unchecked' : 'attended')}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition active:scale-95 ${
-                          r.check_in_status === 'attended' ? 'bg-green-600 text-white' : 'bg-gray-700 text-gray-300'
+                        className={`px-5 py-3 rounded-xl text-lg font-bold transition active:scale-90 ${
+                          r.check_in_status === 'attended' ? 'bg-green-600 text-white shadow-lg shadow-green-900/30' : 'bg-gray-700 text-gray-300 hover:bg-green-700 hover:text-white'
                         }`}>✅</button>
                       <button
                         onClick={() => handleCheckin(r.id, r.check_in_status === 'no_show' ? 'unchecked' : 'no_show')}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition active:scale-95 ${
-                          r.check_in_status === 'no_show' ? 'bg-red-600 text-white' : 'bg-gray-700 text-gray-300'
+                        className={`px-5 py-3 rounded-xl text-lg font-bold transition active:scale-90 ${
+                          r.check_in_status === 'no_show' ? 'bg-red-600 text-white shadow-lg shadow-red-900/30' : 'bg-gray-700 text-gray-300 hover:bg-red-700 hover:text-white'
                         }`}>❌</button>
                     </div>
                   </div>

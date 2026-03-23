@@ -45,6 +45,8 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
   const [modeStats, setModeStats] = useState<{ [spot: string]: { smalltalk: number; reflection: number } }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successInfo, setSuccessInfo] = useState<{ date: string; spot: string; mode: string } | null>(null);
   const [waitlistStatus, setWaitlistStatus] = useState<{ [key: string]: number }>({});
 
   const [maxCapacity, setMaxCapacity] = useState(MAX_CAPACITY);
@@ -120,6 +122,9 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
       });
 
       if (res.ok) {
+        const spotInfo = SPOT_DETAILS.find(s => s.id === selectedSpot);
+        setSuccessInfo({ date, spot: spotInfo?.name || selectedSpot, mode: selectedMode });
+        setShowSuccess(true);
         setSelectedSpot('');
         setSelectedMode('smalltalk');
         setMemo('');
@@ -146,6 +151,31 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
   const allCounts = SPOTS.map(s => availability[s] || 0);
   const maxCount = Math.max(...allCounts);
   const showNudge = maxCount - lowest.count >= 3 && lowest.count < 4 && lowest.spot;
+
+  if (showSuccess && successInfo) {
+    return (
+      <div className="bg-gray-800/80 backdrop-blur rounded-xl p-6 border border-amber-800/30 shadow-lg text-center space-y-5 animate-fade-in">
+        <div className="text-5xl">✨</div>
+        <h2 className="text-xl font-bold text-amber-100">예약이 완료되었습니다!</h2>
+        <div className="bg-gray-700/50 rounded-lg p-4 space-y-2">
+          <div className="text-amber-200 font-medium">{successInfo.date}</div>
+          <div className="text-white text-lg font-semibold">{successInfo.spot}</div>
+          <div className={`inline-block text-xs px-2 py-1 rounded ${
+            successInfo.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
+          }`}>{successInfo.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</div>
+        </div>
+        <div className="text-sm text-gray-400 space-y-1">
+          <p>📍 현장에서 1인 1음료 주문을 부탁드려요</p>
+          <p>📵 입장 시 스마트폰을 보관합니다</p>
+          <p>⏰ 변경/취소는 2시간 전까지 가능해요</p>
+        </div>
+        <button onClick={() => setShowSuccess(false)}
+          className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition active:scale-95">
+          확인
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-800/80 backdrop-blur rounded-xl p-4 sm:p-6 border border-amber-800/30 shadow-lg space-y-5">

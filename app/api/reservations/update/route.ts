@@ -11,7 +11,7 @@ export async function PUT(request: NextRequest) {
   if (!user || !db) return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
 
   try {
-    const { id, spot } = await request.json();
+    const { id, spot, memo } = await request.json();
     if (!id || !spot) return NextResponse.json({ error: '예약 ID와 스팟이 필요합니다.' }, { status: 400 });
 
     const reservation = await db.prepare('SELECT * FROM reservations WHERE id = ?').bind(id).first() as any;
@@ -26,7 +26,11 @@ export async function PUT(request: NextRequest) {
       if (countResult?.count >= maxCap) return NextResponse.json({ error: '해당 스팟의 정원이 가득 찼습니다.' }, { status: 400 });
     }
 
-    await db.prepare('UPDATE reservations SET spot = ? WHERE id = ?').bind(spot, id).run();
+    if (memo !== undefined) {
+      await db.prepare('UPDATE reservations SET spot = ?, memo = ? WHERE id = ?').bind(spot, memo, id).run();
+    } else {
+      await db.prepare('UPDATE reservations SET spot = ? WHERE id = ?').bind(spot, id).run();
+    }
     await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action) VALUES (?, ?, ?, ?)').bind(user.name, reservation.date, spot, `UPDATE (from ${reservation.spot})`).run();
 
     return NextResponse.json({ success: true, message: '예약이 변경되었습니다.' });

@@ -10,6 +10,8 @@ interface Reservation {
   spot: string;
   created_at: string;
   confirmed?: number;
+  mode?: string;
+  memo?: string;
 }
 
 interface ReservationListProps {
@@ -21,6 +23,7 @@ interface ReservationListProps {
 export default function ReservationList({ reservations, userName, onUpdate }: ReservationListProps) {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newSpot, setNewSpot] = useState<string>('');
+  const [newMemo, setNewMemo] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const isToday = (dateStr: string) => {
     const today = new Date().toISOString().split('T')[0];
@@ -52,6 +55,7 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
   const handleEditStart = (reservation: Reservation) => {
     setEditingId(reservation.id);
     setNewSpot(reservation.spot);
+    setNewMemo(reservation.memo || '');
   };
 
   const handleEditCancel = () => {
@@ -67,7 +71,7 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
       const res = await fetch('/api/reservations/update', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, spot: newSpot })
+        body: JSON.stringify({ id, spot: newSpot, memo: newMemo })
       });
 
       if (res.ok) {
@@ -121,6 +125,12 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                       ))}
                     </select>
                   </div>
+                  <div>
+                    <div className="text-sm text-gray-400 mb-2">메모 수정</div>
+                    <input type="text" value={newMemo} onChange={(e) => setNewMemo(e.target.value)}
+                      className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm placeholder-gray-400"
+                      placeholder="오늘 나누고 싶은 대화..." maxLength={100} />
+                  </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleEditSave(reservation.id)}
@@ -145,16 +155,19 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                   return (
                     <>
                       <div className="mb-3">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className="text-lg font-semibold text-white">{reservation.date}</span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                            reservation.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
+                          }`}>{reservation.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
                           {closed && (
-                            <span className="px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-[10px] font-medium">변경/취소 마감</span>
+                            <span className="px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-[10px] font-medium">마감</span>
                           )}
                         </div>
                         <div className="text-gray-300">{reservation.spot}</div>
-                        <div className="text-xs text-gray-400 mt-2">
-                          예약일시: {new Date(reservation.created_at).toLocaleString('ko-KR')}
-                        </div>
+                        {reservation.memo && (
+                          <p className="text-gray-400 text-xs mt-1 italic">💭 "{reservation.memo}"</p>
+                        )}
                       </div>
                       {/* 세션 준비 링크 (당일) */}
                       {isToday(reservation.date) && (
