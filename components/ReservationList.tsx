@@ -22,27 +22,9 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
   const [editingId, setEditingId] = useState<number | null>(null);
   const [newSpot, setNewSpot] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const [confirmingId, setConfirmingId] = useState<number | null>(null);
-
   const isToday = (dateStr: string) => {
     const today = new Date().toISOString().split('T')[0];
     return dateStr === today;
-  };
-
-  const handleConfirm = async (id: number) => {
-    setConfirmingId(id);
-    try {
-      const res = await fetch('/api/reservations/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reservationId: id })
-      });
-      if (res.ok) onUpdate();
-    } catch (e) {
-      alert('확인 중 오류가 발생했습니다.');
-    } finally {
-      setConfirmingId(null);
-    }
   };
 
   const handleDelete = async (id: number) => {
@@ -182,22 +164,6 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                         >
                           🌿 오늘의 타임오프 준비하기
                         </a>
-                      )}
-
-                      {/* 당일 참석 확인 */}
-                      {isToday(reservation.date) && !reservation.confirmed && (
-                        <button
-                          onClick={() => handleConfirm(reservation.id)}
-                          disabled={confirmingId === reservation.id}
-                          className="w-full mb-2 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition active:scale-95 animate-pulse"
-                        >
-                          {confirmingId === reservation.id ? '확인 중...' : '✋ 오늘 참석합니다!'}
-                        </button>
-                      )}
-                      {isToday(reservation.date) && reservation.confirmed === 1 && (
-                        <div className="w-full mb-2 py-2 bg-green-900/30 border border-green-700/50 text-green-300 rounded-lg text-sm text-center">
-                          ✅ 참석 확인 완료
-                        </div>
                       )}
 
                       <div className="flex gap-2">

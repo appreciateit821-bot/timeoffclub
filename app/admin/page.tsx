@@ -523,7 +523,7 @@ export default function AdminPage() {
                                 : 'bg-yellow-900/50 text-yellow-300'
                             }`}
                           >
-                            {log.action}
+                            {log.action === 'CREATE' ? '예약' : log.action === 'CANCEL' ? '취소' : log.action.startsWith('UPDATE') ? '변경' : log.action}
                           </span>
                         </td>
                       </tr>
