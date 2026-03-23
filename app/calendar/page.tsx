@@ -92,7 +92,7 @@ export default function CalendarPage() {
                 onClick={() => router.push('/guide')}
                 className="px-3 py-1.5 sm:py-2 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg transition text-xs sm:text-sm font-medium"
               >
-                📖 가이드
+                📖 스몰토크 가이드
               </button>
               <button
                 onClick={() => router.push('/feedback')}

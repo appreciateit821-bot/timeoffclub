@@ -40,7 +40,7 @@ interface SpotSelectorProps {
 
 export default function SpotSelector({ selectedDates, userName, isTrial = false, onComplete }: SpotSelectorProps) {
   const [selectedSpot, setSelectedSpot] = useState('');
-  const [selectedMode, setSelectedMode] = useState('smalltalk');
+  const [selectedMode, setSelectedMode] = useState('');
   const [memo, setMemo] = useState('');
   const [availability, setAvailability] = useState<{ [spot: string]: number }>({});
   const [modeStats, setModeStats] = useState<{ [spot: string]: { smalltalk: number; reflection: number } }>({});
@@ -124,6 +124,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
   const handleSubmit = async () => {
     if (!selectedSpot) { setError('스팟을 선택해주세요.'); return; }
+    if (!selectedMode) { setError('참여 방식(스몰토크/사색)을 선택해주세요.'); return; }
     setError('');
     setLoading(true);
 
@@ -139,7 +140,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
         setSuccessInfo({ date, spot: spotInfo?.name || selectedSpot, mode: selectedMode });
         setShowSuccess(true);
         setSelectedSpot('');
-        setSelectedMode('smalltalk');
+        setSelectedMode('');
         setMemo('');
         onComplete();
       } else {
@@ -292,22 +293,23 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       {selectedSpot && (
         <div className="space-y-4 animate-fade-in">
           <div>
-            <div className="text-xs text-gray-400 mb-2">참여 방식</div>
+            <div className="text-xs text-gray-400 mb-2">참여 방식 <span className="text-red-400">*</span></div>
             <div className="flex gap-2">
               <button type="button" onClick={() => setSelectedMode('smalltalk')}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition active:scale-95 ${
-                  selectedMode === 'smalltalk' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition active:scale-95 border-2 ${
+                  selectedMode === 'smalltalk' ? 'bg-blue-600 text-white border-blue-500' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 border-transparent'
                 }`}>💬 스몰토크</button>
               <button type="button" onClick={() => setSelectedMode('reflection')}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition active:scale-95 ${
-                  selectedMode === 'reflection' ? 'bg-violet-600 text-white' : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition active:scale-95 border-2 ${
+                  selectedMode === 'reflection' ? 'bg-violet-600 text-white border-violet-500' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 border-transparent'
                 }`}>🧘 사색</button>
             </div>
+            {!selectedMode && <p className="text-[10px] text-amber-300 mt-1">스몰토크 또는 사색을 선택해주세요</p>}
           </div>
 
           <div>
             <div className="text-xs text-gray-400 mb-2">
-              {selectedMode === 'smalltalk' ? '💭 오늘 나누고 싶은 대화 (선택)' : '💭 오늘의 사색 키워드 (선택)'}
+              {selectedMode === 'reflection' ? '💭 오늘의 사색 키워드 (선택)' : selectedMode === 'smalltalk' ? '💭 오늘 나누고 싶은 대화 (선택)' : '💭 참여 방식을 먼저 선택해주세요'}
             </div>
             <input
               type="text" value={memo} onChange={(e) => setMemo(e.target.value)}
@@ -349,7 +351,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
       <button
         onClick={handleSubmit}
-        disabled={loading || !selectedSpot}
+        disabled={loading || !selectedSpot || !selectedMode}
         className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-4 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg active:scale-95"
       >
         {loading ? '예약 중...' : '예약하기'}
