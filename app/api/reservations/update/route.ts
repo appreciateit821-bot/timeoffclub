@@ -16,7 +16,7 @@ export async function PUT(request: NextRequest) {
 
     const reservation = await db.prepare('SELECT * FROM reservations WHERE id = ?').bind(id).first() as any;
     if (!reservation) return NextResponse.json({ error: '예약을 찾을 수 없습니다.' }, { status: 404 });
-    if (isBookingClosed(reservation.date)) return NextResponse.json({ error: '세션 시작 3시간 전부터는 변경할 수 없습니다.' }, { status: 400 });
+    if (isBookingClosed(reservation.date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 변경할 수 없습니다.' }, { status: 400 });
     if (reservation.user_name !== user.name) return NextResponse.json({ error: '본인의 예약만 변경할 수 있습니다.' }, { status: 403 });
 
     if (reservation.spot !== spot) {

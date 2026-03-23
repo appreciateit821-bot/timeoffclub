@@ -272,7 +272,7 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
           <ul className="text-xs text-amber-200/80 space-y-1.5">
             <li>• 멤버십 기간 동안 <strong>횟수 제한 없이</strong> 자유롭게 예약할 수 있어요</li>
             <li>• 스팟당 인원이 제한되어 있어, <strong>참석이 어려우시면 꼭 취소</strong> 부탁드려요</li>
-            <li>• 예약 변경/취소는 <strong>세션 3시간 전까지</strong> 가능해요</li>
+            <li>• 예약 변경/취소는 <strong>세션 2시간 전까지</strong> 가능해요</li>
             <li>• 노쇼가 반복되면 다른 멤버의 기회가 줄어들어요 🙏</li>
           </ul>
         </div>

@@ -89,17 +89,17 @@ export function getSessionEndTime(dateStr: string): Date {
   return new Date(start.getTime() + 2 * 60 * 60 * 1000);
 }
 
-// 3시간 전 마감 체크
+// 2시간 전 마감 체크
 export function isBookingClosed(dateStr: string): boolean {
   const sessionStart = getSessionStartTime(dateStr);
-  const deadline = new Date(sessionStart.getTime() - 3 * 60 * 60 * 1000);
+  const deadline = new Date(sessionStart.getTime() - 2 * 60 * 60 * 1000);
   return new Date() >= deadline;
 }
 
 // 마감 시간 텍스트
 export function getDeadlineText(dateStr: string): string {
   const sessionStart = getSessionStartTime(dateStr);
-  const deadline = new Date(sessionStart.getTime() - 3 * 60 * 60 * 1000);
+  const deadline = new Date(sessionStart.getTime() - 2 * 60 * 60 * 1000);
   const hours = deadline.getHours();
   const minutes = deadline.getMinutes().toString().padStart(2, '0');
   return `${hours}:${minutes}`;

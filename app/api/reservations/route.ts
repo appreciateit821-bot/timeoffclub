@@ -20,7 +20,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ reservations, modeStats });
     } else {
       const { results: reservations } = await db.prepare('SELECT * FROM reservations WHERE user_name = ? ORDER BY date').bind(user.name).all();
-      return NextResponse.json({ reservations });
+      // 노쇼 횟수
+      const noShowResult = await db.prepare("SELECT COUNT(*) as count FROM reservations WHERE user_name = ? AND check_in_status = 'no_show'").bind(user.name).first() as any;
+      const attendedResult = await db.prepare("SELECT COUNT(*) as count FROM reservations WHERE user_name = ? AND check_in_status = 'attended'").bind(user.name).first() as any;
+      return NextResponse.json({ 
+        reservations, 
+        noShowCount: noShowResult?.count || 0,
+        attendedCount: attendedResult?.count || 0
+      });
     }
   } catch (error) {
     console.error('Get reservations error:', error);
@@ -36,7 +43,7 @@ export async function POST(request: NextRequest) {
   try {
     const { date, spot, mode, memo, energy } = await request.json();
     if (!date || !spot) return NextResponse.json({ error: '날짜와 스팟을 선택해주세요.' }, { status: 400 });
-    if (isBookingClosed(date)) return NextResponse.json({ error: '세션 시작 3시간 전부터는 예약할 수 없습니다.' }, { status: 400 });
+    if (isBookingClosed(date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 예약할 수 없습니다.' }, { status: 400 });
 
     // 체험권 1회 제한
     if (user.phoneLast4?.startsWith('T-')) {
@@ -78,7 +85,7 @@ export async function DELETE(request: NextRequest) {
     const reservation = await db.prepare('SELECT * FROM reservations WHERE id = ?').bind(id).first() as any;
     if (!reservation) return NextResponse.json({ error: '예약을 찾을 수 없습니다.' }, { status: 404 });
 
-    if (!user.isAdmin && isBookingClosed(reservation.date)) return NextResponse.json({ error: '세션 시작 3시간 전부터는 취소할 수 없습니다.' }, { status: 400 });
+    if (!user.isAdmin && isBookingClosed(reservation.date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 취소할 수 없습니다.' }, { status: 400 });
     if (!user.isAdmin && reservation.user_name !== user.name) return NextResponse.json({ error: '본인의 예약만 취소할 수 있습니다.' }, { status: 403 });
 
     await db.prepare('DELETE FROM reservations WHERE id = ?').bind(id).run();

@@ -8,7 +8,7 @@ export default function AdminPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices'>('reservations');
+  const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices' | 'reports'>('reservations');
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberPhone, setNewMemberPhone] = useState('');
   const [memberSearch, setMemberSearch] = useState('');
@@ -30,6 +30,7 @@ export default function AdminPage() {
   const [noticeTarget, setNoticeTarget] = useState('all');
   const [noticePinned, setNoticePinned] = useState(false);
   const [editingNotice, setEditingNotice] = useState<any>(null);
+  const [reports, setReports] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -277,6 +278,22 @@ export default function AdminPage() {
     } catch (e) { console.error(e); }
   };
 
+  const fetchReports = async () => {
+    try {
+      const res = await fetch('/api/admin/reports');
+      if (res.ok) setReports((await res.json()).reports);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleReportAction = async (id: number, status: string, adminNote: string) => {
+    await fetch('/api/admin/reports', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, status, adminNote })
+    });
+    fetchReports();
+  };
+
   const fetchCheckin = async (date?: string) => {
     try {
       const url = date ? `/api/admin/checkin?date=${date}` : '/api/admin/checkin';
@@ -423,6 +440,16 @@ export default function AdminPage() {
               }`}
             >
               📢 공지
+            </button>
+            <button
+              onClick={() => { setActiveTab('reports'); fetchReports(); }}
+              className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
+                activeTab === 'reports'
+                  ? 'text-amber-400 border-amber-400'
+                  : 'text-gray-400 border-transparent hover:text-gray-300'
+              }`}
+            >
+              🚨 신고
             </button>
           </div>
         </div>
@@ -1072,6 +1099,49 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+        {/* 신고 관리 */}
+        {activeTab === 'reports' && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-white">🚨 불편 신고</h2>
+            {reports.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">접수된 신고가 없습니다.</div>
+            ) : (
+              <div className="space-y-3">
+                {reports.map((r: any) => (
+                  <div key={r.id} className={`bg-gray-800 rounded-lg p-4 border ${
+                    r.status === 'pending' ? 'border-red-700/50' : 'border-gray-700'
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-white text-sm font-medium">{r.date} · {r.spot}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                          r.status === 'pending' ? 'bg-red-900/50 text-red-300' :
+                          r.status === 'reviewed' ? 'bg-yellow-900/50 text-yellow-300' :
+                          'bg-green-900/50 text-green-300'
+                        }`}>{r.status === 'pending' ? '미처리' : r.status === 'reviewed' ? '확인' : '처리완료'}</span>
+                      </div>
+                    </div>
+                    <p className="text-gray-300 text-sm">{r.description}</p>
+                    {r.person_description && (
+                      <p className="text-gray-400 text-xs mt-1">👤 특징: {r.person_description}</p>
+                    )}
+                    <p className="text-gray-500 text-xs mt-2">신고자: {r.reporter_name} · {new Date(r.created_at).toLocaleString('ko-KR')}</p>
+                    {r.admin_note && <p className="text-amber-300 text-xs mt-1">📝 메모: {r.admin_note}</p>}
+                    <div className="flex gap-2 mt-3">
+                      <button onClick={() => handleReportAction(r.id, 'reviewed', '')}
+                        className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-xs">확인</button>
+                      <button onClick={() => {
+                        const note = prompt('처리 메모:');
+                        if (note !== null) handleReportAction(r.id, 'resolved', note);
+                      }}
+                        className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-xs">처리완료</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </main>

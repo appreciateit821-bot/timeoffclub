@@ -17,7 +17,7 @@ export default function Footer() {
               </p>
               <p className="flex items-start gap-2">
                 <span className="text-amber-400">•</span>
-                <span>예약 변경/취소는 3시간 전까지 가능</span>
+                <span>예약 변경/취소는 2시간 전까지 가능</span>
               </p>
               <p className="flex items-start gap-2">
                 <span className="text-amber-400">•</span>
