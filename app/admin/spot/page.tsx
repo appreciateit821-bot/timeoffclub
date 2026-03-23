@@ -9,9 +9,14 @@ export default function SpotOperatorPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [checkinList, setCheckinList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'checkin' | 'reservations' | 'logs' | 'notices'>('checkin');
+  const [activeTab, setActiveTab] = useState<'checkin' | 'reservations' | 'logs' | 'notices' | 'requests'>('checkin');
   const [notices, setNotices] = useState<any[]>([]);
   const [spotName, setSpotName] = useState('');
+  const [spotRequests, setSpotRequests] = useState<any[]>([]);
+  const [reqCategory, setReqCategory] = useState('general');
+  const [reqContent, setReqContent] = useState('');
+  const [reqSubmitting, setReqSubmitting] = useState(false);
+  const [reqSuccess, setReqSuccess] = useState('');
   const [checkinDate, setCheckinDate] = useState(getTodayKST());
 
   const router = useRouter();
@@ -57,6 +62,33 @@ export default function SpotOperatorPage() {
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
+  };
+
+  const fetchSpotRequests = async () => {
+    try {
+      const res = await fetch('/api/admin/spot/requests');
+      if (res.ok) setSpotRequests((await res.json()).requests);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleSpotRequestSubmit = async () => {
+    if (!reqContent.trim()) return;
+    setReqSubmitting(true);
+    setReqSuccess('');
+    try {
+      const res = await fetch('/api/admin/spot/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ category: reqCategory, content: reqContent })
+      });
+      if (res.ok) {
+        setReqSuccess('요청이 전달되었습니다 💛');
+        setReqContent('');
+        setReqCategory('general');
+        fetchSpotRequests();
+      }
+    } catch (e) { alert('제출 중 오류'); }
+    finally { setReqSubmitting(false); }
   };
 
   // 통계
@@ -151,12 +183,12 @@ export default function SpotOperatorPage() {
       <div className="border-b border-gray-800 overflow-x-auto scrollbar-hide">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex gap-1 sm:gap-4">
-            {(['checkin', 'reservations', 'logs', 'notices'] as const).map(tab => (
-              <button key={tab} onClick={() => setActiveTab(tab)}
+            {(['checkin', 'reservations', 'logs', 'notices', 'requests'] as const).map(tab => (
+              <button key={tab} onClick={() => { setActiveTab(tab); if (tab === 'requests') fetchSpotRequests(); }}
                 className={`px-3 sm:px-4 py-2 sm:py-3 text-sm font-medium transition border-b-2 whitespace-nowrap ${
                   activeTab === tab ? 'text-amber-400 border-amber-400' : 'text-gray-400 border-transparent hover:text-gray-300'
                 }`}>
-                {tab === 'checkin' ? '✅ 참가자 체크' : tab === 'reservations' ? '예약 현황' : tab === 'logs' ? '로그' : '📢 공지'}
+                {tab === 'checkin' ? '✅ 참가자 체크' : tab === 'reservations' ? '예약 현황' : tab === 'logs' ? '로그' : tab === 'notices' ? '📢 공지' : '📮 웰모먼트에 요청'}
               </button>
             ))}
           </div>
@@ -338,6 +370,73 @@ export default function SpotOperatorPage() {
                   <p className="text-gray-500 text-xs mt-2">{formatKST(n.created_at)}</p>
                 </div>
               ))
+            )}
+          </div>
+        )}
+
+        {/* 웰모먼트에 요청 */}
+        {activeTab === 'requests' && (
+          <div className="space-y-6">
+            {reqSuccess && (
+              <div className="bg-green-900/50 border border-green-700 text-green-200 px-4 py-3 rounded-lg">{reqSuccess}</div>
+            )}
+
+            <div className="bg-gray-800/80 rounded-xl p-5 border border-emerald-800/30 space-y-4">
+              <div>
+                <h3 className="text-emerald-200 font-medium mb-1">📮 웰모먼트에 요청</h3>
+                <p className="text-gray-400 text-xs">운영 관련 건의사항, 요청사항을 자유롭게 남겨주세요.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-300 mb-1.5">카테고리</label>
+                <select value={reqCategory} onChange={(e) => setReqCategory(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
+                  <option value="general">일반 건의</option>
+                  <option value="space">공간/시설 관련</option>
+                  <option value="supply">비품/물품 요청</option>
+                  <option value="schedule">일정/운영 관련</option>
+                  <option value="issue">문제 보고</option>
+                  <option value="etc">기타</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-300 mb-1.5">내용</label>
+                <textarea value={reqContent} onChange={(e) => setReqContent(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[120px] resize-y"
+                  placeholder="웰모먼트에 전달하고 싶은 내용을 작성해주세요..." maxLength={1000} />
+              </div>
+
+              <button onClick={handleSpotRequestSubmit} disabled={reqSubmitting || !reqContent.trim()}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition disabled:opacity-50 active:scale-95">
+                {reqSubmitting ? '전송 중...' : '요청 보내기'}
+              </button>
+            </div>
+
+            {/* 내가 보낸 요청 목록 */}
+            {spotRequests.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-300 mb-3">📋 보낸 요청</h3>
+                <div className="space-y-2">
+                  {spotRequests.map((r: any) => (
+                    <div key={r.id} className="bg-gray-800/60 rounded-lg p-4 border border-gray-700/50">
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-300 border border-emerald-700/30">
+                          {{ general: '일반', space: '공간/시설', supply: '비품', schedule: '일정', issue: '문제', etc: '기타' }[r.category as string] || r.category}
+                        </span>
+                        <span className="text-xs text-gray-600 ml-auto">{r.created_at?.slice(0, 10)}</span>
+                      </div>
+                      <p className="text-gray-300 text-sm">{r.content}</p>
+                      {r.admin_reply && (
+                        <div className="mt-2 pt-2 border-t border-gray-700">
+                          <p className="text-xs text-amber-300">💬 웰모먼트 답변</p>
+                          <p className="text-gray-300 text-sm mt-1">{r.admin_reply}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         )}

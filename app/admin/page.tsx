@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { formatKST } from '@/lib/constants';
+import { formatKST, SPOTS } from '@/lib/constants';
 
 export default function AdminPage() {
   const [reservations, setReservations] = useState<any[]>([]);
@@ -1143,8 +1143,8 @@ export default function AdminPage() {
         {/* 요청사항 관리 */}
         {activeTab === 'requests' && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white">📮 멤버 요청사항</h2>
-            <p className="text-gray-400 text-sm">멤버들이 운영자에게 보낸 건의/요청사항입니다.</p>
+            <h2 className="text-xl font-semibold text-white">📮 요청사항</h2>
+            <p className="text-gray-400 text-sm">멤버 및 스팟 운영자가 보낸 건의/요청사항입니다.</p>
 
             {operatorRequests.length === 0 ? (
               <div className="text-center py-12 text-gray-400">요청사항이 없습니다.</div>
@@ -1154,10 +1154,15 @@ export default function AdminPage() {
                   <div key={r.id} className={`bg-gray-800 rounded-lg p-4 border ${r.is_read ? 'border-gray-700' : 'border-emerald-600/50 bg-emerald-900/10'}`}>
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <span className="text-white font-medium text-sm">{r.user_name}</span>
+                      {(SPOTS as readonly string[]).includes(r.user_name) ? (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-900/50 text-purple-300 border border-purple-700/30">🏠 스팟 운영자</span>
+                      ) : (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900/50 text-blue-300 border border-blue-700/30">👤 멤버</span>
+                      )}
                       <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-300 border border-emerald-700/30">
-                        {{ general: '일반', space: '공간', program: '프로그램', service: '서비스', etc: '기타' }[r.category as string] || r.category}
+                        {{ general: '일반', space: '공간', program: '프로그램', service: '서비스', supply: '비품', schedule: '일정', issue: '문제', etc: '기타' }[r.category as string] || r.category}
                       </span>
-                      {r.spot && <span className="text-xs text-gray-500">{r.spot}</span>}
+                      {r.spot && !(SPOTS as readonly string[]).includes(r.user_name) && <span className="text-xs text-gray-500">{r.spot}</span>}
                       {!r.is_read && <span className="text-xs px-1.5 py-0.5 bg-red-600 text-white rounded">NEW</span>}
                       <span className="text-xs text-gray-600 ml-auto">{formatKST(r.created_at)}</span>
                     </div>
