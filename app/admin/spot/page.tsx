@@ -8,7 +8,8 @@ export default function SpotOperatorPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [checkinList, setCheckinList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'checkin' | 'reservations' | 'logs'>('checkin');
+  const [activeTab, setActiveTab] = useState<'checkin' | 'reservations' | 'logs' | 'notices'>('checkin');
+  const [notices, setNotices] = useState<any[]>([]);
   const [spotName, setSpotName] = useState('');
   const [checkinDate, setCheckinDate] = useState(new Date().toISOString().split('T')[0]);
   const router = useRouter();
@@ -41,6 +42,12 @@ export default function SpotOperatorPage() {
       setReservations(resData.reservations);
       setLogs(logsData.logs);
       setSpotName(userData.user?.spotId || '');
+
+      // 공지 가져오기
+      try {
+        const noticeRes = await fetch('/api/admin/notices');
+        if (noticeRes.ok) { const nd = await noticeRes.json(); setNotices(nd.notices); }
+      } catch {}
     } catch (error) {
       console.error('Failed to fetch data:', error);
     } finally {
@@ -128,7 +135,7 @@ export default function SpotOperatorPage() {
       <div className="border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-4">
-            {(['checkin', 'reservations', 'logs'] as const).map(tab => (
+            {(['checkin', 'reservations', 'logs', 'notices'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -138,7 +145,7 @@ export default function SpotOperatorPage() {
                     : 'text-gray-400 border-transparent hover:text-gray-300'
                 }`}
               >
-                {tab === 'checkin' ? '✅ 참가자 체크' : tab === 'reservations' ? '예약 현황' : '변경/취소 로그'}
+                {tab === 'checkin' ? '✅ 참가자 체크' : tab === 'reservations' ? '예약 현황' : tab === 'logs' ? '로그' : `📢 공지${notices.length > 0 ? ` (${notices.length})` : ''}`}
               </button>
             ))}
           </div>
@@ -304,6 +311,27 @@ export default function SpotOperatorPage() {
               </div>
               {logs.length === 0 && <div className="text-center py-12 text-gray-400">아직 로그가 없습니다.</div>}
             </div>
+          </div>
+        )}
+
+        {/* 공지 탭 */}
+        {activeTab === 'notices' && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-white">📢 웰모먼트 공지</h2>
+            {notices.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">공지가 없습니다.</div>
+            ) : (
+              notices.map((n: any) => (
+                <div key={n.id} className={`bg-gray-800 rounded-lg p-4 border ${n.is_pinned ? 'border-amber-600/50' : 'border-gray-700'}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    {n.is_pinned && <span className="text-xs">📌</span>}
+                    <span className="text-white font-medium">{n.title}</span>
+                  </div>
+                  <p className="text-gray-300 text-sm whitespace-pre-wrap">{n.content}</p>
+                  <p className="text-gray-500 text-xs mt-2">{new Date(n.created_at).toLocaleString('ko-KR')}</p>
+                </div>
+              ))
+            )}
           </div>
         )}
       </main>
