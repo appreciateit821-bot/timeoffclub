@@ -42,15 +42,10 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold text-amber-300 mb-4">문의</h3>
             <div className="space-y-3 text-sm text-gray-300">
-              <a
-                href="https://center-pf.kakao.com/searches?query=well__moment"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 hover:text-amber-400 transition"
-              >
+              <span className="flex items-center gap-2">
                 <span className="text-lg">💬</span>
                 <span>카카오톡: well__moment</span>
-              </a>
+              </span>
               <a
                 href="https://www.instagram.com/well__moment"
                 target="_blank"

@@ -206,8 +206,7 @@ export default function LoginPage() {
 
         {/* 하단 푸터 */}
         <div className="mt-6 flex justify-center gap-6 text-sm">
-          <a href="https://center-pf.kakao.com/searches?query=well__moment" target="_blank" rel="noopener noreferrer"
-            className="text-gray-500 hover:text-amber-400 transition">💬 카카오톡</a>
+          <span className="text-gray-500">💬 카카오톡 well__moment</span>
           <a href="https://www.instagram.com/well__moment" target="_blank" rel="noopener noreferrer"
             className="text-gray-500 hover:text-amber-400 transition">📸 인스타그램</a>
         </div>
