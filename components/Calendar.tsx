@@ -6,10 +6,13 @@ import { AVAILABLE_DAYS, TIME_SLOTS, isBookingClosed, getTodayKST } from '@/lib/
 interface CalendarProps {
   selectedDates: string[];
   onDatesChange: (dates: string[]) => void;
+  activeMonths?: string;
 }
 
-export default function Calendar({ selectedDates, onDatesChange }: CalendarProps) {
+export default function Calendar({ selectedDates, onDatesChange, activeMonths }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [showMembershipAlert, setShowMembershipAlert] = useState(false);
+  const [alertMonth, setAlertMonth] = useState('');
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -19,11 +22,30 @@ export default function Calendar({ selectedDates, onDatesChange }: CalendarProps
   const daysInMonth = lastDay.getDate();
   const startingDayOfWeek = firstDay.getDay();
 
+  // 활성월 체크
+  const activeMonthList = activeMonths ? activeMonths.split(',').map(m => m.trim()) : [];
+  const hasMonthRestriction = activeMonthList.length > 0;
+
+  const isMonthActive = (y: number, m: number) => {
+    if (!hasMonthRestriction) return true;
+    const monthStr = `${y}-${String(m + 1).padStart(2, '0')}`;
+    return activeMonthList.includes(monthStr);
+  };
+
+  const getMonthLabel = (m: number) => ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'][m];
+
   const previousMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
   };
 
   const nextMonth = () => {
+    const nextY = month === 11 ? year + 1 : year;
+    const nextM = month === 11 ? 0 : month + 1;
+    if (hasMonthRestriction && !isMonthActive(nextY, nextM)) {
+      setAlertMonth(`${nextY}년 ${getMonthLabel(nextM)}`);
+      setShowMembershipAlert(true);
+      return;
+    }
     setCurrentDate(new Date(year, month + 1, 1));
   };
 
@@ -143,6 +165,38 @@ export default function Calendar({ selectedDates, onDatesChange }: CalendarProps
           </p>
         )}
       </div>
+
+      {/* 멤버십 결제 안내 모달 */}
+      {showMembershipAlert && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowMembershipAlert(false)}>
+          <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm space-y-4 border border-amber-700/30 animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="text-center space-y-2">
+              <div className="text-3xl">🌿</div>
+              <h3 className="text-white font-bold text-lg">{alertMonth} 멤버십</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                {alertMonth} 멤버십이 아직 활성화되지 않았어요.<br/>
+                계속해서 타임오프를 즐기시려면<br/>멤버십을 결제해주세요!
+              </p>
+            </div>
+            <div className="space-y-2">
+              <a
+                href="https://smartstore.naver.com/wellmoment"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-3 bg-[#03C75A] hover:bg-[#02b351] text-white rounded-xl font-semibold text-center transition active:scale-95"
+              >
+                🛒 멤버십 결제하기
+              </a>
+              <button
+                onClick={() => setShowMembershipAlert(false)}
+                className="block w-full py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-xl text-sm transition"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
