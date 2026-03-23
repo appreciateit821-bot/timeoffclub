@@ -239,7 +239,15 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
                       isFull ? 'bg-red-900/50 text-red-300'
                       : isSelected ? 'bg-amber-700 text-amber-100'
                       : 'bg-gray-600 text-gray-300'
-                    }`}>{count}/{getCapForSpot(spotInfo.id)}명</span>
+                    }`}>
+                      {count}/{getCapForSpot(spotInfo.id)}명
+                    </span>
+                    {!isFull && count >= getCapForSpot(spotInfo.id) * 0.8 && (
+                      <div className="text-[10px] text-orange-400 mt-0.5">🔥 마감 임박</div>
+                    )}
+                    {count > 0 && count <= 3 && !isFull && (
+                      <div className="text-[10px] text-purple-300 mt-0.5">✨ 소규모</div>
+                    )}
                   </div>
                 </div>
 

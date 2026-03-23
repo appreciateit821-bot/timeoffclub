@@ -344,7 +344,7 @@ export default function AdminPage() {
         users: []
       };
     }
-    acc[key].users.push(res.user_name);
+    acc[key].users.push(res.display_id || res.user_name);
     return acc;
   }, {} as Record<string, { date: string; spot: string; users: string[] }>);
 
@@ -601,7 +601,7 @@ export default function AdminPage() {
                           {new Date(log.created_at).toLocaleString('ko-KR')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {log.user_name}
+                          {log.display_id || log.user_name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {log.date}

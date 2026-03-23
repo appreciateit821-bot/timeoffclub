@@ -12,8 +12,12 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const date = searchParams.get('date') || new Date().toISOString().split('T')[0];
 
-  const { results: reservations } = await db.prepare('SELECT id, user_name, date, spot, check_in_status, checked_at, checked_by, confirmed, confirmed_at FROM reservations WHERE spot = ? AND date = ? ORDER BY created_at ASC').bind(session.spotId, date).all();
-  return NextResponse.json({ reservations });
+  const { results: reservations } = await db.prepare('SELECT id, user_name, date, spot, check_in_status, checked_at, checked_by, confirmed, confirmed_at, mode, memo FROM reservations WHERE spot = ? AND date = ? ORDER BY created_at ASC').bind(session.spotId, date).all();
+  const { results: members } = await db.prepare('SELECT name, phone_last4 FROM members').all();
+  const nameToPhone: { [name: string]: string } = {};
+  (members as any[]).forEach(m => { nameToPhone[m.name] = m.phone_last4; });
+  const masked = (reservations as any[]).map(r => ({ ...r, display_id: nameToPhone[r.user_name] || '****' }));
+  return NextResponse.json({ reservations: masked });
 }
 
 export async function PATCH(request: NextRequest) {

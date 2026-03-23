@@ -10,5 +10,9 @@ export async function GET() {
   if ((!session?.isSpotOperator && !session?.isAdmin) || !db) return NextResponse.json({ error: '권한 없음' }, { status: 403 });
 
   const { results: reservations } = await db.prepare('SELECT * FROM reservations WHERE spot = ? ORDER BY date DESC').bind(session.spotId || session.name).all();
-  return NextResponse.json({ reservations });
+  const { results: members } = await db.prepare('SELECT name, phone_last4 FROM members').all();
+  const nameToPhone: { [name: string]: string } = {};
+  (members as any[]).forEach(m => { nameToPhone[m.name] = m.phone_last4; });
+  const masked = (reservations as any[]).map(r => ({ ...r, display_id: nameToPhone[r.user_name] || '****' }));
+  return NextResponse.json({ reservations: masked });
 }

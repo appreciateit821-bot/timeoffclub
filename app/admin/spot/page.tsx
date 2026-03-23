@@ -234,7 +234,7 @@ export default function SpotOperatorPage() {
                   <div className="flex justify-between items-center">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-white font-mono font-medium">****{r.user_name}</span>
+                        <span className="text-white font-mono font-medium">{r.display_id}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                           r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
                         }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
@@ -280,7 +280,7 @@ export default function SpotOperatorPage() {
                   <div key={r.id} className="bg-gray-800 rounded-lg p-3 border border-gray-700 flex justify-between items-center">
                     <div>
                       <div className="text-white text-sm font-medium">{r.date}</div>
-                      <div className="text-gray-400 text-xs">****{r.user_name} · {r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</div>
+                      <div className="text-gray-400 text-xs">{r.display_id} · {r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</div>
                     </div>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                       r.check_in_status === 'attended' ? 'bg-green-900/50 text-green-300' :
@@ -305,7 +305,7 @@ export default function SpotOperatorPage() {
                 {logs.map((log: any) => (
                   <div key={log.id} className="bg-gray-800 rounded-lg p-3 border border-gray-700 flex justify-between items-center">
                     <div>
-                      <div className="text-gray-300 text-sm">****{log.user_name} · {log.date}</div>
+                      <div className="text-gray-300 text-sm">{log.display_id || "****"} · {log.date}</div>
                       <div className="text-gray-500 text-xs">{new Date(log.created_at).toLocaleString('ko-KR')}</div>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full font-medium ${actionColor(log.action)}`}>
