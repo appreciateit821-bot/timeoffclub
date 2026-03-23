@@ -131,6 +131,18 @@ function SessionReadyContent() {
           </button>
         </div>
 
+        {/* 안내사항 */}
+        <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50 space-y-2.5">
+          <div className="flex items-start gap-2">
+            <span className="text-base">📵</span>
+            <p className="text-gray-300 text-sm">입장 시 스마트폰을 <strong className="text-amber-200">보관함에 맡겨주세요.</strong> 세션 종료 후 돌려드립니다.</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-base">⏰</span>
+            <p className="text-gray-300 text-sm">세션은 <strong className="text-amber-200">정시에 시작</strong>합니다. 시간에 맞춰 도착해주세요!</p>
+          </div>
+        </div>
+
         {/* 스마트폰 내려놓기 */}
         <button
           onClick={() => setReady(true)}
