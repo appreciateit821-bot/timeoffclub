@@ -78,8 +78,8 @@ export default function CalendarPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-amber-100">타임오프클럽</h1>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1">{user?.name}님, 환영합니다</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-amber-100 whitespace-nowrap">타임오프클럽</h1>
+              <p className="text-xs sm:text-sm text-gray-400 mt-1 whitespace-nowrap">{user?.name}님, 환영합니다</p>
             </div>
             <div className="flex gap-1.5 sm:gap-2 flex-wrap justify-end">
               <button
