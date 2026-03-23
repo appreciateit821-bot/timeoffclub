@@ -8,7 +8,7 @@ import ReservationList from '@/components/ReservationList';
 import Footer from '@/components/Footer';
 
 export default function CalendarPage() {
-  const [user, setUser] = useState<{ name: string; isAdmin: boolean } | null>(null);
+  const [user, setUser] = useState<{ name: string; isAdmin: boolean; isTrial?: boolean; phoneLast4?: string } | null>(null);
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [reservations, setReservations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,6 +133,7 @@ export default function CalendarPage() {
               <SpotSelector
                 selectedDates={selectedDates}
                 userName={user?.name || ''}
+                isTrial={user?.phoneLast4?.startsWith('T-') || false}
                 onComplete={handleReservationComplete}
               />
             )}

@@ -46,10 +46,12 @@ export async function POST(request: NextRequest) {
     if (isBookingClosed(date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 예약할 수 없습니다.' }, { status: 400 });
 
     // 체험권 1회 제한
-    if (user.phoneLast4?.startsWith('T-')) {
+    const isTrial = user.phoneLast4?.startsWith('T-') || false;
+    if (isTrial) {
       const trialCount = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE user_name = ?').bind(user.name).first() as any;
       if (trialCount?.count >= 1) return NextResponse.json({ error: '체험권은 1회만 예약 가능합니다.' }, { status: 400 });
-      await db.prepare('UPDATE trial_tickets SET is_used = 1, used_at = CURRENT_TIMESTAMP WHERE code = ?').bind(user.phoneLast4).run();
+      // 예약 시 체험권 소진
+      await db.prepare('UPDATE trial_tickets SET is_used = 1, used_at = CURRENT_TIMESTAMP, phone_last4 = ? WHERE code = ?').bind(user.phoneLast4, user.phoneLast4).run();
     }
 
     const existing = await db.prepare('SELECT * FROM reservations WHERE user_name = ? AND date = ?').bind(user.name, date).first();
@@ -69,7 +71,7 @@ export async function POST(request: NextRequest) {
     const countResult = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ?').bind(date, spot).first() as any;
     if (countResult?.count >= maxCap) return NextResponse.json({ error: '해당 스팟의 정원이 가득 찼습니다.' }, { status: 400 });
 
-    await db.prepare('INSERT INTO reservations (user_name, date, spot, mode, memo, energy) VALUES (?, ?, ?, ?, ?, ?)').bind(user.name, date, spot, mode || 'smalltalk', memo || '', energy || 'normal').run();
+    await db.prepare('INSERT INTO reservations (user_name, date, spot, mode, memo, energy, is_trial) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(user.name, date, spot, mode || 'smalltalk', memo || '', energy || 'normal', isTrial ? 1 : 0).run();
     await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action) VALUES (?, ?, ?, ?)').bind(user.name, date, spot, 'CREATE').run();
 
     return NextResponse.json({ success: true, message: '예약이 완료되었습니다.' });

@@ -34,10 +34,11 @@ const REFLECTION_PLACEHOLDERS = [
 interface SpotSelectorProps {
   selectedDates: string[];
   userName: string;
+  isTrial?: boolean;
   onComplete: () => void;
 }
 
-export default function SpotSelector({ selectedDates, userName, onComplete }: SpotSelectorProps) {
+export default function SpotSelector({ selectedDates, userName, isTrial = false, onComplete }: SpotSelectorProps) {
   const [selectedSpot, setSelectedSpot] = useState('');
   const [selectedMode, setSelectedMode] = useState('smalltalk');
   const [memo, setMemo] = useState('');
@@ -322,13 +323,23 @@ export default function SpotSelector({ selectedDates, userName, onComplete }: Sp
       {selectedSpot && (
         <div className="p-4 bg-amber-900/15 border border-amber-700/20 rounded-lg space-y-2">
           <p className="text-sm text-amber-200 font-medium">📋 예약 안내</p>
-          <ul className="text-xs text-amber-200/80 space-y-1.5">
-            <li>• 원하는 일정과 스팟에 <strong>횟수 제한 없이</strong> 참여 가능해요</li>
-            <li>• 예약 신청·변경·취소는 <strong>세션 2시간 전까지</strong> 가능해요</li>
-            <li>• 노쇼 시 <strong>패널티가 부과</strong>됩니다. 참석이 어려우면 꼭 취소해주세요 🙏</li>
-            <li>• 현장에서 전용 할인 적용, <strong>1인 1음료</strong> 주문 원칙</li>
-            <li>• 입장 시 <strong>스마트폰 보관함</strong>에 스마트폰을 맡겨주세요 📵</li>
-          </ul>
+          {isTrial ? (
+            <ul className="text-xs text-amber-200/80 space-y-1.5">
+              <li>• 체험권은 <strong>1회만 예약</strong> 가능합니다</li>
+              <li>• 예약 후 <strong>노쇼 시에도 체험권이 소진</strong>됩니다</li>
+              <li>• 예약 변경·취소는 <strong>세션 2시간 전까지</strong> 가능해요</li>
+              <li>• 현장에서 전용 할인 적용, <strong>1인 1음료</strong> 주문 원칙</li>
+              <li>• 입장 시 <strong>스마트폰 보관함</strong>에 스마트폰을 맡겨주세요 📵</li>
+            </ul>
+          ) : (
+            <ul className="text-xs text-amber-200/80 space-y-1.5">
+              <li>• 원하는 일정과 스팟에 <strong>횟수 제한 없이</strong> 참여 가능해요</li>
+              <li>• 예약 신청·변경·취소는 <strong>세션 2시간 전까지</strong> 가능해요</li>
+              <li>• 노쇼 시 <strong>패널티가 부과</strong>됩니다. 참석이 어려우면 꼭 취소해주세요 🙏</li>
+              <li>• 현장에서 전용 할인 적용, <strong>1인 1음료</strong> 주문 원칙</li>
+              <li>• 입장 시 <strong>스마트폰 보관함</strong>에 스마트폰을 맡겨주세요 📵</li>
+            </ul>
+          )}
         </div>
       )}
 
