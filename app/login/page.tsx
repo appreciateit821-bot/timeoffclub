@@ -49,8 +49,12 @@ export default function LoginPage() {
       <div className="w-full max-w-lg">
         <div className="bg-gray-800/80 backdrop-blur rounded-2xl shadow-2xl p-5 sm:p-8 border border-amber-700/30">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-amber-100 mb-3">타임오프클럽</h1>
-            <p className="text-lg text-amber-200/90 font-medium mb-4">목적 없는 즐거움,<br/>다정한 디지털 로그아웃 스몰토크를 제안합니다</p>
+            <h1 className="text-3xl font-bold text-amber-100 mb-2">타임오프클럽</h1>
+            <p className="text-lg text-amber-200/90 font-medium mb-3">목적 없는 즐거움,<br/>다정한 디지털 로그아웃 스몰토크를 제안합니다</p>
+            <p className="text-xs text-gray-400">매주 수요일 저녁 8시 · 일요일 오후 3시</p>
+            <div className="mt-3 inline-block px-4 py-1.5 bg-amber-900/30 border border-amber-700/30 rounded-full">
+              <p className="text-xs text-amber-300">🌿 3월, <strong className="text-amber-200">44명</strong>의 멤버와 함께하고 있습니다</p>
+            </div>
           </div>
 
           {/* 클럽 규칙 소개 */}
@@ -180,7 +184,29 @@ export default function LoginPage() {
               {loading ? '로그인 중...' : '로그인'}
             </button>
           </form>
+
+          {/* 멤버십 가입 */}
+          <div className="mt-5 pt-5 border-t border-gray-700 text-center">
+            <p className="text-gray-500 text-xs mb-2">아직 멤버가 아니신가요?</p>
+            <a
+              href="https://smartstore.naver.com/wellmoment"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block px-5 py-2 bg-[#03C75A] hover:bg-[#02b351] text-white rounded-lg text-sm font-medium transition active:scale-95"
+            >
+              🛒 멤버십 가입하기
+            </a>
+          </div>
         </div>
+
+        {/* 하단 푸터 */}
+        <div className="mt-6 flex justify-center gap-6 text-sm">
+          <a href="https://pf.kakao.com/_well__moment" target="_blank" rel="noopener noreferrer"
+            className="text-gray-500 hover:text-amber-400 transition">💬 카카오톡</a>
+          <a href="https://www.instagram.com/well__moment" target="_blank" rel="noopener noreferrer"
+            className="text-gray-500 hover:text-amber-400 transition">📸 인스타그램</a>
+        </div>
+        <p className="text-center text-xs text-gray-600 mt-3">© 2026 타임오프클럽 by 웰모먼트</p>
       </div>
     </div>
   );
