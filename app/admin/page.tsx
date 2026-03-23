@@ -29,6 +29,7 @@ export default function AdminPage() {
   const [noticeContent, setNoticeContent] = useState('');
   const [noticeTarget, setNoticeTarget] = useState('all');
   const [noticePinned, setNoticePinned] = useState(false);
+  const [editingNotice, setEditingNotice] = useState<any>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -261,6 +262,19 @@ export default function AdminPage() {
     if (!confirm('공지를 삭제하시겠습니까?')) return;
     await fetch(`/api/admin/notices?id=${id}`, { method: 'DELETE' });
     fetchNotices();
+  };
+
+  const handleEditNotice = async () => {
+    if (!editingNotice) return;
+    try {
+      await fetch('/api/admin/notices', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingNotice)
+      });
+      setEditingNotice(null);
+      fetchNotices();
+    } catch (e) { console.error(e); }
   };
 
   const fetchCheckin = async (date?: string) => {
@@ -970,55 +984,93 @@ export default function AdminPage() {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-white">📢 스팟 운영자 공지</h2>
 
-            <div className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700 space-y-4">
-              <h3 className="text-lg font-semibold text-white">새 공지 작성</h3>
-              <input type="text" value={noticeTitle} onChange={(e) => setNoticeTitle(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400"
-                placeholder="제목" />
-              <textarea value={noticeContent} onChange={(e) => setNoticeContent(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 min-h-[80px] resize-y"
-                placeholder="내용" />
-              <div className="flex flex-col sm:flex-row gap-3">
-                <select value={noticeTarget} onChange={(e) => setNoticeTarget(e.target.value)}
+            {/* 새 공지 작성 / 수정 폼 */}
+            <div className="bg-gray-800 rounded-xl p-4 sm:p-6 border border-gray-700 space-y-4">
+              <h3 className="text-base font-semibold text-white">
+                {editingNotice ? '✏️ 공지 수정' : '✍️ 새 공지 작성'}
+              </h3>
+              <input type="text"
+                value={editingNotice ? editingNotice.title : noticeTitle}
+                onChange={(e) => editingNotice
+                  ? setEditingNotice({ ...editingNotice, title: e.target.value })
+                  : setNoticeTitle(e.target.value)}
+                className="w-full px-3 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400"
+                placeholder="제목을 입력하세요" />
+              <textarea
+                value={editingNotice ? editingNotice.content : noticeContent}
+                onChange={(e) => editingNotice
+                  ? setEditingNotice({ ...editingNotice, content: e.target.value })
+                  : setNoticeContent(e.target.value)}
+                className="w-full px-3 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 min-h-[100px] resize-y"
+                placeholder="내용을 입력하세요" />
+              <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+                <select
+                  value={editingNotice ? editingNotice.target : noticeTarget}
+                  onChange={(e) => editingNotice
+                    ? setEditingNotice({ ...editingNotice, target: e.target.value })
+                    : setNoticeTarget(e.target.value)}
                   className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
-                  <option value="all">전체 운영자</option>
+                  <option value="all">📣 전체 운영자</option>
                   <option value="약수_스티키플로어">약수_스티키플로어</option>
                   <option value="망원_다시점">망원_다시점</option>
                   <option value="압구정로데오_벤슨 테이스팅 라운지">압구정로데오_벤슨 테이스팅 라운지</option>
                   <option value="서촌_터틀도브">서촌_터틀도브</option>
                 </select>
                 <label className="flex items-center gap-2 text-sm text-gray-300">
-                  <input type="checkbox" checked={noticePinned} onChange={(e) => setNoticePinned(e.target.checked)}
+                  <input type="checkbox"
+                    checked={editingNotice ? editingNotice.isPinned || editingNotice.is_pinned : noticePinned}
+                    onChange={(e) => editingNotice
+                      ? setEditingNotice({ ...editingNotice, isPinned: e.target.checked })
+                      : setNoticePinned(e.target.checked)}
                     className="rounded" />
                   📌 상단 고정
                 </label>
-                <button onClick={handleCreateNotice} disabled={!noticeTitle || !noticeContent}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium disabled:opacity-50">
-                  공지 작성
-                </button>
+                <div className="flex gap-2 ml-auto">
+                  {editingNotice && (
+                    <button onClick={() => setEditingNotice(null)}
+                      className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm">취소</button>
+                  )}
+                  <button
+                    onClick={editingNotice ? handleEditNotice : handleCreateNotice}
+                    disabled={editingNotice ? !editingNotice.title || !editingNotice.content : !noticeTitle || !noticeContent}
+                    className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium disabled:opacity-50">
+                    {editingNotice ? '수정 완료' : '게시하기'}
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              {notices.map((n: any) => (
-                <div key={n.id} className={`bg-gray-800 rounded-lg p-4 border ${n.is_pinned ? 'border-amber-600/50' : 'border-gray-700'}`}>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        {n.is_pinned && <span className="text-xs">📌</span>}
-                        <span className="text-white font-medium">{n.title}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 bg-gray-700 text-gray-400 rounded">
-                          {n.target === 'all' ? '전체' : n.target}
-                        </span>
+            {/* 공지 목록 (게시판 형태) */}
+            <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+              {notices.length === 0 ? (
+                <div className="text-center py-12 text-gray-400">아직 공지가 없습니다.</div>
+              ) : (
+                <div className="divide-y divide-gray-700">
+                  {notices.map((n: any) => (
+                    <div key={n.id} className={`p-4 hover:bg-gray-750 transition ${n.is_pinned ? 'bg-amber-900/10' : ''}`}>
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {n.is_pinned && <span className="text-amber-400 text-xs">📌</span>}
+                            <span className="text-white font-medium text-sm">{n.title}</span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                              n.target === 'all' ? 'bg-blue-900/50 text-blue-300' : 'bg-gray-700 text-gray-400'
+                            }`}>{n.target === 'all' ? '전체' : n.target}</span>
+                          </div>
+                          <p className="text-gray-300 text-sm mt-2 whitespace-pre-wrap line-clamp-3">{n.content}</p>
+                          <p className="text-gray-500 text-xs mt-2">{new Date(n.created_at).toLocaleString('ko-KR')}</p>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <button onClick={() => setEditingNotice({ ...n, isPinned: n.is_pinned })}
+                            className="text-amber-400 hover:text-amber-300 text-xs">수정</button>
+                          <button onClick={() => handleDeleteNotice(n.id)}
+                            className="text-red-400 hover:text-red-300 text-xs">삭제</button>
+                        </div>
                       </div>
-                      <p className="text-gray-300 text-sm mt-2 whitespace-pre-wrap">{n.content}</p>
-                      <p className="text-gray-500 text-xs mt-2">{new Date(n.created_at).toLocaleString('ko-KR')}</p>
                     </div>
-                    <button onClick={() => handleDeleteNotice(n.id)} className="text-red-400 hover:text-red-300 text-xs ml-2">삭제</button>
-                  </div>
+                  ))}
                 </div>
-              ))}
-              {notices.length === 0 && <div className="text-center py-12 text-gray-400">공지가 없습니다.</div>}
+              )}
             </div>
           </div>
         )}

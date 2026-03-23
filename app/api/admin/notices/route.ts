@@ -37,6 +37,20 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ success: true });
 }
 
+// 공지 수정
+export async function PATCH(request: NextRequest) {
+  const db = getDB();
+  const session = await getSession();
+  if (!session?.isAdmin || !db) return NextResponse.json({ error: '권한 없음' }, { status: 403 });
+
+  const { id, title, content, target, isPinned } = await request.json();
+  if (!id || !title || !content) return NextResponse.json({ error: '필수 항목을 입력해주세요.' }, { status: 400 });
+
+  await db.prepare('UPDATE notices SET title = ?, content = ?, target = ?, is_pinned = ? WHERE id = ?')
+    .bind(title, content, target || 'all', isPinned ? 1 : 0, id).run();
+  return NextResponse.json({ success: true });
+}
+
 // 공지 삭제
 export async function DELETE(request: NextRequest) {
   const db = getDB();
