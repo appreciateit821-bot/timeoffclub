@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { formatKST } from '@/lib/constants';
 
 export default function AdminPage() {
   const [reservations, setReservations] = useState<any[]>([]);
@@ -600,7 +601,7 @@ export default function AdminPage() {
                     {logs.map((log) => (
                       <tr key={log.id} className="hover:bg-gray-750">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                          {new Date(log.created_at).toLocaleString('ko-KR')}
+                          {formatKST(log.created_at)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                           {log.display_id || log.user_name}
@@ -956,7 +957,7 @@ export default function AdminPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-400">
-                          {r.checked_at ? new Date(r.checked_at).toLocaleString('ko-KR') : '-'}
+                          {r.checked_at ? formatKST(r.checked_at) : '-'}
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-400">{r.checked_by || '-'}</td>
                       </tr>
@@ -1089,7 +1090,7 @@ export default function AdminPage() {
                       <p className="text-gray-300 text-sm">{f.general_comment}</p>
                     </div>
                   )}
-                  <div className="text-xs text-gray-500 mt-2">{new Date(f.created_at).toLocaleString('ko-KR')}</div>
+                  <div className="text-xs text-gray-500 mt-2">{formatKST(f.created_at)}</div>
                 </div>
               ))}
               {feedbackData.feedbacks.length === 0 && <div className="text-center py-12 text-gray-400">피드백이 없습니다.</div>}
@@ -1175,7 +1176,7 @@ export default function AdminPage() {
                             }`}>{n.target === 'all' ? '전체' : n.target}</span>
                           </div>
                           <p className="text-gray-300 text-sm mt-2 whitespace-pre-wrap line-clamp-3">{n.content}</p>
-                          <p className="text-gray-500 text-xs mt-2">{new Date(n.created_at).toLocaleString('ko-KR')}</p>
+                          <p className="text-gray-500 text-xs mt-2">{formatKST(n.created_at)}</p>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <button onClick={() => setEditingNotice({ ...n, isPinned: n.is_pinned })}
@@ -1217,7 +1218,7 @@ export default function AdminPage() {
                     {r.person_description && (
                       <p className="text-gray-400 text-xs mt-1">👤 특징: {r.person_description}</p>
                     )}
-                    <p className="text-gray-500 text-xs mt-2">신고자: {r.reporter_name} · {new Date(r.created_at).toLocaleString('ko-KR')}</p>
+                    <p className="text-gray-500 text-xs mt-2">신고자: {r.reporter_name} · {formatKST(r.created_at)}</p>
                     {r.admin_note && <p className="text-amber-300 text-xs mt-1">📝 메모: {r.admin_note}</p>}
                     <div className="flex gap-2 mt-3">
                       <button onClick={() => handleReportAction(r.id, 'reviewed', '')}

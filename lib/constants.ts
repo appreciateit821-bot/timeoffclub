@@ -70,6 +70,14 @@ export const TIME_SLOTS = {
 
 export type Spot = typeof SPOTS[number];
 
+// D1 CURRENT_TIMESTAMP는 UTC. 표시할 때 KST로 변환
+export function formatKST(utcStr: string): string {
+  if (!utcStr) return '-';
+  // D1 형식: "2026-03-23 05:44:00" → UTC로 파싱
+  const d = new Date(utcStr.includes('T') ? utcStr : utcStr + 'Z');
+  return d.toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
+}
+
 // 세션 시작 시간 가져오기 (KST 기준)
 export function getSessionStartTime(dateStr: string): Date {
   const date = new Date(dateStr + 'T00:00:00+09:00');

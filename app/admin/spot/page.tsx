@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getTodayKST } from '@/lib/constants';
+import { getTodayKST, formatKST } from '@/lib/constants';
 
 export default function SpotOperatorPage() {
   const [reservations, setReservations] = useState<any[]>([]);
@@ -245,7 +245,7 @@ export default function SpotOperatorPage() {
                       {r.memo && <p className="text-gray-400 text-xs mt-1 italic">"{r.memo}"</p>}
                       {r.checked_at && (
                         <span className="text-[10px] text-gray-500">
-                          {new Date(r.checked_at).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 체크
+                          {formatKST(r.checked_at)} 체크
                         </span>
                       )}
                     </div>
@@ -309,7 +309,7 @@ export default function SpotOperatorPage() {
                   <div key={log.id} className="bg-gray-800 rounded-lg p-3 border border-gray-700 flex justify-between items-center">
                     <div>
                       <div className="text-gray-300 text-sm">{log.display_id || "****"} · {log.date}</div>
-                      <div className="text-gray-500 text-xs">{new Date(log.created_at).toLocaleString('ko-KR')}</div>
+                      <div className="text-gray-500 text-xs">{formatKST(log.created_at)}</div>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full font-medium ${actionColor(log.action)}`}>
                       {actionLabel(log.action)}
@@ -335,7 +335,7 @@ export default function SpotOperatorPage() {
                     <span className="text-white font-medium">{n.title}</span>
                   </div>
                   <p className="text-gray-300 text-sm whitespace-pre-wrap">{n.content}</p>
-                  <p className="text-gray-500 text-xs mt-2">{new Date(n.created_at).toLocaleString('ko-KR')}</p>
+                  <p className="text-gray-500 text-xs mt-2">{formatKST(n.created_at)}</p>
                 </div>
               ))
             )}
