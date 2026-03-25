@@ -35,6 +35,11 @@ export default function AdminPage() {
   const [closeDate, setCloseDate] = useState('');
   const [closeSpot, setCloseSpot] = useState('');
   const [closeReason, setCloseReason] = useState('');
+  const [customCapacities, setCustomCapacities] = useState<any[]>([]);
+  const [capDate, setCapDate] = useState('');
+  const [capSpot, setCapSpot] = useState('');
+  const [capLimit, setCapLimit] = useState('');
+  const [defaultCapacity, setDefaultCapacity] = useState(10);
   const [noticeTitle, setNoticeTitle] = useState('');
   const [noticeContent, setNoticeContent] = useState('');
   const [noticeTarget, setNoticeTarget] = useState('all');
@@ -310,6 +315,36 @@ export default function AdminPage() {
     } catch (e) { console.error(e); }
   };
 
+  const fetchCapacities = async () => {
+    try {
+      const res = await fetch('/api/admin/capacity');
+      if (res.ok) {
+        const data = await res.json();
+        setCustomCapacities(data.capacities);
+        setDefaultCapacity(data.defaultCapacity);
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleSetCapacity = async () => {
+    if (!capDate || !capSpot || !capLimit) return;
+    try {
+      const res = await fetch('/api/admin/capacity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: capDate, spot: capSpot, maxCapacity: parseInt(capLimit) })
+      });
+      if (res.ok) { setCapDate(''); setCapSpot(''); setCapLimit(''); fetchCapacities(); }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleResetCapacity = async (date: string, spot: string) => {
+    try {
+      await fetch(`/api/admin/capacity?date=${date}&spot=${encodeURIComponent(spot)}`, { method: 'DELETE' });
+      fetchCapacities();
+    } catch (e) { console.error(e); }
+  };
+
   const handleCloseDate = async () => {
     if (!closeDate) return;
     try {
@@ -535,7 +570,7 @@ export default function AdminPage() {
               📮 요청
             </button>
             <button
-              onClick={() => { setActiveTab('calendar'); fetchClosedDates(); }}
+              onClick={() => { setActiveTab('calendar'); fetchClosedDates(); fetchCapacities(); }}
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'calendar'
                   ? 'text-amber-400 border-amber-400'
@@ -1278,6 +1313,55 @@ export default function AdminPage() {
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition disabled:opacity-50">
                 🚫 날짜 닫기
               </button>
+            </div>
+
+            {/* 인원 제한 */}
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 space-y-3">
+              <h3 className="text-sm font-medium text-white">👥 날짜별 인원 제한 <span className="text-gray-500 font-normal">(기본: {defaultCapacity}명)</span></h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">날짜</label>
+                  <input type="date" value={capDate} onChange={(e) => setCapDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">스팟</label>
+                  <select value={capSpot} onChange={(e) => setCapSpot(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
+                    <option value="">스팟 선택</option>
+                    {(SPOTS as readonly string[]).map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">최대 인원</label>
+                  <input type="number" value={capLimit} onChange={(e) => setCapLimit(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                    placeholder={`기본 ${defaultCapacity}명`} min="1" max="50" />
+                </div>
+              </div>
+              <button onClick={handleSetCapacity} disabled={!capDate || !capSpot || !capLimit}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition disabled:opacity-50">
+                👥 인원 설정
+              </button>
+
+              {customCapacities.length > 0 && (
+                <div className="space-y-2 mt-3">
+                  <p className="text-xs text-gray-400">설정된 인원 제한</p>
+                  {customCapacities.map((c: any) => (
+                    <div key={`${c.date}_${c.spot}`} className="bg-gray-700/50 rounded-lg p-2.5 flex justify-between items-center">
+                      <div>
+                        <span className="text-white text-sm">{c.date}</span>
+                        <span className="text-gray-400 text-xs ml-2">{c.spot}</span>
+                        <span className="text-amber-300 text-xs ml-2 font-medium">{c.max_capacity}명</span>
+                      </div>
+                      <button onClick={() => handleResetCapacity(c.date, c.spot)}
+                        className="px-2.5 py-1 bg-gray-600 hover:bg-gray-500 text-gray-300 rounded text-xs">
+                        기본값 복원
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {closedDates.length > 0 ? (
