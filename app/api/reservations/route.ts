@@ -45,6 +45,12 @@ export async function POST(request: NextRequest) {
     if (!date || !spot) return NextResponse.json({ error: '날짜와 스팟을 선택해주세요.' }, { status: 400 });
     if (isBookingClosed(date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 예약할 수 없습니다.' }, { status: 400 });
 
+    // 닫힌 날짜 체크
+    const closedAll = await db.prepare('SELECT * FROM closed_dates WHERE date = ? AND spot IS NULL').bind(date).first();
+    if (closedAll) return NextResponse.json({ error: '해당 날짜는 운영이 중단되었습니다.' }, { status: 400 });
+    const closedSpot = await db.prepare('SELECT * FROM closed_dates WHERE date = ? AND spot = ?').bind(date, spot).first();
+    if (closedSpot) return NextResponse.json({ error: '해당 날짜에 이 스팟은 운영하지 않습니다.' }, { status: 400 });
+
     // 체험권 1회 제한
     const isTrial = user.phoneLast4?.startsWith('T-') || false;
     if (isTrial) {

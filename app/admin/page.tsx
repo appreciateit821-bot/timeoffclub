@@ -9,7 +9,7 @@ export default function AdminPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices' | 'reports' | 'requests'>('reservations');
+  const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices' | 'reports' | 'requests' | 'calendar'>('reservations');
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberPhone, setNewMemberPhone] = useState('');
   const [newMemberMonths, setNewMemberMonths] = useState('');
@@ -31,6 +31,10 @@ export default function AdminPage() {
   const [operatorRequests, setOperatorRequests] = useState<any[]>([]);
   const [replyingId, setReplyingId] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [closedDates, setClosedDates] = useState<any[]>([]);
+  const [closeDate, setCloseDate] = useState('');
+  const [closeSpot, setCloseSpot] = useState('');
+  const [closeReason, setCloseReason] = useState('');
   const [noticeTitle, setNoticeTitle] = useState('');
   const [noticeContent, setNoticeContent] = useState('');
   const [noticeTarget, setNoticeTarget] = useState('all');
@@ -299,6 +303,32 @@ export default function AdminPage() {
     } catch (e) { console.error(e); }
   };
 
+  const fetchClosedDates = async () => {
+    try {
+      const res = await fetch('/api/admin/calendar');
+      if (res.ok) setClosedDates((await res.json()).closedDates);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleCloseDate = async () => {
+    if (!closeDate) return;
+    try {
+      const res = await fetch('/api/admin/calendar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: closeDate, spot: closeSpot || null, reason: closeReason })
+      });
+      if (res.ok) { setCloseDate(''); setCloseSpot(''); setCloseReason(''); fetchClosedDates(); }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleOpenDate = async (id: number) => {
+    try {
+      await fetch(`/api/admin/calendar?id=${id}`, { method: 'DELETE' });
+      fetchClosedDates();
+    } catch (e) { console.error(e); }
+  };
+
   const handleMarkRead = async (id: number) => {
     try {
       await fetch('/api/admin/requests', {
@@ -503,6 +533,16 @@ export default function AdminPage() {
               }`}
             >
               📮 요청
+            </button>
+            <button
+              onClick={() => { setActiveTab('calendar'); fetchClosedDates(); }}
+              className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
+                activeTab === 'calendar'
+                  ? 'text-amber-400 border-amber-400'
+                  : 'text-gray-400 border-transparent hover:text-gray-300'
+              }`}
+            >
+              📅 캘린더
             </button>
             <button
               onClick={() => { setActiveTab('notices'); fetchNotices(); }}
@@ -1203,6 +1243,62 @@ export default function AdminPage() {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        )}
+        {/* 캘린더 관리 */}
+        {activeTab === 'calendar' && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-white">📅 캘린더 관리</h2>
+            <p className="text-gray-400 text-sm">특정 날짜 또는 스팟을 닫을 수 있습니다.</p>
+
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">날짜</label>
+                  <input type="date" value={closeDate} onChange={(e) => setCloseDate(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">스팟 (비우면 전체 닫기)</label>
+                  <select value={closeSpot} onChange={(e) => setCloseSpot(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
+                    <option value="">전체 (모든 스팟)</option>
+                    {(SPOTS as readonly string[]).map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">사유 (선택)</label>
+                  <input type="text" value={closeReason} onChange={(e) => setCloseReason(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                    placeholder="예: 스팟 사정으로 휴무" />
+                </div>
+              </div>
+              <button onClick={handleCloseDate} disabled={!closeDate}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition disabled:opacity-50">
+                🚫 날짜 닫기
+              </button>
+            </div>
+
+            {closedDates.length > 0 ? (
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium text-gray-300">닫힌 날짜</h3>
+                {closedDates.map((c: any) => (
+                  <div key={c.id} className="bg-gray-800 rounded-lg p-3 border border-red-800/30 flex justify-between items-center">
+                    <div>
+                      <span className="text-white font-medium text-sm">{c.date}</span>
+                      <span className="text-gray-400 text-xs ml-2">{c.spot || '전체'}</span>
+                      {c.reason && <span className="text-gray-500 text-xs ml-2">({c.reason})</span>}
+                    </div>
+                    <button onClick={() => handleOpenDate(c.id)}
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs">
+                      다시 열기
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-400">닫힌 날짜가 없습니다.</div>
             )}
           </div>
         )}

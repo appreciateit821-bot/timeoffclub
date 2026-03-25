@@ -1,7 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AVAILABLE_DAYS, TIME_SLOTS, isBookingClosed, getTodayKST } from '@/lib/constants';
+
+interface SpotStats {
+  total: number;
+  smalltalk: number;
+  reflection: number;
+}
+
+interface DateStats {
+  [spot: string]: SpotStats;
+  _total: SpotStats;
+}
 
 interface CalendarProps {
   selectedDates: string[];
@@ -13,6 +24,8 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths }:
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
   const [alertMonth, setAlertMonth] = useState('');
+  const [dateStats, setDateStats] = useState<{ [date: string]: DateStats }>({});
+  const [closedDates, setClosedDates] = useState<{ date: string; spot: string | null }[]>([]);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -47,6 +60,41 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths }:
       return;
     }
     setCurrentDate(new Date(year, month + 1, 1));
+  };
+
+  // 예약 현황 로드
+  const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch(`/api/reservations/stats?month=${monthStr}`);
+        if (res.ok) {
+          const data = await res.json();
+          // stats를 날짜별로 집계
+          const grouped: { [date: string]: DateStats } = {};
+          for (const s of data.stats as any[]) {
+            if (!grouped[s.date]) grouped[s.date] = { _total: { total: 0, smalltalk: 0, reflection: 0 } };
+            if (!grouped[s.date][s.spot]) grouped[s.date][s.spot] = { total: 0, smalltalk: 0, reflection: 0 };
+            grouped[s.date][s.spot].total += s.count;
+            grouped[s.date]._total.total += s.count;
+            if (s.mode === 'reflection') {
+              grouped[s.date][s.spot].reflection += s.count;
+              grouped[s.date]._total.reflection += s.count;
+            } else {
+              grouped[s.date][s.spot].smalltalk += s.count;
+              grouped[s.date]._total.smalltalk += s.count;
+            }
+          }
+          setDateStats(grouped);
+          setClosedDates(data.closed || []);
+        }
+      } catch (e) { console.error(e); }
+    };
+    fetchStats();
+  }, [monthStr]);
+
+  const isDateClosed = (dateStr: string): boolean => {
+    return closedDates.some(c => c.date === dateStr && c.spot === null);
   };
 
   const isAvailableDay = (date: Date): boolean => {
@@ -87,15 +135,20 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths }:
     const todayStr = getTodayKST();
     const isPast = dateStr < todayStr;
     const closed = available && !isPast && isBookingClosed(dateStr);
+    const dayClosed = isDateClosed(dateStr);
+    const stats = dateStats[dateStr]?._total;
+    const isDisabled = !available || isPast || closed || dayClosed;
 
     days.push(
       <button
         key={day}
-        onClick={() => available && !isPast && !closed && toggleDate(dateStr)}
-        disabled={!available || isPast || closed}
+        onClick={() => !isDisabled && toggleDate(dateStr)}
+        disabled={isDisabled}
         className={`aspect-square p-1 sm:p-2 rounded-lg transition active:scale-95 ${
           selected
             ? 'bg-amber-600 text-white font-semibold shadow-md'
+            : dayClosed
+            ? 'bg-red-900/30 text-red-400 cursor-not-allowed border border-red-800/30'
             : closed
             ? 'bg-red-900/30 text-red-400 cursor-not-allowed border border-red-800/30'
             : available && !isPast
@@ -105,11 +158,19 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths }:
       >
         <div className="flex flex-col items-center justify-center h-full">
           <span className="text-sm sm:text-lg">{day}</span>
-          {closed && (
+          {dayClosed && (
+            <span className="text-[9px] sm:text-[10px] mt-0.5 text-red-400">휴무</span>
+          )}
+          {closed && !dayClosed && (
             <span className="text-[9px] sm:text-[10px] mt-0.5 text-red-400">마감</span>
           )}
-          {available && !isPast && !closed && (
-            <span className="text-[10px] sm:text-xs mt-0.5 sm:mt-1 opacity-75">{timeSlot}</span>
+          {available && !isPast && !closed && !dayClosed && (
+            <>
+              <span className="text-[10px] sm:text-xs mt-0.5 opacity-75">{timeSlot}</span>
+              {stats && stats.total > 0 && (
+                <span className="text-[8px] sm:text-[9px] mt-0.5 text-amber-300/80">{stats.total}명</span>
+              )}
+            </>
           )}
         </div>
       </button>
