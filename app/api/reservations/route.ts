@@ -51,6 +51,30 @@ export async function POST(request: NextRequest) {
     const closedSpot = await db.prepare('SELECT * FROM closed_dates WHERE date = ? AND spot = ?').bind(date, spot).first();
     if (closedSpot) return NextResponse.json({ error: '해당 날짜에 이 스팟은 운영하지 않습니다.' }, { status: 400 });
 
+    // 불편 멤버 회피: 내가 신고한 세션의 참여자가 같은 날짜+스팟에 예약돼있으면 경고 (차단은 아님)
+    let conflictWarning = '';
+    try {
+      const { results: myReports } = await db.prepare(
+        'SELECT date as report_date, spot as report_spot FROM reports WHERE reporter_name = ?'
+      ).bind(user.name).all();
+      for (const report of (myReports as any[])) {
+        const { results: coAttendees } = await db.prepare(
+          "SELECT user_name FROM reservations WHERE date = ? AND spot = ? AND user_name != ? AND check_in_status = 'attended'"
+        ).bind(report.report_date, report.report_spot, user.name).all();
+        const coNames = (coAttendees as any[]).map(c => c.user_name);
+        if (coNames.length > 0) {
+          const placeholders = coNames.map(() => '?').join(',');
+          const conflict = await db.prepare(
+            `SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ? AND user_name IN (${placeholders})`
+          ).bind(date, spot, ...coNames).first() as any;
+          if (conflict?.count > 0) {
+            conflictWarning = '이전에 불편을 경험한 세션의 참여자가 같은 스팟에 예약되어 있을 수 있습니다.';
+            break;
+          }
+        }
+      }
+    } catch (e) { /* 실패해도 예약 진행 */ }
+
     // 체험권 1회 제한
     const isTrial = user.phoneLast4?.startsWith('T-') || false;
     if (isTrial) {
@@ -91,7 +115,7 @@ export async function POST(request: NextRequest) {
     await db.prepare('INSERT INTO reservations (user_name, date, spot, mode, memo, energy, is_trial) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(user.name, date, spot, mode || 'smalltalk', memo || '', energy || 'normal', isTrial ? 1 : 0).run();
     await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action) VALUES (?, ?, ?, ?)').bind(user.name, date, spot, 'CREATE').run();
 
-    return NextResponse.json({ success: true, message: '예약이 완료되었습니다.' });
+    return NextResponse.json({ success: true, message: '예약이 완료되었습니다.', warning: conflictWarning || undefined });
   } catch (error) {
     console.error('Create reservation error:', error);
     return NextResponse.json({ error: '예약 중 오류가 발생했습니다.' }, { status: 500 });

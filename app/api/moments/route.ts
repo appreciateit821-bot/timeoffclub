@@ -18,6 +18,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ moments });
   }
 
+  // spot만 있으면 해당 스팟의 최근 한마디
+  if (spot) {
+    const { results: moments } = await db.prepare("SELECT moment_text, date, is_anonymous, CASE WHEN is_anonymous = 1 THEN '익명' ELSE user_name END as display_name, created_at FROM session_moments WHERE spot = ? ORDER BY created_at DESC LIMIT 5").bind(spot).all();
+    return NextResponse.json({ moments });
+  }
+
   const { results: moments } = await db.prepare("SELECT moment_text, date, spot, is_anonymous, CASE WHEN is_anonymous = 1 THEN '익명' ELSE user_name END as display_name, created_at FROM session_moments ORDER BY created_at DESC LIMIT 20").all();
   return NextResponse.json({ moments });
 }

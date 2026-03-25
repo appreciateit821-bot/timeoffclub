@@ -7,6 +7,8 @@ function SessionReadyContent() {
   const [reservation, setReservation] = useState<any>(null);
   const [participants, setParticipants] = useState<any[]>([]);
   const [randomQuestion, setRandomQuestion] = useState('');
+  const [reflectionCard, setReflectionCard] = useState('');
+  const [recentMoments, setRecentMoments] = useState<any[]>([]);
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -15,9 +17,22 @@ function SessionReadyContent() {
   const spot = searchParams.get('spot');
 
   useEffect(() => {
-    if (date && spot) fetchData();
+    if (date && spot) {
+      fetchData();
+      fetchRecentMoments();
+    }
     fetchRandomQuestion();
   }, [date, spot]);
+
+  const fetchRecentMoments = async () => {
+    try {
+      const res = await fetch(`/api/moments?spot=${encodeURIComponent(spot!)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setRecentMoments((data.moments || []).slice(0, 5));
+      }
+    } catch (e) {}
+  };
 
   const fetchData = async () => {
     try {
@@ -47,6 +62,28 @@ function SessionReadyContent() {
       }
     } catch (e) {}
   };
+
+  const REFLECTION_CARDS = [
+    { emoji: '📖', title: '읽기 명상', desc: '가져온 책이나 비치된 책을 펼치세요. 한 문장을 읽고, 그 문장이 떠올리는 기억에 잠시 머물러보세요.' },
+    { emoji: '✍️', title: '자유 글쓰기', desc: '3분 타이머를 마음속으로 세고, 머릿속에 떠오르는 것을 아무거나 써보세요. 문장이 안 되어도 괜찮아요.' },
+    { emoji: '🎵', title: '소리 관찰', desc: '눈을 감고 1분간 이 공간의 소리에 집중해보세요. 몇 가지 소리가 들리나요?' },
+    { emoji: '💭', title: '감사 리스트', desc: '오늘 감사한 것 3가지를 떠올려보세요. 아주 작은 것도 좋아요. 마음속으로 또는 종이에.' },
+    { emoji: '🌊', title: '호흡 관찰', desc: '5번의 깊은 호흡. 들숨에 배가 부풀고, 날숨에 어깨가 내려가는 걸 느껴보세요.' },
+    { emoji: '🪞', title: '오늘의 나', desc: '오늘 아침의 나와 지금의 나, 어떤 감정이 다른가요? 변한 게 있다면 왜일까요?' },
+    { emoji: '🌳', title: '창밖 관찰', desc: '창밖이나 주변을 천천히 둘러보세요. 평소에 지나쳤던 디테일이 보이나요?' },
+    { emoji: '✉️', title: '미래의 나에게', desc: '한 달 뒤의 나에게 짧은 편지를 마음속으로 써보세요. 뭘 말해주고 싶나요?' },
+    { emoji: '🎨', title: '낙서 타임', desc: '종이에 아무거나 그려보세요. 의미 없는 선도, 동그라미도 좋아요. 손이 움직이는 대로.' },
+    { emoji: '🌙', title: '멍 때리기', desc: '아무것도 안 해도 됩니다. 정말로. 그냥 앉아서 시간이 흐르는 걸 느껴보세요.' },
+  ];
+
+  const pickReflectionCard = () => {
+    setReflectionCard(JSON.stringify(REFLECTION_CARDS[Math.floor(Math.random() * REFLECTION_CARDS.length)]));
+  };
+
+  useEffect(() => { pickReflectionCard(); }, []);
+
+  const currentReflectionCard = reflectionCard ? JSON.parse(reflectionCard) : REFLECTION_CARDS[0];
+  const myMode = reservation?.mode || 'smalltalk';
 
   const energyEmoji = (e: string) => e === 'bright' ? '☀️' : e === 'quiet' ? '🌙' : '🌤️';
   const modeLabel = (m: string) => m === 'reflection' ? '🧘 사색' : '💬 스몰토크';
@@ -122,14 +159,39 @@ function SessionReadyContent() {
           })}
         </div>
 
-        {/* 오늘의 대화 카드 */}
-        <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-5 text-center">
-          <div className="text-xs text-amber-400 mb-2">🎲 오늘의 대화 카드</div>
-          <p className="text-amber-100 text-lg font-medium leading-relaxed">"{randomQuestion}"</p>
-          <button onClick={fetchRandomQuestion} className="mt-3 text-xs text-amber-300/70 hover:text-amber-200 underline transition">
-            다른 질문 뽑기
-          </button>
-        </div>
+        {/* 모드별 카드 */}
+        {myMode === 'reflection' ? (
+          <div className="bg-violet-900/20 border border-violet-700/30 rounded-xl p-5 text-center">
+            <div className="text-xs text-violet-400 mb-2">🧘 오늘의 사색 카드</div>
+            <div className="text-3xl mb-2">{currentReflectionCard.emoji}</div>
+            <p className="text-violet-100 text-lg font-medium">{currentReflectionCard.title}</p>
+            <p className="text-violet-200/70 text-sm mt-2 leading-relaxed">{currentReflectionCard.desc}</p>
+            <button onClick={pickReflectionCard} className="mt-3 text-xs text-violet-300/70 hover:text-violet-200 underline transition">
+              다른 카드 뽑기
+            </button>
+          </div>
+        ) : (
+          <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-5 text-center">
+            <div className="text-xs text-amber-400 mb-2">🗨️ 오늘의 대화 카드</div>
+            <p className="text-amber-100 text-lg font-medium leading-relaxed">"{randomQuestion}"</p>
+            <button onClick={fetchRandomQuestion} className="mt-3 text-xs text-amber-300/70 hover:text-amber-200 underline transition">
+              다른 질문 뽑기
+            </button>
+          </div>
+        )}
+
+        {/* 이 스팟의 최근 한마디 */}
+        {recentMoments.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-xs text-gray-400">💬 이 스팟의 최근 한마디</h3>
+            {recentMoments.map((m: any, i: number) => (
+              <div key={i} className="bg-gray-800/40 rounded-lg px-3 py-2 border border-gray-700/30">
+                <p className="text-gray-300 text-sm italic">"{m.moment_text}"</p>
+                <p className="text-gray-500 text-[10px] mt-1">{m.display_name} · {m.date}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* 안내사항 */}
         <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50 space-y-2.5">

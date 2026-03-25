@@ -47,9 +47,10 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
-  const [successInfo, setSuccessInfo] = useState<{ date: string; spot: string; mode: string } | null>(null);
+  const [successInfo, setSuccessInfo] = useState<{ date: string; spot: string; mode: string; warning?: string } | null>(null);
   const [waitlistStatus, setWaitlistStatus] = useState<{ [key: string]: number }>({});
   const [closedSpots, setClosedSpots] = useState<Set<string>>(new Set());
+  const [spotNotices, setSpotNotices] = useState<{ [spot: string]: string }>({});
 
   const [maxCapacity, setMaxCapacity] = useState(MAX_CAPACITY);
   const [spotCapacities, setSpotCapacities] = useState<{ [spot: string]: number }>({});
@@ -57,6 +58,11 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
   useEffect(() => {
     fetch('/api/admin/settings').then(r => r.json()).then(d => { if (d.maxCapacity) setMaxCapacity(d.maxCapacity); }).catch(() => {});
+    fetch('/api/admin/spot-notices').then(r => r.json()).then(d => {
+      const map: { [s: string]: string } = {};
+      (d.notices || []).forEach((n: any) => { map[n.spot] = n.notice; });
+      setSpotNotices(map);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -158,8 +164,9 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       });
 
       if (res.ok) {
+        const data = await res.json();
         const spotInfo = SPOT_DETAILS.find(s => s.id === selectedSpot);
-        setSuccessInfo({ date, spot: spotInfo?.name || selectedSpot, mode: selectedMode });
+        setSuccessInfo({ date, spot: spotInfo?.name || selectedSpot, mode: selectedMode, warning: data.warning });
         setShowSuccess(true);
         setSelectedSpot('');
         setSelectedMode('');
@@ -203,6 +210,11 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
             successInfo.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
           }`}>{successInfo.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</div>
         </div>
+        {successInfo.warning && (
+          <div className="bg-orange-900/30 border border-orange-700/30 rounded-lg p-3 text-sm text-orange-200">
+            ⚠️ {successInfo.warning} 다른 스팟으로 변경을 고려해보세요.
+          </div>
+        )}
         <div className="text-sm text-gray-400 space-y-1">
           <p>📍 현장에서 1인 1음료 주문을 부탁드려요</p>
           <p>📵 입장 시 스마트폰을 보관합니다</p>
@@ -289,6 +301,13 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     <span className="text-xs mt-0.5">✨</span><span className="text-xs leading-relaxed">{spotInfo.features}</span>
                   </p>
                 </div>
+
+                {/* 스팟 안내 */}
+                {spotNotices[spotInfo.id] && !isClosed && (
+                  <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-amber-700/50 text-amber-100' : 'bg-amber-900/30 text-amber-300/80'} border border-amber-700/20`}>
+                    ℹ️ {spotNotices[spotInfo.id]}
+                  </div>
+                )}
 
                 {/* 모드별 인원 */}
                 {count > 0 && stats && (

@@ -31,6 +31,7 @@ export default function AdminPage() {
   const [operatorRequests, setOperatorRequests] = useState<any[]>([]);
   const [replyingId, setReplyingId] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [spotNotices, setSpotNotices] = useState<{ [spot: string]: string }>({});
   const [closedDates, setClosedDates] = useState<any[]>([]);
   const [closeDate, setCloseDate] = useState('');
   const [closeSpot, setCloseSpot] = useState('');
@@ -308,6 +309,29 @@ export default function AdminPage() {
     } catch (e) { console.error(e); }
   };
 
+  const fetchSpotNotices = async () => {
+    try {
+      const res = await fetch('/api/admin/spot-notices');
+      if (res.ok) {
+        const data = await res.json();
+        const map: { [s: string]: string } = {};
+        (data.notices || []).forEach((n: any) => { map[n.spot] = n.notice; });
+        setSpotNotices(map);
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleSaveSpotNotice = async (spot: string, notice: string) => {
+    try {
+      await fetch('/api/admin/spot-notices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spot, notice })
+      });
+      fetchSpotNotices();
+    } catch (e) { console.error(e); }
+  };
+
   const fetchClosedDates = async () => {
     try {
       const res = await fetch('/api/admin/calendar');
@@ -570,7 +594,7 @@ export default function AdminPage() {
               📮 요청
             </button>
             <button
-              onClick={() => { setActiveTab('calendar'); fetchClosedDates(); fetchCapacities(); }}
+              onClick={() => { setActiveTab('calendar'); fetchClosedDates(); fetchCapacities(); fetchSpotNotices(); }}
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'calendar'
                   ? 'text-amber-400 border-amber-400'
@@ -1362,6 +1386,26 @@ export default function AdminPage() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* 스팟별 안내 메시지 */}
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 space-y-3">
+              <h3 className="text-sm font-medium text-white">ℹ️ 스팟별 안내 메시지</h3>
+              <p className="text-xs text-gray-400">멤버가 스팟 선택 시 표시됩니다. 비우면 안내가 사라집니다.</p>
+              {(SPOTS as readonly string[]).map(spot => (
+                <div key={spot} className="flex gap-2 items-start">
+                  <span className="text-xs text-gray-400 mt-2 w-24 flex-shrink-0 truncate">{spot.split('_')[1] || spot}</span>
+                  <input
+                    type="text"
+                    defaultValue={spotNotices[spot] || ''}
+                    onBlur={(e) => {
+                      if (e.target.value !== (spotNotices[spot] || '')) handleSaveSpotNotice(spot, e.target.value);
+                    }}
+                    className="flex-1 px-3 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-xs placeholder-gray-500"
+                    placeholder="안내 메시지 (예: 수요일은 8시에 맞춰 오픈합니다)"
+                  />
+                </div>
+              ))}
             </div>
 
             {closedDates.length > 0 ? (
