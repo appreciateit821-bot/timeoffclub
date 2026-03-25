@@ -49,6 +49,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   const [showSuccess, setShowSuccess] = useState(false);
   const [successInfo, setSuccessInfo] = useState<{ date: string; spot: string; mode: string } | null>(null);
   const [waitlistStatus, setWaitlistStatus] = useState<{ [key: string]: number }>({});
+  const [closedSpots, setClosedSpots] = useState<Set<string>>(new Set());
 
   const [maxCapacity, setMaxCapacity] = useState(MAX_CAPACITY);
   const [spotCapacities, setSpotCapacities] = useState<{ [spot: string]: number }>({});
@@ -86,8 +87,29 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   }, [date]);
 
   useEffect(() => {
-    if (date) fetchAvailability();
+    if (date) {
+      fetchAvailability();
+      fetchClosedSpots();
+    }
   }, [date]);
+
+  const fetchClosedSpots = async () => {
+    try {
+      const month = date.slice(0, 7);
+      const res = await fetch(`/api/reservations/stats?month=${month}`);
+      if (res.ok) {
+        const data = await res.json();
+        const closed = new Set<string>();
+        for (const c of (data.closed || [])) {
+          if (c.date === date) {
+            if (!c.spot) { SPOTS.forEach(s => closed.add(s)); } // 전체 닫기
+            else { closed.add(c.spot); }
+          }
+        }
+        setClosedSpots(closed);
+      }
+    } catch (e) { console.error(e); }
+  };
 
   const fetchAvailability = async () => {
     const res = await fetch(`/api/reservations?date=${date}`);
@@ -216,18 +238,21 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       <div className="grid gap-3">
         {shuffledSpots.map(spotInfo => {
           const count = availability[spotInfo.id] || 0;
-          const isFull = count >= getCapForSpot(spotInfo.id);
+          const isClosed = closedSpots.has(spotInfo.id);
+          const isFull = !isClosed && count >= getCapForSpot(spotInfo.id);
           const isSelected = selectedSpot === spotInfo.id;
           const stats = modeStats[spotInfo.id];
 
           return (
             <button
               key={spotInfo.id}
-              onClick={() => !isFull && setSelectedSpot(spotInfo.id)}
-              disabled={isFull}
+              onClick={() => !isFull && !isClosed && setSelectedSpot(spotInfo.id)}
+              disabled={isFull || isClosed}
               className={`p-3 sm:p-4 rounded-lg transition text-left active:scale-[0.98] ${
                 isSelected
                   ? 'bg-amber-600 text-white border-2 border-amber-500'
+                  : isClosed
+                  ? 'bg-gray-800 text-gray-600 cursor-not-allowed border border-gray-700 opacity-60'
                   : isFull
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-600'
                   : 'bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 hover:border-amber-500/50'
@@ -237,6 +262,9 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 <div className="flex justify-between items-start">
                   <span className="font-semibold text-base">{spotInfo.name}</span>
                   <div className="text-right">
+                    {isClosed ? (
+                      <span className="text-sm font-medium px-2 py-1 rounded bg-gray-700 text-gray-500">휴무</span>
+                    ) : (
                     <span className={`text-sm font-medium px-2 py-1 rounded ${
                       isFull ? 'bg-red-900/50 text-red-300'
                       : isSelected ? 'bg-amber-700 text-amber-100'
@@ -244,6 +272,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     }`}>
                       {count}/{getCapForSpot(spotInfo.id)}명
                     </span>
+                    )}
                     {!isFull && count >= getCapForSpot(spotInfo.id) * 0.8 && (
                       <div className="text-[10px] text-orange-400 mt-0.5">🔥 마감 임박</div>
                     )}
