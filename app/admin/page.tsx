@@ -41,6 +41,10 @@ export default function AdminPage() {
   const [capLimit, setCapLimit] = useState('');
   const [defaultCapacity, setDefaultCapacity] = useState(10);
   const [spotNotices, setSpotNotices] = useState<any[]>([]);
+  const [notifyName, setNotifyName] = useState('');
+  const [notifyTitle, setNotifyTitle] = useState('');
+  const [notifyBody, setNotifyBody] = useState('');
+  const [notifySuccess, setNotifySuccess] = useState('');
   const [noticeSpot, setNoticeSpot] = useState('');
   const [noticeText, setNoticeText] = useState('');
   const [noticeTitle, setNoticeTitle] = useState('');
@@ -308,6 +312,22 @@ export default function AdminPage() {
         body: JSON.stringify({ id, adminReply: replyText.trim() })
       });
       if (res.ok) { setReplyingId(null); setReplyText(''); fetchRequests(); }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleSendNotify = async () => {
+    if (!notifyName || !notifyBody) return;
+    setNotifySuccess('');
+    try {
+      const res = await fetch('/api/admin/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userName: notifyName, title: notifyTitle || '📢 웰모먼트 안내', body: notifyBody })
+      });
+      if (res.ok) {
+        setNotifySuccess(`${notifyName}님에게 알림을 보냈습니다.`);
+        setNotifyName(''); setNotifyTitle(''); setNotifyBody('');
+      }
     } catch (e) { console.error(e); }
   };
 
@@ -1442,6 +1462,36 @@ export default function AdminPage() {
             ) : (
               <div className="text-center py-8 text-gray-400">닫힌 날짜가 없습니다.</div>
             )}
+
+            {/* 멤버에게 개별 알림 */}
+            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 space-y-3">
+              <h3 className="text-sm font-medium text-white">🔔 멤버에게 알림 보내기</h3>
+              {notifySuccess && <p className="text-green-300 text-xs">{notifySuccess}</p>}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">멤버 이름</label>
+                  <input type="text" value={notifyName} onChange={(e) => setNotifyName(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                    placeholder="이름 정확히 입력" />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">제목 (선택)</label>
+                  <input type="text" value={notifyTitle} onChange={(e) => setNotifyTitle(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                    placeholder="기본: 📢 웰모먼트 안내" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-400 mb-1">내용</label>
+                <textarea value={notifyBody} onChange={(e) => setNotifyBody(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm min-h-[60px] resize-y"
+                  placeholder="멤버에게 전달할 안내 내용" />
+              </div>
+              <button onClick={handleSendNotify} disabled={!notifyName || !notifyBody}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition disabled:opacity-50">
+                🔔 알림 보내기
+              </button>
+            </div>
           </div>
         )}
         {/* 공지 관리 */}
