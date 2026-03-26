@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { SPOTS, MAX_CAPACITY, SPOT_DETAILS } from '@/lib/constants';
+import { SPOTS, MAX_CAPACITY, SPOT_DETAILS, getSessionStartTime, getSessionEndTime } from '@/lib/constants';
 
 const SMALLTALK_PLACEHOLDERS = [
   '지금 이 공간에서 가장 먼저 눈에 들어온 건 뭔가요?',
@@ -214,6 +214,30 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
             ⚠️ {successInfo.warning} 다른 스팟으로 변경을 고려해보세요.
           </div>
         )}
+
+        {/* 캘린더 추가 */}
+        <div className="bg-blue-900/20 border border-blue-700/30 rounded-xl p-4 space-y-3">
+          <p className="text-blue-200 text-sm font-medium text-center">📅 캘린더에 추가하면 잊지 않아요!</p>
+          <div className="flex gap-2">
+            <a href={`/api/reservations/ics?date=${successInfo.date}&spot=${encodeURIComponent(SPOT_DETAILS.find(s => s.name === successInfo.spot || s.id === successInfo.spot)?.id || successInfo.spot)}`}
+              className="flex-1 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm text-center transition active:scale-95 font-medium">
+              📱 아이폰 캘린더
+            </a>
+            <a href={(() => {
+              const spotId = SPOT_DETAILS.find(s => s.name === successInfo.spot || s.id === successInfo.spot)?.id || successInfo.spot;
+              const spotInfo = SPOT_DETAILS.find(s => s.id === spotId);
+              const start = getSessionStartTime(successInfo.date);
+              const end = getSessionEndTime(successInfo.date);
+              const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+              return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('타임오프클럽 - ' + (spotInfo?.name || spotId))}&dates=${fmt(start)}/${fmt(end)}&location=${encodeURIComponent(spotInfo?.address || '')}&details=${encodeURIComponent('📵 스마트폰 보관 | ☕ 1인 1음료')}`;
+            })()}
+              target="_blank" rel="noopener noreferrer"
+              className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm text-center transition active:scale-95 font-medium">
+              📅 구글 캘린더
+            </a>
+          </div>
+        </div>
+
         <div className="text-sm text-gray-400 space-y-1">
           <p>📍 현장에서 1인 1음료 주문을 부탁드려요</p>
           <p>📵 입장 시 스마트폰을 보관합니다</p>

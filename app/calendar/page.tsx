@@ -12,12 +12,26 @@ export default function CalendarPage() {
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [reservations, setReservations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
     fetchUser();
     fetchReservations();
+    fetchNotifications();
   }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications');
+      if (res.ok) setNotifications((await res.json()).notifications);
+    } catch (e) {}
+  };
+
+  const dismissNotifications = async () => {
+    await fetch('/api/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+    setNotifications([]);
+  };
 
   const fetchUser = async () => {
     try {
@@ -118,6 +132,23 @@ export default function CalendarPage() {
           </div>
         </div>
       </header>
+
+      {/* 알림 배너 */}
+      {notifications.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          {notifications.map((n: any) => (
+            <div key={n.id} className="bg-amber-900/30 border border-amber-700/40 rounded-xl p-4 mb-2 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-amber-200 text-sm font-medium">{n.title}</p>
+                <p className="text-gray-300 text-xs mt-1">{n.body}</p>
+              </div>
+            </div>
+          ))}
+          <button onClick={dismissNotifications} className="text-xs text-gray-500 hover:text-gray-400 mt-1">
+            모두 확인
+          </button>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
