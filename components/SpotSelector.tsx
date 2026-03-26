@@ -18,18 +18,16 @@ const SMALLTALK_PLACEHOLDERS = [
   '누군가에게 받은 작지만 큰 친절은?',
 ];
 
-const REFLECTION_PLACEHOLDERS = [
-  '책 읽기',
-  '생각 정리하기',
-  '일기 쓰기',
-  '마음 속 감정 들여다보기',
-  '좋아하는 음악 떠올리기',
-  '창밖 바라보기',
-  '오늘 하루 되돌아보기',
-  '아무것도 안 하기',
-  '손글씨로 편지 쓰기',
-  '고마운 사람 떠올리기',
+const REFLECTION_ACTIVITIES = [
+  { id: 'journal', emoji: '✍️', label: '일기 쓰기', guide: '펜과 노트를 가져오세요. 오늘의 감정, 생각을 자유롭게 적어보는 시간입니다.' },
+  { id: 'reading', emoji: '📖', label: '책 읽기', guide: '읽고 싶은 책을 한 권 가져오세요. 폰 없이 오롯이 책에 빠져드는 시간입니다.' },
+  { id: 'letter', emoji: '✉️', label: '편지 쓰기', guide: '편지지나 노트를 준비해주세요. 누군가에게, 또는 미래의 나에게 쓰는 편지.' },
+  { id: 'drawing', emoji: '🎨', label: '드로잉 / 낙서', guide: '스케치북이나 종이를 가져오세요. 잘 그릴 필요 없어요. 손이 가는 대로.' },
+  { id: 'thinking', emoji: '💭', label: '생각 정리', guide: '메모할 펜과 종이만 있으면 돼요. 머릿속 생각을 꺼내서 정리하는 시간.' },
+  { id: 'rest', emoji: '🌙', label: '그냥 쉬기', guide: '아무것도 준비하지 않아도 됩니다. 공간에서 멍하니 쉬는 것 자체가 사색이에요.' },
 ];
+
+const REFLECTION_PLACEHOLDERS = REFLECTION_ACTIVITIES.map(a => a.label);
 
 interface SpotSelectorProps {
   selectedDates: string[];
@@ -46,6 +44,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   const [modeStats, setModeStats] = useState<{ [spot: string]: { smalltalk: number; reflection: number } }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [reflectionActivity, setReflectionActivity] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [successInfo, setSuccessInfo] = useState<{ date: string; spot: string; mode: string; warning?: string } | null>(null);
   const [waitlistStatus, setWaitlistStatus] = useState<{ [key: string]: number }>({});
@@ -160,7 +159,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       const res = await fetch('/api/reservations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date, spot: selectedSpot, mode: selectedMode, memo })
+        body: JSON.stringify({ date, spot: selectedSpot, mode: selectedMode, memo: selectedMode === 'reflection' && reflectionActivity ? `[${REFLECTION_ACTIVITIES.find(a => a.id === reflectionActivity)?.label}] ${memo}`.trim() : memo })
       });
 
       if (res.ok) {
@@ -355,14 +354,42 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
             {!selectedMode && <p className="text-[10px] text-amber-300 mt-1">스몰토크 또는 사색을 선택해주세요</p>}
           </div>
 
+          {/* 사색 활동 선택 */}
+          {selectedMode === 'reflection' && (
+            <div>
+              <div className="text-xs text-gray-400 mb-2">🧘 오늘의 사색 활동 <span className="text-gray-500">(선택)</span></div>
+              <div className="grid grid-cols-2 gap-2">
+                {REFLECTION_ACTIVITIES.map(a => (
+                  <button key={a.id} type="button"
+                    onClick={() => setReflectionActivity(reflectionActivity === a.id ? '' : a.id)}
+                    className={`p-2.5 rounded-lg text-left transition text-sm ${
+                      reflectionActivity === a.id
+                        ? 'bg-violet-600/30 border-2 border-violet-500 text-violet-100'
+                        : 'bg-gray-700/60 border border-gray-600 text-gray-300 hover:border-violet-500/30'
+                    }`}>
+                    <span className="text-base">{a.emoji}</span>
+                    <span className="ml-1.5">{a.label}</span>
+                  </button>
+                ))}
+              </div>
+              {reflectionActivity && (
+                <div className="mt-2 p-3 bg-violet-900/20 border border-violet-700/30 rounded-lg">
+                  <p className="text-xs text-violet-300">
+                    📋 {REFLECTION_ACTIVITIES.find(a => a.id === reflectionActivity)?.guide}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           <div>
             <div className="text-xs text-gray-400 mb-2">
-              {selectedMode === 'reflection' ? '💭 오늘의 사색 키워드 (선택)' : selectedMode === 'smalltalk' ? '💭 오늘 나누고 싶은 대화 (선택)' : '💭 참여 방식을 먼저 선택해주세요'}
+              {selectedMode === 'reflection' ? '💭 메모 (선택)' : selectedMode === 'smalltalk' ? '💭 오늘 나누고 싶은 대화 (선택)' : '💭 참여 방식을 먼저 선택해주세요'}
             </div>
             <input
               type="text" value={memo} onChange={(e) => setMemo(e.target.value)}
               className="w-full px-3 py-2.5 bg-gray-700/80 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-              placeholder={selectedMode === 'smalltalk' ? `예: ${smalltalkPlaceholder}` : `예: ${reflectionPlaceholder}`}
+              placeholder={selectedMode === 'smalltalk' ? `예: ${smalltalkPlaceholder}` : reflectionActivity ? `${REFLECTION_ACTIVITIES.find(a => a.id === reflectionActivity)?.label}에 대한 메모...` : '사색 키워드나 메모'}
               maxLength={100}
             />
           </div>

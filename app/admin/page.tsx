@@ -31,7 +31,6 @@ export default function AdminPage() {
   const [operatorRequests, setOperatorRequests] = useState<any[]>([]);
   const [replyingId, setReplyingId] = useState<number | null>(null);
   const [replyText, setReplyText] = useState('');
-  const [spotNotices, setSpotNotices] = useState<{ [spot: string]: string }>({});
   const [closedDates, setClosedDates] = useState<any[]>([]);
   const [closeDate, setCloseDate] = useState('');
   const [closeSpot, setCloseSpot] = useState('');
@@ -41,6 +40,9 @@ export default function AdminPage() {
   const [capSpot, setCapSpot] = useState('');
   const [capLimit, setCapLimit] = useState('');
   const [defaultCapacity, setDefaultCapacity] = useState(10);
+  const [spotNotices, setSpotNotices] = useState<any[]>([]);
+  const [noticeSpot, setNoticeSpot] = useState('');
+  const [noticeText, setNoticeText] = useState('');
   const [noticeTitle, setNoticeTitle] = useState('');
   const [noticeContent, setNoticeContent] = useState('');
   const [noticeTarget, setNoticeTarget] = useState('all');
@@ -309,29 +311,6 @@ export default function AdminPage() {
     } catch (e) { console.error(e); }
   };
 
-  const fetchSpotNotices = async () => {
-    try {
-      const res = await fetch('/api/admin/spot-notices');
-      if (res.ok) {
-        const data = await res.json();
-        const map: { [s: string]: string } = {};
-        (data.notices || []).forEach((n: any) => { map[n.spot] = n.notice; });
-        setSpotNotices(map);
-      }
-    } catch (e) { console.error(e); }
-  };
-
-  const handleSaveSpotNotice = async (spot: string, notice: string) => {
-    try {
-      await fetch('/api/admin/spot-notices', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spot, notice })
-      });
-      fetchSpotNotices();
-    } catch (e) { console.error(e); }
-  };
-
   const fetchClosedDates = async () => {
     try {
       const res = await fetch('/api/admin/calendar');
@@ -385,6 +364,26 @@ export default function AdminPage() {
     try {
       await fetch(`/api/admin/calendar?id=${id}`, { method: 'DELETE' });
       fetchClosedDates();
+    } catch (e) { console.error(e); }
+  };
+
+  const fetchSpotNotices = async () => {
+    try {
+      const res = await fetch('/api/admin/spot-notices');
+      if (res.ok) setSpotNotices((await res.json()).notices);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleSaveSpotNotice = async () => {
+    if (!noticeSpot) return;
+    try {
+      await fetch('/api/admin/spot-notices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spot: noticeSpot, notice: noticeText })
+      });
+      setNoticeSpot(''); setNoticeText('');
+      fetchSpotNotices();
     } catch (e) { console.error(e); }
   };
 
@@ -1391,21 +1390,36 @@ export default function AdminPage() {
             {/* 스팟별 안내 메시지 */}
             <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 space-y-3">
               <h3 className="text-sm font-medium text-white">ℹ️ 스팟별 안내 메시지</h3>
-              <p className="text-xs text-gray-400">멤버가 스팟 선택 시 표시됩니다. 비우면 안내가 사라집니다.</p>
-              {(SPOTS as readonly string[]).map(spot => (
-                <div key={spot} className="flex gap-2 items-start">
-                  <span className="text-xs text-gray-400 mt-2 w-24 flex-shrink-0 truncate">{spot.split('_')[1] || spot}</span>
-                  <input
-                    type="text"
-                    defaultValue={spotNotices[spot] || ''}
-                    onBlur={(e) => {
-                      if (e.target.value !== (spotNotices[spot] || '')) handleSaveSpotNotice(spot, e.target.value);
-                    }}
-                    className="flex-1 px-3 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-xs placeholder-gray-500"
-                    placeholder="안내 메시지 (예: 수요일은 8시에 맞춰 오픈합니다)"
-                  />
+              <p className="text-xs text-gray-500">멤버가 스팟 선택 시 보이는 안내입니다. (비우면 삭제)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <select value={noticeSpot} onChange={(e) => {
+                  setNoticeSpot(e.target.value);
+                  const existing = spotNotices.find((n: any) => n.spot === e.target.value);
+                  setNoticeText(existing?.notice || '');
+                }} className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
+                  <option value="">스팟 선택</option>
+                  {(SPOTS as readonly string[]).map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+                <input type="text" value={noticeText} onChange={(e) => setNoticeText(e.target.value)}
+                  className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                  placeholder="예: 수요일은 8시에 맞춰 오픈합니다" />
+              </div>
+              <button onClick={handleSaveSpotNotice} disabled={!noticeSpot}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition disabled:opacity-50">
+                저장
+              </button>
+              {spotNotices.length > 0 && (
+                <div className="space-y-1.5 mt-2">
+                  {spotNotices.map((n: any) => (
+                    <div key={n.id} className="bg-gray-700/50 rounded-lg p-2.5 flex justify-between items-center">
+                      <div>
+                        <span className="text-gray-300 text-xs">{n.spot}</span>
+                        <span className="text-amber-300 text-xs ml-2">ℹ️ {n.notice}</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
 
             {closedDates.length > 0 ? (

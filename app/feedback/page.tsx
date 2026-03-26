@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { SPOTS } from '@/lib/constants';
 
 export default function FeedbackPage() {
-  const [activeTab, setActiveTab] = useState<'feedback' | 'request'>('feedback');
+  const [activeTab, setActiveTab] = useState<'feedback' | 'request' | 'reflection'>('feedback');
   const [sessions, setSessions] = useState<any[]>([]);
   const [selectedSession, setSelectedSession] = useState<any>(null);
   const [serviceRating, setServiceRating] = useState(5);
@@ -15,6 +15,15 @@ export default function FeedbackPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
+
+  // 사색 회고
+  const [reflectionSessions, setReflectionSessions] = useState<any[]>([]);
+  const [selectedReflection, setSelectedReflection] = useState<any>(null);
+  const [refFeeling, setRefFeeling] = useState('');
+  const [refInsight, setRefInsight] = useState('');
+  const [refNextTime, setRefNextTime] = useState('');
+  const [refSuccess, setRefSuccess] = useState('');
+  const [myReflectionLogs, setMyReflectionLogs] = useState<any[]>([]);
 
   // 운영자에게 바라는 점
   const [reqCategory, setReqCategory] = useState('general');
@@ -52,7 +61,48 @@ export default function FeedbackPage() {
   useEffect(() => {
     fetchSessions();
     fetchMyRequests();
+    fetchReflectionData();
   }, []);
+
+  const fetchReflectionData = async () => {
+    try {
+      // 사색 모드로 참석한 세션
+      const sessRes = await fetch('/api/feedback');
+      if (sessRes.ok) {
+        const data = await sessRes.json();
+        setReflectionSessions((data.sessions || []).filter((s: any) => s.mode === 'reflection'));
+      }
+      // 내 회고 기록
+      const logRes = await fetch('/api/reflection-log');
+      if (logRes.ok) {
+        setMyReflectionLogs((await logRes.json()).logs);
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleReflectionSubmit = async () => {
+    if (!selectedReflection) return;
+    try {
+      const res = await fetch('/api/reflection-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: selectedReflection.date,
+          spot: selectedReflection.spot,
+          activity: selectedReflection.memo || '',
+          feeling: refFeeling,
+          insight: refInsight,
+          nextTime: refNextTime
+        })
+      });
+      if (res.ok) {
+        setRefSuccess('회고가 저장되었습니다 🌿');
+        setSelectedReflection(null);
+        setRefFeeling(''); setRefInsight(''); setRefNextTime('');
+        fetchReflectionData();
+      }
+    } catch (e) { alert('저장 중 오류'); }
+  };
 
   const fetchMyRequests = async () => {
     try {
@@ -157,17 +207,131 @@ export default function FeedbackPage() {
             className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition ${
               activeTab === 'feedback' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
-          >💬 세션 피드백</button>
+          >💬 피드백</button>
+          <button
+            onClick={() => setActiveTab('reflection')}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition ${
+              activeTab === 'reflection' ? 'bg-violet-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >🧘 사색 회고</button>
           <button
             onClick={() => setActiveTab('request')}
             className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition ${
               activeTab === 'request' ? 'bg-emerald-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
             }`}
-          >📮 운영자에게 바라는 점</button>
+          >📮 요청</button>
         </div>
 
         {success && (
           <div className="bg-green-900/50 border border-green-700 text-green-200 px-4 py-3 rounded-lg">{success}</div>
+        )}
+
+        {/* 사색 회고 탭 */}
+        {activeTab === 'reflection' && (
+          <div className="space-y-6">
+            {refSuccess && (
+              <div className="bg-green-900/50 border border-green-700 text-green-200 px-4 py-3 rounded-lg">{refSuccess}</div>
+            )}
+
+            {!selectedReflection ? (
+              <div className="space-y-4">
+                <div className="bg-violet-900/20 border border-violet-700/30 rounded-xl p-4">
+                  <h3 className="text-violet-200 font-medium text-sm mb-1">🧘 사색 회고</h3>
+                  <p className="text-gray-400 text-xs">사색 세션 후, 느낀 점과 다음에 하고 싶은 것을 기록해보세요. 나만의 사색 일지가 됩니다.</p>
+                </div>
+
+                {reflectionSessions.length === 0 ? (
+                  <div className="text-center py-12 text-gray-400">사색으로 참석한 세션이 없습니다.</div>
+                ) : (
+                  reflectionSessions.map((s: any) => {
+                    const hasLog = myReflectionLogs.some((l: any) => l.date === s.date && l.spot === s.spot);
+                    return (
+                      <button key={`${s.date}_${s.spot}`}
+                        onClick={() => !hasLog && setSelectedReflection(s)}
+                        disabled={hasLog}
+                        className={`w-full text-left p-4 rounded-lg border transition ${
+                          hasLog ? 'bg-gray-800 border-gray-700 opacity-60' : 'bg-gray-800 border-gray-700 hover:border-violet-600'
+                        }`}>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <div className="text-white font-medium">{s.date}</div>
+                            <div className="text-gray-400 text-sm">{s.spot}</div>
+                            {s.memo && <div className="text-gray-500 text-xs mt-1 italic">"{s.memo}"</div>}
+                          </div>
+                          {hasLog ? (
+                            <span className="px-2 py-1 bg-violet-900/50 text-violet-300 rounded text-xs">작성완료</span>
+                          ) : (
+                            <span className="px-2 py-1 bg-violet-900/50 text-violet-300 rounded text-xs">회고 남기기</span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })
+                )}
+
+                {/* 내 회고 기록 */}
+                {myReflectionLogs.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-300 mb-3">📔 나의 사색 일지</h3>
+                    <div className="space-y-2">
+                      {myReflectionLogs.map((l: any) => (
+                        <div key={l.id} className="bg-gray-800/60 rounded-lg p-4 border border-violet-800/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-white text-sm font-medium">{l.date}</span>
+                            <span className="text-gray-500 text-xs">{l.spot}</span>
+                          </div>
+                          {l.activity && <p className="text-violet-300 text-xs mb-1">🧘 {l.activity}</p>}
+                          {l.feeling && <p className="text-gray-300 text-sm">💭 {l.feeling}</p>}
+                          {l.insight && <p className="text-amber-200/80 text-sm mt-1">💡 {l.insight}</p>}
+                          {l.next_time && <p className="text-gray-400 text-xs mt-1">다음에는: {l.next_time}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <div className="bg-gray-800 rounded-lg p-4 border border-violet-700/30">
+                  <div className="text-white font-medium">{selectedReflection.date}</div>
+                  <div className="text-gray-400 text-sm">{selectedReflection.spot}</div>
+                  {selectedReflection.memo && <div className="text-gray-500 text-xs mt-1 italic">"{selectedReflection.memo}"</div>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">💭 오늘 사색은 어땠나요?</label>
+                  <textarea value={refFeeling} onChange={(e) => setRefFeeling(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 min-h-[80px] resize-y"
+                    placeholder="편안했다, 집중이 잘 됐다, 생각이 많았다..." />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">💡 떠오른 생각이나 깨달음</label>
+                  <textarea value={refInsight} onChange={(e) => setRefInsight(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 min-h-[80px] resize-y"
+                    placeholder="사색 중 떠오른 생각, 결론, 아이디어..." />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">🔄 다음 사색 때 하고 싶은 것</label>
+                  <input type="text" value={refNextTime} onChange={(e) => setRefNextTime(e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    placeholder="다음에는 편지 써봐야지, 드로잉 해봐야지..." />
+                </div>
+
+                <div className="flex gap-3">
+                  <button onClick={handleReflectionSubmit} disabled={!refFeeling.trim()}
+                    className="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50 active:scale-95">
+                    회고 저장하기
+                  </button>
+                  <button onClick={() => setSelectedReflection(null)}
+                    className="px-6 bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg transition active:scale-95">
+                    취소
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {/* 운영자에게 바라는 점 탭 */}

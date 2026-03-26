@@ -9,7 +9,7 @@ export async function GET() {
   const session = await getSession();
   if (!session || !db) return NextResponse.json({ error: '로그인 필요' }, { status: 401 });
 
-  const { results: attended } = await db.prepare("SELECT id, date, spot, check_in_status FROM reservations WHERE user_name = ? AND check_in_status = 'attended' ORDER BY date DESC").bind(session.name).all();
+  const { results: attended } = await db.prepare("SELECT id, date, spot, check_in_status, mode, memo FROM reservations WHERE user_name = ? AND check_in_status = 'attended' ORDER BY date DESC").bind(session.name).all();
   const { results: feedbacks } = await db.prepare('SELECT date, spot FROM feedbacks WHERE user_name = ?').bind(session.name).all();
 
   const feedbackSet = new Set((feedbacks as any[]).map(f => `${f.date}_${f.spot}`));
