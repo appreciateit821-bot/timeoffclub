@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       ).bind(
         r.user_name,
         '🌿 오늘 타임오프클럽이 있어요!',
-        `${r.spot.split('_')[1] || r.spot}에서 ${r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'} 예정이에요. 변경/취소는 세션 2시간 전까지 가능합니다.`,
+        `${r.spot.split('_')[1] || r.spot}에서 ${r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'} 예정이에요. 멤버들이 기다리고 있으니 정시 참석 부탁드려요❤️`,
         'reminder',
         targetDate,
         r.spot
