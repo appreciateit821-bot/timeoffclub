@@ -48,37 +48,61 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-900/20 via-gray-900 to-gray-900 px-4 py-6 sm:py-12">
       <div className="w-full max-w-lg">
         <div className="bg-gray-800/80 backdrop-blur rounded-2xl shadow-2xl p-5 sm:p-8 border border-amber-700/30">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
+            {/* 5. 히어로 배지 */}
+            <div className="inline-block px-4 py-1.5 bg-amber-900/30 border border-amber-700/30 rounded-full mb-3">
+              <p className="text-xs text-amber-300">🌿 누적 <strong className="text-amber-200">89명</strong>이 타임오프를 경험했습니다</p>
+            </div>
             <h1 className="text-3xl font-bold text-amber-100 mb-2">타임오프클럽</h1>
             <p className="text-base sm:text-lg text-amber-200/90 font-medium mb-3 leading-relaxed">목적 없는 즐거움,<br/>다정한 디지털 로그아웃<br className="sm:hidden" /> 스몰토크를 제안합니다</p>
-            <div className="mt-2 inline-block px-4 py-1.5 bg-amber-900/30 border border-amber-700/30 rounded-full">
-              <p className="text-xs text-amber-300">🌿 3월, <strong className="text-amber-200">44명</strong>의 멤버와 함께하고 있습니다</p>
+          </div>
+
+          {/* 1. 소셜 프루프 스트립 */}
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <div className="flex -space-x-2">
+              {['🧑‍💼','👩‍🎨','👨‍✈️','👩‍💻'].map((e, i) => (
+                <div key={i} className="w-7 h-7 rounded-full bg-gray-700 border-2 border-gray-800 flex items-center justify-center text-xs">{e}</div>
+              ))}
+            </div>
+            <p className="text-gray-400 text-xs">이번 달 <strong className="text-amber-300">12명</strong>이 첫 방문했어요</p>
+          </div>
+
+          {/* 2. 다음 모임 + 희소성 */}
+          <div className="grid grid-cols-2 gap-2 mb-6">
+            <div className="bg-gray-700/40 rounded-xl p-3 text-center border border-gray-600/50">
+              <div className="text-[10px] text-gray-400">이번 주 수요일</div>
+              <div className="text-white font-bold text-sm mt-0.5">저녁 8:00</div>
+              <div className="text-amber-400 text-[10px] mt-1 font-medium">3자리 남음</div>
+            </div>
+            <div className="bg-gray-700/40 rounded-xl p-3 text-center border border-gray-600/50">
+              <div className="text-[10px] text-gray-400">이번 주 일요일</div>
+              <div className="text-white font-bold text-sm mt-0.5">오후 3:00</div>
+              <div className="text-gray-500 text-[10px] mt-1">여유 있음</div>
             </div>
           </div>
 
-          {/* 클럽 규칙 소개 */}
-          <div className="mb-8 p-4 sm:p-5 bg-gray-700/50 rounded-xl border border-gray-600">
-            <h2 className="text-sm font-bold text-amber-300 mb-3 text-center">클럽 규칙</h2>
+          {/* 3. 규칙 → 경험 언어 */}
+          <div className="mb-6 p-4 sm:p-5 bg-gray-700/40 rounded-xl border border-gray-600/50">
             <div className="space-y-3 text-sm text-gray-300">
               <div className="flex items-start gap-3">
-                <span className="text-amber-400 font-bold flex-shrink-0">📵</span>
+                <span className="text-amber-400 font-bold flex-shrink-0 text-lg">📵</span>
                 <div>
-                  <p className="font-semibold text-amber-100">Digital OFF</p>
-                  <p className="text-xs text-gray-400 mt-0.5">입장하실 때 스마트폰을 보관합니다</p>
+                  <p className="font-semibold text-amber-100">폰은 잠시 맡깁니다</p>
+                  <p className="text-xs text-gray-400 mt-0.5">2시간 동안 온전히 '지금 여기'에 집중해요</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-amber-400 font-bold flex-shrink-0">🎯</span>
+                <span className="text-amber-400 font-bold flex-shrink-0 text-lg">🎯</span>
                 <div>
-                  <p className="font-semibold text-amber-100">Outcome OFF</p>
-                  <p className="text-xs text-gray-400 mt-0.5">나이, 직업, 배경을 묻지 않습니다</p>
+                  <p className="font-semibold text-amber-100">직함은 필요 없습니다</p>
+                  <p className="text-xs text-gray-400 mt-0.5">나이도 직업도 묻지 않는 가벼운 대화</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-amber-400 font-bold flex-shrink-0">💭</span>
+                <span className="text-amber-400 font-bold flex-shrink-0 text-lg">💭</span>
                 <div>
-                  <p className="font-semibold text-amber-100">Resume OFF</p>
-                  <p className="text-xs text-gray-400 mt-0.5">스몰토크 또는 혼자 사색,<br className="sm:hidden" /> 직접 선택할 수 있습니다</p>
+                  <p className="font-semibold text-amber-100">오늘 기분대로 선택하세요</p>
+                  <p className="text-xs text-gray-400 mt-0.5">스몰토크 또는 사색, 매번 달라도 괜찮아요</p>
                 </div>
               </div>
             </div>
@@ -101,7 +125,7 @@ export default function LoginPage() {
                   : 'text-gray-400 hover:text-gray-200'
               }`}
             >
-              멤버 로그인
+              멤버
             </button>
             <button
               type="button"
@@ -112,7 +136,7 @@ export default function LoginPage() {
                   : 'text-gray-400 hover:text-gray-200'
               }`}
             >
-              운영자 로그인
+              운영자
             </button>
           </div>
 
@@ -184,20 +208,20 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3.5 px-4 rounded-xl transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-base active:scale-95"
             >
-              {loading ? '로그인 중...' : '로그인'}
+              {loading ? '입장 중...' : '입장하기'}
             </button>
           </form>
 
-          {/* 멤버십 가입 */}
-          <div className="mt-5 pt-5 border-t border-gray-700 text-center">
-            <p className="text-gray-500 text-xs mb-2">아직 멤버가 아니신가요?</p>
+          {/* 멤버십 가입 — 버튼으로 격상 */}
+          <div className="mt-5 pt-5 border-t border-gray-700 space-y-3">
+            <p className="text-gray-400 text-xs text-center">아직 멤버가 아니신가요?</p>
             <a
               href="https://smartstore.naver.com/wellmoment"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block px-5 py-2 bg-[#03C75A] hover:bg-[#02b351] text-white rounded-lg text-sm font-medium transition active:scale-95"
+              className="block w-full py-3 bg-[#03C75A] hover:bg-[#02b351] text-white rounded-xl text-sm font-semibold text-center transition active:scale-95 shadow-lg"
             >
               🛒 멤버십 가입하기
             </a>
