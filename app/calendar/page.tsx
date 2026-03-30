@@ -98,9 +98,9 @@ export default function CalendarPage() {
             <div className="flex gap-1.5 sm:gap-2 flex-wrap justify-end">
               <button
                 onClick={() => router.push('/my-history')}
-                className="px-3 py-1.5 sm:py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition text-xs sm:text-sm font-medium"
+                className="px-3 py-1.5 sm:py-2 bg-amber-700 hover:bg-amber-600 text-white rounded-lg transition text-xs sm:text-sm font-medium"
               >
-                🌿 기록
+                🧘 나의 타임오프
               </button>
               <button
                 onClick={() => router.push('/guide')}
