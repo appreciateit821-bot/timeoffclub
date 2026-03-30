@@ -802,137 +802,97 @@ export default function AdminPage() {
         )}
 
         {activeTab === 'members' && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white">멤버 관리</h2>
-              <div className="flex gap-2">
-                <button onClick={async () => {
-                  const month = prompt('활성월을 추가할 월을 입력하세요 (예: 2026-04)');
-                  if (!month || !month.match(/^\d{4}-\d{2}$/)) return;
-                  if (!confirm(`활성 상태인 모든 멤버에게 ${month}을 추가합니다.`)) return;
-                  let updated = 0;
-                  for (const m of members as any[]) {
-                    if (!m.is_active) continue;
-                    const months = m.active_months ? m.active_months.split(',').map((s:string)=>s.trim()) : [];
-                    if (!months.includes(month)) {
-                      months.push(month);
-                      await fetch('/api/admin/members', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id:m.id, activeMonths: months.join(',')}) });
-                      updated++;
-                    }
-                  }
-                  alert(`${updated}명에게 ${month} 활성월이 추가되었습니다.`);
-                  fetchMembers(memberSearch);
-                }} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs">일괄 활성월 추가</button>
-                <button onClick={async () => {
-                  const now = new Date();
-                  const kst = new Date(now.getTime() + 9*60*60*1000 + now.getTimezoneOffset()*60*1000);
-                  const cm = `${kst.getFullYear()}-${String(kst.getMonth()+1).padStart(2,'0')}`;
-                  if (!confirm(`${cm} 활성월이 없는 멤버를 전부 비활성화합니다.`)) return;
-                  let count = 0;
-                  for (const m of members as any[]) {
-                    if (!m.is_active) continue;
-                    const months = m.active_months ? m.active_months.split(',').map((s:string)=>s.trim()) : [];
-                    if (!months.includes(cm)) {
-                      await fetch('/api/admin/members', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id:m.id, isActive:false}) });
-                      count++;
-                    }
-                  }
-                  alert(`${count}명이 비활성화되었습니다.`);
-                  fetchMembers(memberSearch);
-                }} className="px-3 py-1.5 bg-red-600/80 hover:bg-red-700 text-white rounded-lg text-xs">만료 멤버 비활성화</button>
+          <div className="space-y-5">
+            <h2 className="text-xl font-semibold text-white">멤버 관리</h2>
+
+            {/* ① 매월 운영 가이드 */}
+            <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-4">
+              <p className="text-amber-200 text-sm font-medium mb-2">📋 매월 멤버십 관리 순서</p>
+              <div className="text-xs text-gray-400 space-y-1">
+                <p>1️⃣ 스마트스토어에서 이번 달 결제 명단 → 구글시트 업로드 (신규 추가 + 기존 멤버 활성월 자동 갱신)</p>
+                <p>2️⃣ 미갱신 멤버 확인 → "만료 멤버 비활성화" 클릭</p>
               </div>
             </div>
 
-            {/* 멤버 추가 폼 */}
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">새 멤버 추가</h3>
-              <form onSubmit={handleAddMember} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      이름
-                    </label>
-                    <input
-                      type="text"
-                      value={newMemberName}
-                      onChange={(e) => setNewMemberName(e.target.value)}
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                      placeholder="이름"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      연락처 뒷 4자리
-                    </label>
-                    <input
-                      type="text"
-                      value={newMemberPhone}
-                      onChange={(e) => setNewMemberPhone(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
-                      placeholder="1234"
-                      maxLength={4}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">활성 월</label>
-                    <input type="text" value={newMemberMonths}
-                      onChange={(e) => setNewMemberMonths(e.target.value)}
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
-                      placeholder="2026-04,2026-05" />
-                    <p className="text-[10px] text-gray-500 mt-1">콤마로 구분. 비우면 무제한</p>
-                  </div>
-                  <div className="flex items-end">
-                    <button type="submit"
-                      className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium">
-                      멤버 추가
-                    </button>
-                  </div>
-                </div>
-
-                {memberError && (
-                  <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm">
-                    {memberError}
-                  </div>
-                )}
-
-                {memberSuccess && (
-                  <div className="bg-green-900/50 border border-green-700 text-green-200 px-4 py-3 rounded-lg text-sm">
-                    {memberSuccess}
-                  </div>
-                )}
-              </form>
-            </div>
-
-            {/* 구글 시트 가져오기 */}
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">📊 구글 시트에서 멤버 가져오기</h3>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="text"
-                  value={sheetUrl}
-                  onChange={(e) => setSheetUrl(e.target.value)}
-                  className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400"
-                  placeholder="구글 스프레드시트 URL을 붙여넣으세요"
-                />
-                <button
-                  onClick={handleImportSheet}
-                  disabled={sheetLoading || !sheetUrl}
-                  className="px-6 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition font-medium disabled:opacity-50"
-                >
+            {/* ② 구글 시트 업로드 (메인 동선) */}
+            <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
+              <h3 className="text-sm font-semibold text-white mb-3">📊 구글 시트에서 멤버 가져오기</h3>
+              <p className="text-xs text-gray-500 mb-3">시트에 "성함"과 "연락처" 컬럼 필요. 이미 등록된 멤버는 이번 달 활성월이 자동 추가돼요.</p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input type="text" value={sheetUrl} onChange={(e) => setSheetUrl(e.target.value)}
+                  className="flex-1 px-3 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-500"
+                  placeholder="구글 스프레드시트 URL" />
+                <button onClick={handleImportSheet} disabled={sheetLoading || !sheetUrl}
+                  className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium disabled:opacity-50 transition active:scale-95">
                   {sheetLoading ? '가져오는 중...' : '가져오기'}
                 </button>
               </div>
               {sheetResult && (
                 <div className={`mt-3 px-4 py-3 rounded-lg text-sm ${
                   sheetResult.startsWith('✅') ? 'bg-green-900/50 border border-green-700 text-green-200' : 'bg-red-900/50 border border-red-700 text-red-200'
-                }`}>
-                  {sheetResult}
-                </div>
+                }`}>{sheetResult}</div>
               )}
-              <p className="text-xs text-gray-500 mt-2">시트에 "성함"과 "연락처" 컬럼이 있어야 합니다. 이미 등록된 멤버는 자동으로 스킵됩니다.</p>
             </div>
+
+            {/* ③ 일괄 작업 버튼 */}
+            <div className="flex flex-wrap gap-2">
+              <button onClick={async () => {
+                const month = prompt('활성월을 추가할 월 (예: 2026-04)');
+                if (!month || !month.match(/^\d{4}-\d{2}$/)) return;
+                if (!confirm(`활성 멤버 전원에게 ${month}을 추가합니다.`)) return;
+                let updated = 0;
+                for (const m of members as any[]) {
+                  if (!m.is_active) continue;
+                  const months = m.active_months ? m.active_months.split(',').map((s:string)=>s.trim()) : [];
+                  if (!months.includes(month)) {
+                    months.push(month);
+                    await fetch('/api/admin/members', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id:m.id, activeMonths: months.join(',')}) });
+                    updated++;
+                  }
+                }
+                alert(`${updated}명 갱신 완료`); fetchMembers(memberSearch);
+              }} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition active:scale-95">
+                📅 일괄 활성월 추가
+              </button>
+              <button onClick={async () => {
+                const now = new Date();
+                const kst = new Date(now.getTime() + 9*60*60*1000 + now.getTimezoneOffset()*60*1000);
+                const cm = `${kst.getFullYear()}-${String(kst.getMonth()+1).padStart(2,'0')}`;
+                if (!confirm(`${cm} 활성월이 없는 멤버를 비활성화합니다.`)) return;
+                let count = 0;
+                for (const m of members as any[]) {
+                  if (!m.is_active) continue;
+                  const months = m.active_months ? m.active_months.split(',').map((s:string)=>s.trim()) : [];
+                  if (!months.includes(cm)) {
+                    await fetch('/api/admin/members', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id:m.id, isActive:false}) });
+                    count++;
+                  }
+                }
+                alert(`${count}명 비활성화`); fetchMembers(memberSearch);
+              }} className="px-4 py-2 bg-red-600/80 hover:bg-red-700 text-white rounded-lg text-xs font-medium transition active:scale-95">
+                🚫 만료 멤버 비활성화
+              </button>
+            </div>
+
+            {/* ④ 개별 멤버 추가 (접이식) */}
+            <details className="bg-gray-800 rounded-xl border border-gray-700">
+              <summary className="p-4 text-sm font-medium text-gray-300 cursor-pointer hover:text-white">➕ 개별 멤버 추가</summary>
+              <div className="px-4 pb-4">
+                <form onSubmit={handleAddMember} className="space-y-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <input type="text" value={newMemberName} onChange={(e) => setNewMemberName(e.target.value)}
+                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" placeholder="이름" required />
+                    <input type="text" value={newMemberPhone} onChange={(e) => setNewMemberPhone(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" placeholder="뒷4자리" maxLength={4} required />
+                    <input type="text" value={newMemberMonths} onChange={(e) => setNewMemberMonths(e.target.value)}
+                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" placeholder="활성월 (2026-04)" />
+                    <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition active:scale-95">추가</button>
+                  </div>
+                  {memberError && <p className="text-red-300 text-xs">{memberError}</p>}
+                  {memberSuccess && <p className="text-green-300 text-xs">{memberSuccess}</p>}
+                </form>
+              </div>
+            </details>
 
             {/* 멤버 검색 */}
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
