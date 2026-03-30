@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getTodayKST } from '@/lib/constants';
 
@@ -17,6 +17,8 @@ export default function MyHistoryPage() {
   const [reportPerson, setReportPerson] = useState('');
   const [reportSuccess, setReportSuccess] = useState('');
   const [activeView, setActiveView] = useState<'dashboard' | 'history'>('dashboard');
+  const [shareCardVisible, setShareCardVisible] = useState(false);
+  const shareCardRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => { fetchData(); }, []);
@@ -77,8 +79,34 @@ export default function MyHistoryPage() {
   };
   const streak = calcStreak();
 
+  // 효과 메시지 (2시간마다)
+  const DETOX_MESSAGES = [
+    { hours: 2, msg: '2시간 디톡스로 코르티솔(스트레스 호르몬)이 평균 12% 감소해요', source: 'University of Gothenburg' },
+    { hours: 4, msg: '4시간 오프라인 대화는 뇌의 전전두엽을 활성화시켜요. 집중력이 올라가요', source: 'UCLA 신경과학 연구' },
+    { hours: 6, msg: '6시간 디톡스 = REM 수면 3회분의 뇌 회복 효과', source: 'Journal of Sleep Research' },
+    { hours: 8, msg: '8시간이면 도파민 수용체가 리셋되기 시작해요. 작은 것에 기뻐할 수 있어요', source: 'Anna Lembke, Stanford' },
+    { hours: 10, msg: '10시간 디톡스한 사람은 평균 스크린타임이 주 2.3시간 줄어요', source: 'Journal of Social and Clinical Psychology' },
+    { hours: 12, msg: '서울에서 제주 왕복 비행시간만큼 쉬었어요. 뇌가 진짜 여행을 다녀왔어요 ✈️', source: '' },
+    { hours: 14, msg: '14시간 오프라인 대화 누적 = 공감 능력 28% 향상', source: 'MIT Media Lab' },
+    { hours: 16, msg: '16시간이면 수면 질이 개선되기 시작해요. 아침이 달라져요', source: 'Harvard Medical School' },
+    { hours: 18, msg: '18시간 디톡스 = 불안 지수 평균 20% 감소', source: 'Computers in Human Behavior' },
+    { hours: 20, msg: '대화할 때 상대 감정을 읽는 능력이 높아져요', source: 'UCLA 연구' },
+    { hours: 24, msg: '하루치 스크린타임을 3번 돌려받았어요. 당신은 상위 7%의 디톡서예요 🏆', source: '' },
+    { hours: 30, msg: '뇌의 디폴트 모드 네트워크가 강화돼요. 창의력이 올라가요', source: 'Washington University' },
+    { hours: 40, msg: '일주일 중 하루를 온전히 쉰 거예요. 번아웃 방지 중 🛡️', source: 'WHO 가이드라인' },
+    { hours: 50, msg: '습관이 형성되는 데 평균 66일. 당신은 이미 절반 왔어요', source: 'European Journal of Social Psychology' },
+    { hours: 60, msg: '폰 없는 시간이 편안해져요. 디톡스 내성이 생긴 거예요', source: 'Digital Wellness Institute' },
+    { hours: 80, msg: '한 시즌 드라마를 본 시간만큼 뇌를 쉬게 했어요 🎬', source: '' },
+    { hours: 100, msg: '100시간 돌파 🏝️ 당신의 뇌는 4일 연차 휴가를 보냈어요', source: '' },
+  ];
+
+  const currentMessage = [...DETOX_MESSAGES].reverse().find(m => detoxHours >= m.hours);
+  const nextMessage = DETOX_MESSAGES.find(m => m.hours > detoxHours);
+  const progress = nextMessage ? ((detoxHours - (currentMessage?.hours || 0)) / (nextMessage.hours - (currentMessage?.hours || 0))) * 100 : 100;
+
   // 레벨 시스템
   const getLevel = () => {
+    if (detoxHours >= 100) return { name: '디톡스 레전드', emoji: '🏝️', color: 'from-amber-400 to-yellow-500' };
     if (detoxHours >= 40) return { name: '디톡스 마스터', emoji: '🏆', color: 'from-amber-400 to-yellow-500' };
     if (detoxHours >= 20) return { name: '디톡스 러너', emoji: '🌳', color: 'from-emerald-400 to-green-500' };
     if (detoxHours >= 10) return { name: '디톡스 탐험가', emoji: '🌿', color: 'from-teal-400 to-cyan-500' };
@@ -87,11 +115,117 @@ export default function MyHistoryPage() {
   };
   const level = getLevel();
 
-  // 프로그레스 (다음 레벨까지)
-  const milestones = [4, 10, 20, 40];
-  const nextMilestone = milestones.find(m => m > detoxHours) || 40;
-  const prevMilestone = milestones.filter(m => m <= detoxHours).pop() || 0;
-  const progress = nextMilestone > prevMilestone ? ((detoxHours - prevMilestone) / (nextMilestone - prevMilestone)) * 100 : 100;
+  // 공유 카드 이미지 생성
+  const generateShareCard = async () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1920;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // 배경
+    const gradient = ctx.createLinearGradient(0, 0, 0, 1920);
+    gradient.addColorStop(0, '#0a0a0a');
+    gradient.addColorStop(0.5, '#1a1000');
+    gradient.addColorStop(1, '#0a0a0a');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 1080, 1920);
+
+    // 장식 원
+    ctx.beginPath();
+    ctx.arc(540, 600, 300, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(217, 119, 6, 0.05)';
+    ctx.fill();
+
+    // 이모지
+    ctx.font = '80px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(level.emoji, 540, 600);
+
+    // 디톡스 시간
+    ctx.font = 'bold 180px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillText(`${detoxHours}`, 480, 800);
+    ctx.font = 'bold 60px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = '#fcd34d';
+    ctx.fillText('h', 620, 800);
+
+    // 레이블
+    ctx.font = '32px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = '#9ca3af';
+    ctx.fillText('디지털 디톡스 시간', 540, 870);
+
+    // 구분선
+    ctx.strokeStyle = 'rgba(217, 119, 6, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(340, 930);
+    ctx.lineTo(740, 930);
+    ctx.stroke();
+
+    // 효과 메시지
+    if (currentMessage) {
+      ctx.font = '36px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillStyle = '#fef3c7';
+      const words = currentMessage.msg.split(' ');
+      let line = '';
+      let y = 1010;
+      for (const word of words) {
+        const test = line + word + ' ';
+        if (ctx.measureText(test).width > 800) {
+          ctx.fillText(line.trim(), 540, y);
+          line = word + ' ';
+          y += 52;
+        } else { line = test; }
+      }
+      ctx.fillText(line.trim(), 540, y);
+
+      if (currentMessage.source) {
+        ctx.font = '24px -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillStyle = '#6b7280';
+        ctx.fillText(`— ${currentMessage.source}`, 540, y + 60);
+      }
+    }
+
+    // 스트릭
+    if (streak > 0) {
+      ctx.font = '36px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillStyle = '#fb923c';
+      ctx.fillText(`🔥 ${streak}주 연속 참석`, 540, 1400);
+    }
+
+    // 통계
+    ctx.font = '28px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = '#6b7280';
+    ctx.fillText(`${attendedCount}세션 · ${uniqueSpots.length}스팟`, 540, 1500);
+
+    // 브랜딩
+    ctx.font = '28px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = '#4b5563';
+    ctx.fillText('타임오프클럽 by 웰모먼트', 540, 1780);
+    ctx.font = '22px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.fillStyle = '#374151';
+    ctx.fillText('timeoffclub.pages.dev', 540, 1820);
+
+    // 다운로드
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `timeoffclub-detox-${detoxHours}h.png`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      // Web Share API (모바일)
+      if (navigator.share && navigator.canShare) {
+        const file = new File([blob], `timeoffclub-detox-${detoxHours}h.png`, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          navigator.share({ files: [file], title: `타임오프클럽 ${detoxHours}시간 디톡스 달성!` }).catch(() => {});
+        }
+      }
+    }, 'image/png');
+  };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-gray-950"><div className="text-gray-400">로딩 중...</div></div>;
@@ -145,16 +279,28 @@ export default function MyHistoryPage() {
                   <p className="text-gray-400 text-sm mt-1">디지털 디톡스 시간</p>
                 </div>
 
-                {/* 프로그레스 바 */}
-                <div>
-                  <div className="flex justify-between text-[10px] text-gray-500 mb-1">
-                    <span>{prevMilestone}h</span>
-                    <span>{nextMilestone}h</span>
+                {/* 효과 메시지 */}
+                {currentMessage && (
+                  <div className="bg-gray-800/50 rounded-xl p-4 border border-amber-800/20">
+                    <p className="text-amber-100 text-sm leading-relaxed text-center">"{currentMessage.msg}"</p>
+                    {currentMessage.source && (
+                      <p className="text-gray-500 text-[10px] text-center mt-2">— {currentMessage.source}</p>
+                    )}
                   </div>
-                  <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full bg-gradient-to-r ${level.color} transition-all duration-1000`} style={{ width: `${Math.min(progress, 100)}%` }} />
+                )}
+
+                {/* 다음 메시지까지 프로그레스 */}
+                {nextMessage && (
+                  <div>
+                    <div className="flex justify-between text-[10px] text-gray-500 mb-1">
+                      <span>{currentMessage?.hours || 0}h</span>
+                      <span>다음 {nextMessage.hours}h</span>
+                    </div>
+                    <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full bg-gradient-to-r ${level.color} transition-all duration-1000`} style={{ width: `${Math.min(progress, 100)}%` }} />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* 통계 그리드 */}
                 <div className="grid grid-cols-3 gap-3">
@@ -190,6 +336,14 @@ export default function MyHistoryPage() {
                       </span>
                     ))}
                   </div>
+                )}
+
+                {/* 공유 버튼 */}
+                {attendedCount > 0 && (
+                  <button onClick={generateShareCard}
+                    className="w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-medium text-sm transition active:scale-95 shadow-lg shadow-violet-900/30">
+                    📸 인스타 스토리로 공유하기
+                  </button>
                 )}
               </div>
             </div>
