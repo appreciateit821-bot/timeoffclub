@@ -313,27 +313,18 @@ export default function SpotOperatorPage() {
                   {isEditing && (
                     <div className="mt-3 pt-3 border-t border-gray-700 space-y-2">
                       <div className="flex gap-1.5">
-                        {[0, 2, 4, 6, 8, 10].map(n => (
+                        {[2, 4, 6, 8, 10].map(n => (
                           <button key={n} onClick={() => setEditingCapValue(String(n))}
                             className={`flex-1 py-2 rounded-lg text-sm font-bold transition active:scale-95 ${
-                              editingCapValue === String(n)
-                                ? n === 0 ? 'bg-red-600 text-white' : 'bg-amber-600 text-white'
-                                : n === 0 ? 'bg-gray-700 text-red-400' : 'bg-gray-700 text-gray-400'
-                            }`}>{n === 0 ? '닫기' : n}</button>
+                              editingCapValue === String(n) ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400'
+                            }`}>{n}</button>
                         ))}
                       </div>
                       <div className="flex gap-2">
-                        {editingCapValue === '0' ? (
-                          <button onClick={() => { handleSaveCapacity(s.date, 0); }}
-                            className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm font-medium transition active:scale-95">
-                            🚫 세션 닫기
-                          </button>
-                        ) : (
-                          <button onClick={() => { handleSaveCapacity(s.date, parseInt(editingCapValue)); }}
-                            className="flex-1 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium transition active:scale-95">
-                            {editingCapValue}명으로 저장
-                          </button>
-                        )}
+                        <button onClick={() => { handleSaveCapacity(s.date, parseInt(editingCapValue)); }}
+                          className="flex-1 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium transition active:scale-95">
+                          {editingCapValue}명으로 저장
+                        </button>
                         {cap?.isCustom && (
                           <button onClick={() => handleResetCapacity(s.date)}
                             className="px-3 py-2 bg-gray-700 text-gray-400 rounded-lg text-xs transition">초기화</button>
