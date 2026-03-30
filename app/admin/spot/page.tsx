@@ -17,6 +17,9 @@ export default function SpotOperatorPage() {
   const [reqContent, setReqContent] = useState('');
   const [reqSubmitting, setReqSubmitting] = useState(false);
   const [reqSuccess, setReqSuccess] = useState('');
+  const [editingCapDate, setEditingCapDate] = useState('');
+  const [editingCapValue, setEditingCapValue] = useState('');
+  const [sessionCapacities, setSessionCapacities] = useState<{ [date: string]: { capacity: number; isCustom: boolean } }>({});
   const [checkinDate, setCheckinDate] = useState(() => {
     // 가장 가까운 세션 날짜 (수요일/일요일)로 자동 설정
     const now = new Date();
@@ -36,7 +39,7 @@ export default function SpotOperatorPage() {
   const router = useRouter();
 
   useEffect(() => { fetchData(); }, []);
-  useEffect(() => { if (spotName) fetchCheckin(); }, [checkinDate, spotName]);
+  useEffect(() => { if (spotName) { fetchCheckin(); fetchSessionCapacity(checkinDate); } }, [checkinDate, spotName]);
 
   const fetchData = async () => {
     try {
@@ -76,6 +79,36 @@ export default function SpotOperatorPage() {
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
+  };
+
+  const fetchSessionCapacity = async (date: string) => {
+    try {
+      const res = await fetch(`/api/admin/spot/capacity?date=${date}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSessionCapacities(prev => ({ ...prev, [date]: { capacity: data.capacity, isCustom: data.isCustom } }));
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleSaveCapacity = async (date: string, value: number) => {
+    try {
+      await fetch('/api/admin/spot/capacity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date, maxCapacity: value })
+      });
+      setEditingCapDate('');
+      fetchSessionCapacity(date);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleResetCapacity = async (date: string) => {
+    try {
+      await fetch(`/api/admin/spot/capacity?date=${date}`, { method: 'DELETE' });
+      setEditingCapDate('');
+      fetchSessionCapacity(date);
+    } catch (e) { console.error(e); }
   };
 
   const fetchSpotRequests = async () => {
@@ -156,7 +189,12 @@ export default function SpotOperatorPage() {
       }
       setUpcomingData(data);
     };
-    if (spotName) fetchUpcoming();
+    if (spotName) {
+      fetchUpcoming();
+      // 다가오는 세션 인원 조회
+      const sessions = getUpcomingSessions();
+      sessions.forEach(s => fetchSessionCapacity(s.date));
+    }
   }, [spotName]);
 
   // 뒷4자리 표시 (이름에서 추출 불가하므로 user_name 마스킹)
@@ -239,6 +277,12 @@ export default function SpotOperatorPage() {
                     <span className="text-[9px] text-violet-300">🧘{upcomingData[s.date].reflection}</span>
                   </div>
                 )}
+                {sessionCapacities[s.date] && (
+                  <div className="text-[9px] text-gray-500 mt-0.5">
+                    최대 {sessionCapacities[s.date].capacity}명
+                    {sessionCapacities[s.date].isCustom && <span className="text-amber-400"> ✏️</span>}
+                  </div>
+                )}
               </button>
             ))}
           </div>
@@ -251,6 +295,33 @@ export default function SpotOperatorPage() {
               <h2 className="text-lg font-semibold text-white">참가자 체크</h2>
               <input type="date" value={checkinDate} onChange={(e) => setCheckinDate(e.target.value)}
                 className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm" />
+            </div>
+
+            {/* 인원 조절 */}
+            <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700 flex items-center justify-between">
+              <div className="text-sm text-gray-300">
+                👥 최대 인원: <span className="text-amber-300 font-medium">{sessionCapacities[checkinDate]?.capacity || '...'}</span>명
+                {sessionCapacities[checkinDate]?.isCustom && <span className="text-[10px] text-gray-500 ml-1">(커스텀)</span>}
+              </div>
+              {editingCapDate === checkinDate ? (
+                <div className="flex gap-2 items-center">
+                  <input type="number" value={editingCapValue} onChange={(e) => setEditingCapValue(e.target.value)}
+                    className="w-16 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm text-center" min="1" max="20" />
+                  <button onClick={() => handleSaveCapacity(checkinDate, parseInt(editingCapValue))}
+                    className="px-2 py-1 bg-amber-600 text-white rounded text-xs">저장</button>
+                  {sessionCapacities[checkinDate]?.isCustom && (
+                    <button onClick={() => handleResetCapacity(checkinDate)}
+                      className="px-2 py-1 bg-gray-600 text-gray-300 rounded text-xs">초기화</button>
+                  )}
+                  <button onClick={() => setEditingCapDate('')}
+                    className="px-2 py-1 bg-gray-700 text-gray-400 rounded text-xs">취소</button>
+                </div>
+              ) : (
+                <button onClick={() => { setEditingCapDate(checkinDate); setEditingCapValue(String(sessionCapacities[checkinDate]?.capacity || 10)); fetchSessionCapacity(checkinDate); }}
+                  className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-xs transition">
+                  ✏️ 변경
+                </button>
+              )}
             </div>
 
             <div className="grid grid-cols-3 gap-3">
