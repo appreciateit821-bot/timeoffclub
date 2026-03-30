@@ -81,28 +81,28 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* 3. 규칙 → 경험 언어 */}
+          {/* 클럽 규칙 */}
           <div className="mb-6 p-4 sm:p-5 bg-gray-700/40 rounded-xl border border-gray-600/50">
-            <div className="space-y-3 text-sm text-gray-300">
+            <div className="space-y-4 text-sm">
               <div className="flex items-start gap-3">
-                <span className="text-amber-400 font-bold flex-shrink-0 text-lg">📵</span>
+                <span className="text-amber-400 flex-shrink-0 text-lg">📵</span>
                 <div>
-                  <p className="font-semibold text-amber-100">폰은 잠시 맡깁니다</p>
-                  <p className="text-xs text-gray-400 mt-0.5">2시간 동안 온전히 '지금 여기'에 집중해요</p>
+                  <p className="font-semibold text-amber-100">Digital OFF</p>
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">2시간만 세상과 연결을 끊어보세요.<br/>대신 당신과 연결돼요.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-amber-400 font-bold flex-shrink-0 text-lg">🎯</span>
+                <span className="text-amber-400 flex-shrink-0 text-lg">🎯</span>
                 <div>
-                  <p className="font-semibold text-amber-100">직함은 필요 없습니다</p>
-                  <p className="text-xs text-gray-400 mt-0.5">나이도 직업도 묻지 않는 가벼운 대화</p>
+                  <p className="font-semibold text-amber-100">Outcome OFF</p>
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">이름 대신 이야기, 스펙 대신 감정.<br/>여기선 당신이 누군지 안 물어요.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-amber-400 font-bold flex-shrink-0 text-lg">💭</span>
+                <span className="text-amber-400 flex-shrink-0 text-lg">💭</span>
                 <div>
-                  <p className="font-semibold text-amber-100">오늘 기분대로 선택하세요</p>
-                  <p className="text-xs text-gray-400 mt-0.5">스몰토크 또는 사색, 매번 달라도 괜찮아요</p>
+                  <p className="font-semibold text-amber-100">Resume OFF</p>
+                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">누군가와 나누든, 나와 마주하든.<br/>오늘의 휴식은 당신이 고르세요.</p>
                 </div>
               </div>
             </div>
