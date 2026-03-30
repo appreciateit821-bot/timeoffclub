@@ -53,6 +53,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
   const [maxCapacity, setMaxCapacity] = useState(MAX_CAPACITY);
   const [spotCapacities, setSpotCapacities] = useState<{ [spot: string]: number }>({});
+  const [spotDefaultCaps, setSpotDefaultCaps] = useState<{ [spot: string]: number }>({});
   const date = selectedDates[0];
 
   useEffect(() => {
@@ -71,6 +72,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
         (d.capacities || []).forEach((c: any) => { caps[c.spot] = c.max_capacity; });
         setSpotCapacities(caps);
         if (d.defaultCapacity) setMaxCapacity(d.defaultCapacity);
+        if (d.spotDefaults) setSpotDefaultCaps(d.spotDefaults);
       }).catch(() => {});
     }
   }, [date]);
@@ -180,7 +182,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   };
 
   // 스팟별 인원 제한
-  const getCapForSpot = (spotId: string) => spotCapacities[spotId] || maxCapacity;
+  const getCapForSpot = (spotId: string) => spotCapacities[spotId] || spotDefaultCaps[spotId] || maxCapacity;
 
   // 소인원 넛지
   const getLowestSpot = () => {
@@ -215,28 +217,33 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           </div>
         )}
 
-        {/* 캘린더 추가 */}
-        <div className="bg-blue-900/20 border border-blue-700/30 rounded-xl p-4 space-y-3">
-          <p className="text-blue-200 text-sm font-medium text-center">📅 캘린더에 추가하면 잊지 않아요!</p>
-          <div className="flex gap-2">
-            <a href={`/api/reservations/ics?date=${successInfo.date}&spot=${encodeURIComponent(SPOT_DETAILS.find(s => s.name === successInfo.spot || s.id === successInfo.spot)?.id || successInfo.spot)}`}
-              className="flex-1 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm text-center transition active:scale-95 font-medium">
-              📱 아이폰 캘린더
-            </a>
-            <a href={(() => {
-              const spotId = SPOT_DETAILS.find(s => s.name === successInfo.spot || s.id === successInfo.spot)?.id || successInfo.spot;
-              const spotInfo = SPOT_DETAILS.find(s => s.id === spotId);
-              const start = getSessionStartTime(successInfo.date);
-              const end = getSessionEndTime(successInfo.date);
-              const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-              return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('타임오프클럽 - ' + (spotInfo?.name || spotId))}&dates=${fmt(start)}/${fmt(end)}&location=${encodeURIComponent(spotInfo?.address || '')}&details=${encodeURIComponent('📵 스마트폰 보관 | ☕ 1인 1음료')}`;
-            })()}
-              target="_blank" rel="noopener noreferrer"
-              className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm text-center transition active:scale-95 font-medium">
-              📅 구글 캘린더
-            </a>
-          </div>
-        </div>
+        {/* 캘린더 등록 유도 (메인 CTA) */}
+        {(() => {
+          const spotId = SPOT_DETAILS.find(s => s.name === successInfo.spot || s.id === successInfo.spot)?.id || successInfo.spot;
+          const spotInfo = SPOT_DETAILS.find(s => s.id === spotId);
+          const start = getSessionStartTime(successInfo.date);
+          const end = getSessionEndTime(successInfo.date);
+          const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+          const icsUrl = `/api/reservations/ics?date=${successInfo.date}&spot=${encodeURIComponent(spotId)}`;
+          const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('타임오프클럽 - ' + (spotInfo?.name || spotId))}&dates=${fmt(start)}/${fmt(end)}&location=${encodeURIComponent(spotInfo?.address || '')}&details=${encodeURIComponent('📵 스마트폰 보관 | ☕ 1인 1음료 | 변경/취소는 2시간 전까지')}`;
+          return (
+            <div className="bg-gradient-to-b from-blue-900/30 to-blue-900/10 border border-blue-600/30 rounded-xl p-5 space-y-3">
+              <div className="text-center">
+                <p className="text-blue-100 font-semibold">📅 캘린더에 등록해주세요!</p>
+                <p className="text-blue-300/70 text-xs mt-1">세션 당일 알림을 받을 수 있어요</p>
+              </div>
+              <a href={icsUrl}
+                className="block w-full py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-sm text-center transition active:scale-95 font-medium border border-gray-600">
+                🍎 아이폰 캘린더에 추가
+              </a>
+              <a href={googleUrl} target="_blank" rel="noopener noreferrer"
+                className="block w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm text-center transition active:scale-95 font-medium">
+                📅 구글 캘린더에 추가 (안드로이드)
+              </a>
+              <p className="text-center text-gray-500 text-[10px]">아이폰: 다운로드된 파일을 열면 캘린더에 자동 추가됩니다</p>
+            </div>
+          );
+        })()}
 
         <div className="text-sm text-gray-400 space-y-1">
           <p>📍 현장에서 1인 1음료 주문을 부탁드려요</p>
@@ -244,7 +251,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           <p>⏰ 변경/취소는 2시간 전까지 가능해요</p>
         </div>
         <button onClick={() => setShowSuccess(false)}
-          className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition active:scale-95">
+          className="w-full py-3 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition active:scale-95">
           확인
         </button>
       </div>

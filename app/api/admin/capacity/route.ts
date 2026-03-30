@@ -19,14 +19,19 @@ export async function GET(request: NextRequest) {
     if (s) defaultCap = parseInt(s.value);
   } catch {}
 
+  // 스팟별 기본 인원
+  const { results: spotDefaults } = await db.prepare("SELECT spot, max_capacity FROM session_capacity WHERE date = 'default'").all();
+  const spotDefaultMap: { [spot: string]: number } = {};
+  (spotDefaults as any[]).forEach(s => { spotDefaultMap[s.spot] = s.max_capacity; });
+
   if (date) {
     const { results } = await db.prepare('SELECT * FROM session_capacity WHERE date = ?').bind(date).all();
-    return NextResponse.json({ capacities: results, defaultCapacity: defaultCap });
+    return NextResponse.json({ capacities: results, defaultCapacity: defaultCap, spotDefaults: spotDefaultMap });
   }
 
   // 미래 세션들의 커스텀 인원
-  const { results } = await db.prepare("SELECT * FROM session_capacity WHERE date >= date('now') ORDER BY date").all();
-  return NextResponse.json({ capacities: results, defaultCapacity: defaultCap });
+  const { results } = await db.prepare("SELECT * FROM session_capacity WHERE date >= date('now') AND date != 'default' ORDER BY date").all();
+  return NextResponse.json({ capacities: results, defaultCapacity: defaultCap, spotDefaults: spotDefaultMap });
 }
 
 // 특정 세션 인원 설정

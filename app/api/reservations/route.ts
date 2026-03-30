@@ -101,11 +101,18 @@ export async function POST(request: NextRequest) {
     // 세션별 인원 제한 (커스텀 > 기본)
     let maxCap = 10;
     try {
+      // 1. 특정 날짜+스팟 커스텀
       const custom = await db.prepare("SELECT max_capacity FROM session_capacity WHERE date = ? AND spot = ?").bind(date, spot).first() as any;
       if (custom) { maxCap = custom.max_capacity; }
       else {
-        const s = await db.prepare("SELECT value FROM settings WHERE key = 'max_capacity'").first() as any;
-        if (s) maxCap = parseInt(s.value);
+        // 2. 스팟별 기본값
+        const spotDefault = await db.prepare("SELECT max_capacity FROM session_capacity WHERE date = 'default' AND spot = ?").bind(spot).first() as any;
+        if (spotDefault) { maxCap = spotDefault.max_capacity; }
+        else {
+          // 3. 전체 기본값
+          const s = await db.prepare("SELECT value FROM settings WHERE key = 'max_capacity'").first() as any;
+          if (s) maxCap = parseInt(s.value);
+        }
       }
     } catch {}
 

@@ -56,7 +56,7 @@ export const SPOT_DETAILS: SpotInfo[] = [
 export const SPOTS = SPOT_DETAILS.map(spot => spot.id) as unknown as readonly string[];
 
 export const MAX_CAPACITY = 10;
-export const MIN_CAPACITY = 4; // 최소 오픈 인원
+export const MIN_CAPACITY = 1; // 최소 오픈 인원 (1명부터 가능)
 
 export const AVAILABLE_DAYS = {
   WEDNESDAY: 3, // 수요일
