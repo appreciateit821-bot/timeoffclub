@@ -962,6 +962,9 @@ export default function AdminPage() {
                         활성 월
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                        추가일
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         작업
                       </th>
                     </tr>
@@ -999,6 +1002,9 @@ export default function AdminPage() {
                             }}
                             className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-white"
                             placeholder="2026-04,2026-05" />
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                          {member.created_at ? formatKST(member.created_at).slice(0, 10) : '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <div className="flex gap-2">
