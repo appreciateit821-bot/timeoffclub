@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     if (!phoneLast4) return NextResponse.json({ error: '연락처 뒷 4자리 또는 체험권 코드를 입력해주세요.' }, { status: 400 });
 
     const member = await db.prepare('SELECT * FROM members WHERE name = ? AND phone_last4 = ?').bind(name, phoneLast4).first() as any;
-    if (!member) return NextResponse.json({ error: '등록되지 않은 멤버입니다. 관리자에게 문의하세요.' }, { status: 403 });
+    if (!member) return NextResponse.json({ error: '등록되지 않은 멤버입니다. 관리자 (카카오톡 well__moment)로 연락 부탁드립니다 🦊' }, { status: 403 });
 
     // 활성 상태 체크
     if (!member.is_active) {
