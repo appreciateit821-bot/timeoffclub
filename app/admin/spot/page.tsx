@@ -278,12 +278,18 @@ export default function SpotOperatorPage() {
                         <div className="text-[10px] text-gray-500">{s.time}</div>
                       </div>
                       <div>
+                        {cap?.capacity === 0 ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-red-400 font-bold text-sm">🚫 세션 닫힘</span>
+                          </div>
+                        ) : (
                         <div className="flex items-center gap-2">
                           <span className="text-amber-300 font-bold text-lg">{data?.total ?? 0}</span>
                           <span className="text-gray-500 text-xs">명 예약</span>
                           {cap && <span className="text-gray-600 text-[10px]">/ {cap.capacity}명</span>}
                         </div>
-                        {data && data.total > 0 && (
+                        )}
+                        {cap?.capacity !== 0 && data && data.total > 0 && (
                           <div className="flex gap-2 mt-0.5">
                             <span className="text-[10px] text-blue-300">💬 {data.smalltalk}</span>
                             <span className="text-[10px] text-violet-300">🧘 {data.reflection}</span>
@@ -302,18 +308,27 @@ export default function SpotOperatorPage() {
                   {isEditing && (
                     <div className="mt-3 pt-3 border-t border-gray-700 space-y-2">
                       <div className="flex gap-1.5">
-                        {[2, 4, 6, 8, 10].map(n => (
+                        {[0, 2, 4, 6, 8, 10].map(n => (
                           <button key={n} onClick={() => setEditingCapValue(String(n))}
                             className={`flex-1 py-2 rounded-lg text-sm font-bold transition active:scale-95 ${
-                              editingCapValue === String(n) ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400'
-                            }`}>{n}</button>
+                              editingCapValue === String(n)
+                                ? n === 0 ? 'bg-red-600 text-white' : 'bg-amber-600 text-white'
+                                : n === 0 ? 'bg-gray-700 text-red-400' : 'bg-gray-700 text-gray-400'
+                            }`}>{n === 0 ? '닫기' : n}</button>
                         ))}
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={() => { handleSaveCapacity(s.date, parseInt(editingCapValue)); }}
-                          className="flex-1 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium transition active:scale-95">
-                          {editingCapValue}명으로 저장
-                        </button>
+                        {editingCapValue === '0' ? (
+                          <button onClick={() => { handleSaveCapacity(s.date, 0); }}
+                            className="flex-1 py-2 bg-red-600 text-white rounded-lg text-sm font-medium transition active:scale-95">
+                            🚫 세션 닫기
+                          </button>
+                        ) : (
+                          <button onClick={() => { handleSaveCapacity(s.date, parseInt(editingCapValue)); }}
+                            className="flex-1 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium transition active:scale-95">
+                            {editingCapValue}명으로 저장
+                          </button>
+                        )}
                         {cap?.isCustom && (
                           <button onClick={() => handleResetCapacity(s.date)}
                             className="px-3 py-2 bg-gray-700 text-gray-400 rounded-lg text-xs transition">초기화</button>
@@ -382,43 +397,50 @@ export default function SpotOperatorPage() {
 
             <div className="text-xs text-gray-500 text-center">총 {checkinList.length}명 예약</div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               {checkinList.map((r) => (
                 <div key={r.id}
-                  className={`bg-gray-800 rounded-lg p-4 border ${
-                    r.check_in_status === 'attended' ? 'border-green-700/50' :
-                    r.check_in_status === 'no_show' ? 'border-red-700/50' : 'border-gray-700'
+                  className={`bg-gray-800 rounded-xl overflow-hidden border ${
+                    r.check_in_status === 'attended' ? 'border-green-600/50' :
+                    r.check_in_status === 'no_show' ? 'border-red-600/50' : 'border-gray-700'
                   }`}>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-mono font-medium">{r.display_id}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                          r.is_trial ? 'bg-orange-900/50 text-orange-300' : 'bg-gray-700 text-gray-400'
-                        }`}>{r.is_trial ? '🎫 체험' : '멤버'}</span>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                          r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
-                        }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
-                      </div>
-                      {r.memo && <p className="text-gray-400 text-xs mt-1 italic">"{r.memo}"</p>}
-                      {r.checked_at && (
-                        <span className="text-[10px] text-gray-500">
-                          {formatKST(r.checked_at)} 체크
-                        </span>
-                      )}
+                  {/* 참가자 정보 */}
+                  <div className="p-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-white font-mono font-bold text-base">{r.display_id}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        r.is_trial ? 'bg-orange-900/50 text-orange-300' : 'bg-gray-700 text-gray-400'
+                      }`}>{r.is_trial ? '🎫 체험' : '멤버'}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
+                      }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleCheckin(r.id, r.check_in_status === 'attended' ? 'unchecked' : 'attended')}
-                        className={`px-5 py-3 rounded-xl text-lg font-bold transition active:scale-90 ${
-                          r.check_in_status === 'attended' ? 'bg-green-600 text-white shadow-lg shadow-green-900/30' : 'bg-gray-700 text-gray-300 hover:bg-green-700 hover:text-white'
-                        }`}>✅</button>
-                      <button
-                        onClick={() => handleCheckin(r.id, r.check_in_status === 'no_show' ? 'unchecked' : 'no_show')}
-                        className={`px-5 py-3 rounded-xl text-lg font-bold transition active:scale-90 ${
-                          r.check_in_status === 'no_show' ? 'bg-red-600 text-white shadow-lg shadow-red-900/30' : 'bg-gray-700 text-gray-300 hover:bg-red-700 hover:text-white'
-                        }`}>❌</button>
-                    </div>
+                    {r.memo && <p className="text-gray-400 text-sm italic mt-1">💭 "{r.memo}"</p>}
+                    {r.checked_at && (
+                      <p className="text-[11px] text-gray-500 mt-1">{formatKST(r.checked_at)} 체크</p>
+                    )}
+                  </div>
+                  {/* 체크인 버튼 — 크고 확실하게 */}
+                  <div className="flex border-t border-gray-700">
+                    <button
+                      onClick={() => handleCheckin(r.id, r.check_in_status === 'attended' ? 'unchecked' : 'attended')}
+                      className={`flex-1 py-4 text-center font-bold text-base transition active:scale-95 ${
+                        r.check_in_status === 'attended'
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-800 text-gray-400 hover:bg-green-900/30 hover:text-green-300'
+                      }`}>
+                      ✅ 출석
+                    </button>
+                    <div className="w-px bg-gray-700" />
+                    <button
+                      onClick={() => handleCheckin(r.id, r.check_in_status === 'no_show' ? 'unchecked' : 'no_show')}
+                      className={`flex-1 py-4 text-center font-bold text-base transition active:scale-95 ${
+                        r.check_in_status === 'no_show'
+                          ? 'bg-red-600 text-white'
+                          : 'bg-gray-800 text-gray-400 hover:bg-red-900/30 hover:text-red-300'
+                      }`}>
+                      ❌ 노쇼
+                    </button>
                   </div>
                 </div>
               ))}
