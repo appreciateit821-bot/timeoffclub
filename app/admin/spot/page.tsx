@@ -226,21 +226,21 @@ export default function SpotOperatorPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
             <h1 className="text-lg sm:text-2xl font-bold text-white">스팟 운영자</h1>
-            <p className="text-xs sm:text-sm text-gray-400 mt-1">{spotName}</p>
+            <p className="text-xs sm:text-sm text-gray-400 mt-1">{spotName.split('_')[1] || spotName}</p>
           </div>
           <button onClick={handleLogout} className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-xs sm:text-sm">로그아웃</button>
         </div>
       </header>
 
       <div className="border-b border-gray-800 overflow-x-auto scrollbar-hide">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-1 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-2 sm:px-4">
+          <div className="flex gap-0">
             {(['checkin', 'reservations', 'logs', 'notices', 'requests'] as const).map(tab => (
               <button key={tab} onClick={() => { setActiveTab(tab); if (tab === 'requests') fetchSpotRequests(); }}
-                className={`px-3 sm:px-4 py-2 sm:py-3 text-sm font-medium transition border-b-2 whitespace-nowrap ${
+                className={`px-2.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition border-b-2 whitespace-nowrap ${
                   activeTab === tab ? 'text-amber-400 border-amber-400' : 'text-gray-400 border-transparent hover:text-gray-300'
                 }`}>
-                {tab === 'checkin' ? '✅ 참가자 체크' : tab === 'reservations' ? '예약 현황' : tab === 'logs' ? '로그' : tab === 'notices' ? '📢 공지' : '📮 웰모먼트에 요청'}
+                {tab === 'checkin' ? '✅ 체크' : tab === 'reservations' ? '📋 예약' : tab === 'logs' ? '📝 로그' : tab === 'notices' ? '📢 공지' : '📮 요청'}
               </button>
             ))}
           </div>
@@ -251,8 +251,8 @@ export default function SpotOperatorPage() {
         {/* 다가오는 세션 요약 */}
         <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-700/30 mb-6">
           <div className="mb-3">
-            <div className="text-white font-bold">{spotName}</div>
-            <div className="text-xs text-gray-400">다가오는 세션</div>
+            <div className="text-white font-bold">{spotName.split('_')[1] || spotName}</div>
+            <div className="text-xs text-gray-400">{spotName.split('_')[0]} · 다가오는 세션</div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {getUpcomingSessions().map(s => (
@@ -298,29 +298,38 @@ export default function SpotOperatorPage() {
             </div>
 
             {/* 인원 조절 */}
-            <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700 flex items-center justify-between">
-              <div className="text-sm text-gray-300">
-                👥 최대 인원: <span className="text-amber-300 font-medium">{sessionCapacities[checkinDate]?.capacity || '...'}</span>명
-                {sessionCapacities[checkinDate]?.isCustom && <span className="text-[10px] text-gray-500 ml-1">(커스텀)</span>}
-              </div>
+            <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700">
               {editingCapDate === checkinDate ? (
-                <div className="flex gap-2 items-center">
-                  <input type="number" value={editingCapValue} onChange={(e) => setEditingCapValue(e.target.value)}
-                    className="w-16 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm text-center" min="1" max="20" />
-                  <button onClick={() => handleSaveCapacity(checkinDate, parseInt(editingCapValue))}
-                    className="px-2 py-1 bg-amber-600 text-white rounded text-xs">저장</button>
-                  {sessionCapacities[checkinDate]?.isCustom && (
-                    <button onClick={() => handleResetCapacity(checkinDate)}
-                      className="px-2 py-1 bg-gray-600 text-gray-300 rounded text-xs">초기화</button>
-                  )}
-                  <button onClick={() => setEditingCapDate('')}
-                    className="px-2 py-1 bg-gray-700 text-gray-400 rounded text-xs">취소</button>
+                <div className="space-y-3">
+                  <div className="text-sm text-gray-300 font-medium">👥 최대 인원 변경</div>
+                  <div className="flex gap-2">
+                    {[4, 6, 8, 10].map(n => (
+                      <button key={n} onClick={() => setEditingCapValue(String(n))}
+                        className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition active:scale-95 ${
+                          editingCapValue === String(n) ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400'
+                        }`}>{n}명</button>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleSaveCapacity(checkinDate, parseInt(editingCapValue))}
+                      className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition active:scale-95">저장</button>
+                    <button onClick={() => setEditingCapDate('')}
+                      className="px-4 py-2.5 bg-gray-700 text-gray-400 rounded-lg text-sm transition">취소</button>
+                  </div>
                 </div>
               ) : (
-                <button onClick={() => { setEditingCapDate(checkinDate); setEditingCapValue(String(sessionCapacities[checkinDate]?.capacity || 10)); fetchSessionCapacity(checkinDate); }}
-                  className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-xs transition">
-                  ✏️ 변경
-                </button>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-gray-400 text-sm">👥 최대 인원</span>
+                    <span className="text-amber-300 text-xl font-bold ml-2">{sessionCapacities[checkinDate]?.capacity || '...'}</span>
+                    <span className="text-gray-400 text-sm">명</span>
+                    {sessionCapacities[checkinDate]?.isCustom && <span className="text-[10px] text-amber-400 ml-1.5">변경됨</span>}
+                  </div>
+                  <button onClick={() => { setEditingCapDate(checkinDate); setEditingCapValue(String(sessionCapacities[checkinDate]?.capacity || 10)); }}
+                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm transition active:scale-95">
+                    ✏️ 변경
+                  </button>
+                </div>
               )}
             </div>
 
