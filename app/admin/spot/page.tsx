@@ -250,8 +250,13 @@ export default function SpotOperatorPage() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* 다가오는 세션 요약 */}
-        <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-700/30 mb-6">
+
+        {/* 참가자 체크 */}
+        {activeTab === 'checkin' && (
+          <div className="space-y-4">
+
+        {/* 한 달 세션 요약 */}
+        <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-700/30 mb-4">
           <div className="mb-3 flex items-center justify-between">
             <div>
               <div className="text-white font-bold">{spotName.split('_')[1] || spotName}</div>
@@ -342,9 +347,6 @@ export default function SpotOperatorPage() {
           </div>
         </div>
 
-        {/* 참가자 체크 */}
-        {activeTab === 'checkin' && (
-          <div className="space-y-4">
             <div className="flex justify-between items-center">
               <div>
                 <h2 className="text-lg font-semibold text-white">참가자 체크</h2>
