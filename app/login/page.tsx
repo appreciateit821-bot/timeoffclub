@@ -67,20 +67,6 @@ export default function LoginPage() {
             <p className="text-gray-400 text-xs">이번 달 <strong className="text-amber-300">12명</strong>이 첫 방문했어요</p>
           </div>
 
-          {/* 2. 다음 모임 + 희소성 */}
-          <div className="grid grid-cols-2 gap-2 mb-6">
-            <div className="bg-gray-700/40 rounded-xl p-3 text-center border border-gray-600/50">
-              <div className="text-[10px] text-gray-400">이번 주 수요일</div>
-              <div className="text-white font-bold text-sm mt-0.5">저녁 8:00</div>
-              <div className="text-amber-400 text-[10px] mt-1 font-medium">3자리 남음</div>
-            </div>
-            <div className="bg-gray-700/40 rounded-xl p-3 text-center border border-gray-600/50">
-              <div className="text-[10px] text-gray-400">이번 주 일요일</div>
-              <div className="text-white font-bold text-sm mt-0.5">오후 3:00</div>
-              <div className="text-gray-500 text-[10px] mt-1">여유 있음</div>
-            </div>
-          </div>
-
           {/* 클럽 규칙 */}
           <div className="mb-6 p-4 sm:p-5 bg-gray-700/40 rounded-xl border border-gray-600/50">
             <div className="space-y-4 text-sm">
