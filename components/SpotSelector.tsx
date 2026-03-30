@@ -225,7 +225,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           const end = getSessionEndTime(successInfo.date);
           const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
           const icsUrl = `/api/reservations/ics?date=${successInfo.date}&spot=${encodeURIComponent(spotId)}`;
-          const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('타임오프클럽 - ' + (spotInfo?.name || spotId))}&dates=${fmt(start)}/${fmt(end)}&location=${encodeURIComponent(spotInfo?.address || '')}&details=${encodeURIComponent('📵 스마트폰 보관 | ☕ 1인 1음료 | 변경/취소는 2시간 전까지')}`;
+          const noticeText = spotNotices[spotId] ? ` | ℹ️ ${spotNotices[spotId]}` : '';
+          const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('타임오프클럽 - ' + (spotInfo?.name || spotId))}&dates=${fmt(start)}/${fmt(end)}&location=${encodeURIComponent(spotInfo?.address || '')}&details=${encodeURIComponent('📵 스마트폰 보관 | ☕ 1인 1음료' + noticeText)}`;
           return (
             <div className="bg-gradient-to-b from-blue-900/30 to-blue-900/10 border border-blue-600/30 rounded-xl p-5 space-y-3">
               <div className="text-center">
