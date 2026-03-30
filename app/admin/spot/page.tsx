@@ -148,9 +148,10 @@ export default function SpotOperatorPage() {
     const today = new Date();
     const kstOffset = 9 * 60 * 60 * 1000;
     const kstNow = new Date(today.getTime() + kstOffset + today.getTimezoneOffset() * 60 * 1000);
-    const sessions: { date: string; day: string; time: string }[] = [];
+    const sessions: { date: string; day: string; time: string; isToday: boolean }[] = [];
+    const todayStr = `${kstNow.getFullYear()}-${String(kstNow.getMonth() + 1).padStart(2, '0')}-${String(kstNow.getDate()).padStart(2, '0')}`;
 
-    for (let i = 0; i < 14; i++) {
+    for (let i = 0; i < 35; i++) {
       const d = new Date(kstNow);
       d.setDate(d.getDate() + i);
       const dow = d.getDay();
@@ -158,11 +159,12 @@ export default function SpotOperatorPage() {
         const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         sessions.push({
           date: dateStr,
-          day: dow === 3 ? '수요일' : '일요일',
-          time: dow === 3 ? '20:00' : '15:00'
+          day: dow === 3 ? '수' : '일',
+          time: dow === 3 ? '20:00' : '15:00',
+          isToday: dateStr === todayStr
         });
       }
-      if (sessions.length >= 4) break;
+      if (sessions.length >= 8) break;
     }
     return sessions;
   };
@@ -250,9 +252,11 @@ export default function SpotOperatorPage() {
       <main className="max-w-7xl mx-auto px-4 py-6">
         {/* 다가오는 세션 요약 */}
         <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-700/30 mb-6">
-          <div className="mb-3">
-            <div className="text-white font-bold">{spotName.split('_')[1] || spotName}</div>
-            <div className="text-xs text-gray-400">{spotName.split('_')[0]} · 다가오는 세션</div>
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <div className="text-white font-bold">{spotName.split('_')[1] || spotName}</div>
+              <div className="text-xs text-gray-400">{spotName.split('_')[0]} · 한 달 세션</div>
+            </div>
           </div>
           <div className="space-y-2">
             {getUpcomingSessions().map(s => {
@@ -262,13 +266,15 @@ export default function SpotOperatorPage() {
               return (
                 <div key={s.date}
                   className={`rounded-xl p-3 transition ${
+                    s.isToday ? 'bg-emerald-900/20 border border-emerald-600/40' :
                     checkinDate === s.date ? 'bg-amber-900/20 border border-amber-600/40' : 'bg-gray-800/80 border border-gray-700'
                   }`}>
                   <div className="flex items-center justify-between" onClick={() => setCheckinDate(s.date)}>
                     <div className="flex items-center gap-3">
                       <div className="text-center min-w-[48px]">
-                        <div className="text-[10px] text-gray-400">{s.day}</div>
-                        <div className="text-sm text-white font-bold">{s.date.slice(5)}</div>
+                        {s.isToday && <div className="text-[9px] text-emerald-400 font-bold">오늘</div>}
+                        <div className={`text-[10px] ${s.isToday ? 'text-emerald-300' : 'text-gray-400'}`}>{s.day}</div>
+                        <div className={`text-sm font-bold ${s.isToday ? 'text-emerald-200' : 'text-white'}`}>{s.date.slice(5)}</div>
                         <div className="text-[10px] text-gray-500">{s.time}</div>
                       </div>
                       <div>
@@ -325,10 +331,33 @@ export default function SpotOperatorPage() {
         {activeTab === 'checkin' && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-white">참가자 체크</h2>
+              <div>
+                <h2 className="text-lg font-semibold text-white">참가자 체크</h2>
+                <p className="text-xs text-gray-400 mt-0.5">{checkinDate} {(() => { const d = new Date(checkinDate + 'T00:00:00+09:00'); return d.getDay() === 3 ? '수요일 20:00' : d.getDay() === 0 ? '일요일 15:00' : ''; })()}</p>
+              </div>
               <input type="date" value={checkinDate} onChange={(e) => setCheckinDate(e.target.value)}
                 className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm" />
             </div>
+
+            {/* 오늘 세션 요약 */}
+            {checkinList.length > 0 && (
+              <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-gray-300 text-sm font-medium">세션 참가자 구성</span>
+                  <span className="text-amber-300 text-sm font-bold">{checkinList.length}명</span>
+                </div>
+                <div className="flex gap-3">
+                  <div className="flex-1 bg-blue-900/30 rounded-lg p-2.5 text-center border border-blue-800/30">
+                    <div className="text-blue-300 text-lg font-bold">{checkinList.filter(r => r.mode !== 'reflection').length}</div>
+                    <div className="text-blue-400 text-[10px]">💬 스몰토크</div>
+                  </div>
+                  <div className="flex-1 bg-violet-900/30 rounded-lg p-2.5 text-center border border-violet-800/30">
+                    <div className="text-violet-300 text-lg font-bold">{checkinList.filter(r => r.mode === 'reflection').length}</div>
+                    <div className="text-violet-400 text-[10px]">🧘 사색</div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* 인원 표시 */}
             <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700 flex items-center justify-between">
