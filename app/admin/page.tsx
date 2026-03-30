@@ -807,15 +807,37 @@ export default function AdminPage() {
               <h2 className="text-xl font-semibold text-white">멤버 관리</h2>
               <div className="flex gap-2">
                 <button onClick={async () => {
-                  if (!confirm('이번 달 활성 월이 설정되지 않은 멤버를 전부 비활성화합니다.')) return;
+                  const month = prompt('활성월을 추가할 월을 입력하세요 (예: 2026-04)');
+                  if (!month || !month.match(/^\d{4}-\d{2}$/)) return;
+                  if (!confirm(`활성 상태인 모든 멤버에게 ${month}을 추가합니다.`)) return;
+                  let updated = 0;
+                  for (const m of members as any[]) {
+                    if (!m.is_active) continue;
+                    const months = m.active_months ? m.active_months.split(',').map((s:string)=>s.trim()) : [];
+                    if (!months.includes(month)) {
+                      months.push(month);
+                      await fetch('/api/admin/members', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id:m.id, activeMonths: months.join(',')}) });
+                      updated++;
+                    }
+                  }
+                  alert(`${updated}명에게 ${month} 활성월이 추가되었습니다.`);
+                  fetchMembers(memberSearch);
+                }} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs">일괄 활성월 추가</button>
+                <button onClick={async () => {
                   const now = new Date();
                   const kst = new Date(now.getTime() + 9*60*60*1000 + now.getTimezoneOffset()*60*1000);
                   const cm = `${kst.getFullYear()}-${String(kst.getMonth()+1).padStart(2,'0')}`;
+                  if (!confirm(`${cm} 활성월이 없는 멤버를 전부 비활성화합니다.`)) return;
+                  let count = 0;
                   for (const m of members as any[]) {
-                    if (m.active_months && !m.active_months.split(',').map((s:string)=>s.trim()).includes(cm)) {
+                    if (!m.is_active) continue;
+                    const months = m.active_months ? m.active_months.split(',').map((s:string)=>s.trim()) : [];
+                    if (!months.includes(cm)) {
                       await fetch('/api/admin/members', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({id:m.id, isActive:false}) });
+                      count++;
                     }
                   }
+                  alert(`${count}명이 비활성화되었습니다.`);
                   fetchMembers(memberSearch);
                 }} className="px-3 py-1.5 bg-red-600/80 hover:bg-red-700 text-white rounded-lg text-xs">만료 멤버 비활성화</button>
               </div>
@@ -943,6 +965,23 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* 멤버 통계 + 필터 */}
+            {members.length > 0 && (() => {
+              const now = new Date();
+              const kst = new Date(now.getTime() + 9*60*60*1000 + now.getTimezoneOffset()*60*1000);
+              const nextMonth = `${kst.getFullYear()}-${String(kst.getMonth()+2).padStart(2,'0')}`;
+              const curMonth = `${kst.getFullYear()}-${String(kst.getMonth()+1).padStart(2,'0')}`;
+              const activeCount = (members as any[]).filter(m => m.is_active).length;
+              const noNextMonth = (members as any[]).filter(m => m.is_active && m.active_months && !m.active_months.split(',').map((s:string)=>s.trim()).includes(nextMonth)).length;
+              return (
+                <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700 flex flex-wrap gap-3 items-center text-xs">
+                  <span className="text-gray-400">총 <strong className="text-white">{members.length}</strong>명</span>
+                  <span className="text-green-400">활성 <strong>{activeCount}</strong></span>
+                  <span className="text-red-400">{nextMonth} 미갱신 <strong>{noNextMonth}</strong></span>
+                </div>
+              );
+            })()}
+
             {/* 멤버 목록 */}
             <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
               <div className="overflow-x-auto">
@@ -1004,7 +1043,11 @@ export default function AdminPage() {
                             placeholder="2026-04,2026-05" />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
-                          {member.created_at ? formatKST(member.created_at).slice(0, 10) : '-'}
+                          {member.created_at ? (() => {
+                            const d = new Date(member.created_at.includes('T') ? member.created_at : member.created_at + 'Z');
+                            const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+                            return `${kst.getUTCFullYear()}-${String(kst.getUTCMonth()+1).padStart(2,'0')}-${String(kst.getUTCDate()).padStart(2,'0')}`;
+                          })() : '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <div className="flex gap-2">
