@@ -247,7 +247,7 @@ export default function AdminPage() {
       if (!res.ok) {
         setSheetResult(`❌ ${data.error}`);
       } else {
-        setSheetResult(`✅ ${data.added}명 추가, ${data.skipped}명 스킵 (전체 ${data.total}명)`);
+        setSheetResult(`✅ 신규 ${data.added}명, 갱신 ${data.updated || 0}명, 스킵 ${data.skipped}명 (전체 ${data.total}명)`);
         fetchMembers(memberSearch);
       }
     } catch (error) {

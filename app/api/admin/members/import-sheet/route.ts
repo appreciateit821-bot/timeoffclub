@@ -31,19 +31,38 @@ export async function POST(request: NextRequest) {
     if (nameIdx === -1) nameIdx = 1;
     if (phoneIdx === -1) phoneIdx = 2;
 
-    let added = 0, skipped = 0;
+    // 현재 월 (KST)
+    const now = new Date();
+    const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000 + now.getTimezoneOffset() * 60 * 1000);
+    const currentMonth = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
+
+    let added = 0, updated = 0, skipped = 0;
     for (let i = 1; i < rows.length; i++) {
       const name = rows[i][nameIdx]?.trim();
       const phone = rows[i][phoneIdx]?.trim().replace(/[^0-9]/g, '');
       if (!name || !phone || phone.length < 4) { skipped++; continue; }
 
       try {
-        await db.prepare('INSERT OR IGNORE INTO members (name, phone_last4, is_active) VALUES (?, ?, 1)').bind(name, phone.slice(-4)).run();
-        added++;
+        const phoneLast4 = phone.slice(-4);
+        const existing = await db.prepare('SELECT id, active_months FROM members WHERE name = ? AND phone_last4 = ?').bind(name, phoneLast4).first() as any;
+
+        if (existing) {
+          // 중복 = 재결제 → 활성월 추가 + 활성화
+          const months = existing.active_months ? existing.active_months.split(',').map((s: string) => s.trim()) : [];
+          if (!months.includes(currentMonth)) months.push(currentMonth);
+          await db.prepare('UPDATE members SET active_months = ?, is_active = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+            .bind(months.join(','), existing.id).run();
+          updated++;
+        } else {
+          // 신규 멤버
+          await db.prepare('INSERT INTO members (name, phone_last4, is_active, active_months) VALUES (?, ?, 1, ?)')
+            .bind(name, phoneLast4, currentMonth).run();
+          added++;
+        }
       } catch { skipped++; }
     }
 
-    return NextResponse.json({ success: true, added, skipped, total: rows.length - 1 });
+    return NextResponse.json({ success: true, added, updated, skipped, total: rows.length - 1 });
   } catch (error) {
     return NextResponse.json({ error: '가져오기 오류' }, { status: 500 });
   }
