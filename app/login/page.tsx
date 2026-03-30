@@ -57,16 +57,6 @@ export default function LoginPage() {
             <p className="text-base sm:text-lg text-amber-200/90 font-medium mb-3 leading-relaxed">목적 없는 즐거움,<br/>다정한 디지털 로그아웃<br className="sm:hidden" /> 스몰토크를 제안합니다</p>
           </div>
 
-          {/* 1. 소셜 프루프 스트립 */}
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="flex -space-x-2">
-              {['🧑‍💼','👩‍🎨','👨‍✈️','👩‍💻'].map((e, i) => (
-                <div key={i} className="w-7 h-7 rounded-full bg-gray-700 border-2 border-gray-800 flex items-center justify-center text-xs">{e}</div>
-              ))}
-            </div>
-            <p className="text-gray-400 text-xs">이번 달 <strong className="text-amber-300">12명</strong>이 첫 방문했어요</p>
-          </div>
-
           {/* 클럽 규칙 */}
           <div className="mb-6 p-4 sm:p-5 bg-gray-700/40 rounded-xl border border-gray-600/50">
             <div className="space-y-4 text-sm">
