@@ -254,37 +254,70 @@ export default function SpotOperatorPage() {
             <div className="text-white font-bold">{spotName.split('_')[1] || spotName}</div>
             <div className="text-xs text-gray-400">{spotName.split('_')[0]} · 다가오는 세션</div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {getUpcomingSessions().map(s => (
-              <button
-                key={s.date}
-                onClick={() => setCheckinDate(s.date)}
-                className={`rounded-lg p-3 text-center transition active:scale-95 ${
-                  checkinDate === s.date
-                    ? 'bg-amber-600/30 border border-amber-500/50'
-                    : 'bg-gray-800/80 border border-gray-700 hover:border-gray-600'
-                }`}
-              >
-                <div className="text-[10px] text-gray-400">{s.day} {s.time}</div>
-                <div className="text-xs text-white font-medium mt-0.5">{s.date.slice(5)}</div>
-                <div className="text-xl font-bold text-amber-400 mt-1">
-                  {upcomingData[s.date] !== undefined ? upcomingData[s.date].total : '-'}
+          <div className="space-y-2">
+            {getUpcomingSessions().map(s => {
+              const data = upcomingData[s.date];
+              const cap = sessionCapacities[s.date];
+              const isEditing = editingCapDate === s.date;
+              return (
+                <div key={s.date}
+                  className={`rounded-xl p-3 transition ${
+                    checkinDate === s.date ? 'bg-amber-900/20 border border-amber-600/40' : 'bg-gray-800/80 border border-gray-700'
+                  }`}>
+                  <div className="flex items-center justify-between" onClick={() => setCheckinDate(s.date)}>
+                    <div className="flex items-center gap-3">
+                      <div className="text-center min-w-[48px]">
+                        <div className="text-[10px] text-gray-400">{s.day}</div>
+                        <div className="text-sm text-white font-bold">{s.date.slice(5)}</div>
+                        <div className="text-[10px] text-gray-500">{s.time}</div>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-amber-300 font-bold text-lg">{data?.total ?? 0}</span>
+                          <span className="text-gray-500 text-xs">명 예약</span>
+                          {cap && <span className="text-gray-600 text-[10px]">/ {cap.capacity}명</span>}
+                        </div>
+                        {data && data.total > 0 && (
+                          <div className="flex gap-2 mt-0.5">
+                            <span className="text-[10px] text-blue-300">💬 {data.smalltalk}</span>
+                            <span className="text-[10px] text-violet-300">🧘 {data.reflection}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); if (isEditing) { setEditingCapDate(''); } else { setEditingCapDate(s.date); setEditingCapValue(String(cap?.capacity || 10)); } }}
+                      className={`px-3 py-1.5 rounded-lg text-xs transition active:scale-95 ${
+                        isEditing ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}>
+                      {isEditing ? '닫기' : '👥 인원'}
+                    </button>
+                  </div>
+                  {/* 인원 조절 펼침 */}
+                  {isEditing && (
+                    <div className="mt-3 pt-3 border-t border-gray-700 space-y-2">
+                      <div className="flex gap-1.5">
+                        {[2, 4, 6, 8, 10].map(n => (
+                          <button key={n} onClick={() => setEditingCapValue(String(n))}
+                            className={`flex-1 py-2 rounded-lg text-sm font-bold transition active:scale-95 ${
+                              editingCapValue === String(n) ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400'
+                            }`}>{n}</button>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => { handleSaveCapacity(s.date, parseInt(editingCapValue)); }}
+                          className="flex-1 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium transition active:scale-95">
+                          {editingCapValue}명으로 저장
+                        </button>
+                        {cap?.isCustom && (
+                          <button onClick={() => handleResetCapacity(s.date)}
+                            className="px-3 py-2 bg-gray-700 text-gray-400 rounded-lg text-xs transition">초기화</button>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="text-[9px] text-gray-500">명 예약</div>
-                {upcomingData[s.date] && upcomingData[s.date].total > 0 && (
-                  <div className="flex justify-center gap-1.5 mt-1">
-                    <span className="text-[9px] text-blue-300">💬{upcomingData[s.date].smalltalk}</span>
-                    <span className="text-[9px] text-violet-300">🧘{upcomingData[s.date].reflection}</span>
-                  </div>
-                )}
-                {sessionCapacities[s.date] && (
-                  <div className="text-[9px] text-gray-500 mt-0.5">
-                    최대 {sessionCapacities[s.date].capacity}명
-                    {sessionCapacities[s.date].isCustom && <span className="text-amber-400"> ✏️</span>}
-                  </div>
-                )}
-              </button>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -297,40 +330,10 @@ export default function SpotOperatorPage() {
                 className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm" />
             </div>
 
-            {/* 인원 조절 */}
-            <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700">
-              {editingCapDate === checkinDate ? (
-                <div className="space-y-3">
-                  <div className="text-sm text-gray-300 font-medium">👥 최대 인원 변경</div>
-                  <div className="flex gap-2">
-                    {[4, 6, 8, 10].map(n => (
-                      <button key={n} onClick={() => setEditingCapValue(String(n))}
-                        className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition active:scale-95 ${
-                          editingCapValue === String(n) ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400'
-                        }`}>{n}명</button>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => handleSaveCapacity(checkinDate, parseInt(editingCapValue))}
-                      className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium transition active:scale-95">저장</button>
-                    <button onClick={() => setEditingCapDate('')}
-                      className="px-4 py-2.5 bg-gray-700 text-gray-400 rounded-lg text-sm transition">취소</button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-gray-400 text-sm">👥 최대 인원</span>
-                    <span className="text-amber-300 text-xl font-bold ml-2">{sessionCapacities[checkinDate]?.capacity || '...'}</span>
-                    <span className="text-gray-400 text-sm">명</span>
-                    {sessionCapacities[checkinDate]?.isCustom && <span className="text-[10px] text-amber-400 ml-1.5">변경됨</span>}
-                  </div>
-                  <button onClick={() => { setEditingCapDate(checkinDate); setEditingCapValue(String(sessionCapacities[checkinDate]?.capacity || 10)); }}
-                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm transition active:scale-95">
-                    ✏️ 변경
-                  </button>
-                </div>
-              )}
+            {/* 인원 표시 */}
+            <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700 flex items-center justify-between">
+              <span className="text-gray-400 text-sm">👥 최대 <span className="text-amber-300 font-bold">{sessionCapacities[checkinDate]?.capacity || '...'}</span>명</span>
+              <span className="text-gray-500 text-xs">상단에서 인원 변경 가능</span>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
