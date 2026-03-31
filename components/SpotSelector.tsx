@@ -169,6 +169,18 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
         const spotInfo = SPOT_DETAILS.find(s => s.id === selectedSpot);
         setSuccessInfo({ date, spot: spotInfo?.name || selectedSpot, mode: selectedMode, warning: data.warning });
         setShowSuccess(true);
+
+        // 자동 캘린더 다운로드 (아이폰: 열면 "캘린더에 추가" 팝업)
+        try {
+          const icsUrl = `/api/reservations/ics?date=${date}&spot=${encodeURIComponent(selectedSpot)}`;
+          const link = document.createElement('a');
+          link.href = icsUrl;
+          link.download = `timeoffclub-${date}.ics`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } catch (e) { /* 실패해도 예약은 완료 */ }
+
         setSelectedSpot('');
         setSelectedMode('');
         setMemo('');
