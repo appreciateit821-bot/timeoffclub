@@ -22,7 +22,11 @@ interface CalendarProps {
 }
 
 export default function Calendar({ selectedDates, onDatesChange, activeMonths, isTrial }: CalendarProps) {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(() => {
+    // 체험권은 4월부터 시작
+    if (isTrial) return new Date(2026, 3, 1); // 4월
+    return new Date();
+  });
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
   const [alertMonth, setAlertMonth] = useState('');
   const [dateStats, setDateStats] = useState<{ [date: string]: DateStats }>({});
@@ -49,6 +53,8 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
   const getMonthLabel = (m: number) => ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'][m];
 
   const previousMonth = () => {
+    // 체험권은 4월 이전으로 못 감
+    if (isTrial && (year === 2026 && month <= 3)) return;
     setCurrentDate(new Date(year, month - 1, 1));
   };
 
