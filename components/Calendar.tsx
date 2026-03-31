@@ -24,7 +24,20 @@ interface CalendarProps {
 export default function Calendar({ selectedDates, onDatesChange, activeMonths, isTrial }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(() => {
     // 체험권은 4월부터 시작
-    if (isTrial) return new Date(2026, 3, 1); // 4월
+    if (isTrial) return new Date(2026, 3, 1);
+    // 활성월이 있으면 가장 가까운 활성월로 시작
+    if (activeMonths) {
+      const months = activeMonths.split(',').map(m => m.trim()).sort();
+      const now = new Date();
+      const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000 + now.getTimezoneOffset() * 60 * 1000);
+      const curMonth = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
+      // 현재 월이 활성이면 현재 월, 아니면 다음 활성월
+      const activeMonth = months.includes(curMonth) ? curMonth : months.find(m => m >= curMonth) || months[months.length - 1];
+      if (activeMonth) {
+        const [y, m] = activeMonth.split('-').map(Number);
+        return new Date(y, m - 1, 1);
+      }
+    }
     return new Date();
   });
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
