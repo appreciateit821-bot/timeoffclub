@@ -1,6 +1,6 @@
 export const PASSWORDS = {
   USER: 'timeoff2026',
-  ADMIN: 'admin2026',
+  ADMIN: 'hyeon821',
   SPOT_OPERATORS: {
     '약수_스티키플로어': '3321',
     '망원_다시점': '6626',
