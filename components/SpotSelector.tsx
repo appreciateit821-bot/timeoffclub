@@ -243,18 +243,18 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           return (
             <div className="bg-gradient-to-b from-blue-900/30 to-blue-900/10 border border-blue-600/30 rounded-xl p-5 space-y-3">
               <div className="text-center">
-                <p className="text-blue-100 font-semibold">📅 캘린더에 등록해주세요!</p>
-                <p className="text-blue-300/70 text-xs mt-1">세션 당일 알림을 받을 수 있어요</p>
+                <p className="text-blue-100 font-semibold">📵 잊지 않게 알림 받기</p>
+                <p className="text-blue-300/70 text-xs mt-1">세션 5시간 전에 알림이 울려요. 놓치지 마세요!</p>
               </div>
               <a href={icsUrl}
                 className="block w-full py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-sm text-center transition active:scale-95 font-medium border border-gray-600">
-                🍎 아이폰 캘린더에 추가
+                🍎 아이폰 알림 등록
               </a>
               <a href={googleUrl} target="_blank" rel="noopener noreferrer"
                 className="block w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm text-center transition active:scale-95 font-medium">
-                📅 구글 캘린더에 추가 (안드로이드)
+                📅 안드로이드 알림 등록
               </a>
-              <p className="text-center text-gray-500 text-[10px]">아이폰: 다운로드된 파일을 열면 캘린더에 자동 추가됩니다</p>
+              <p className="text-center text-gray-500 text-[10px]">다운로드된 파일을 열면 알림이 자동 등록돼요</p>
             </div>
           );
         })()}
