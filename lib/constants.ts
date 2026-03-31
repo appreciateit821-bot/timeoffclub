@@ -80,13 +80,19 @@ export function formatKST(utcStr: string): string {
 
 // 세션 시작 시간 가져오기 (KST 기준)
 export function getSessionStartTime(dateStr: string): Date {
-  const date = new Date(dateStr + 'T00:00:00+09:00');
-  const dayOfWeek = date.getDay();
+  // KST → UTC 변환을 직접 계산 (Cloudflare Workers 호환)
+  const [y, m, d] = dateStr.split('-').map(Number);
+  // KST 자정 = UTC 전날 15:00
+  const midnightKST = Date.UTC(y, m - 1, d) - 9 * 60 * 60 * 1000;
+  const date = new Date(midnightKST);
+  const dayOfWeek = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
   if (dayOfWeek === AVAILABLE_DAYS.WEDNESDAY) {
-    return new Date(dateStr + 'T20:00:00+09:00');
+    // 수요일 20:00 KST = UTC 11:00
+    return new Date(Date.UTC(y, m - 1, d, 11, 0, 0));
   }
   if (dayOfWeek === AVAILABLE_DAYS.SUNDAY) {
-    return new Date(dateStr + 'T15:00:00+09:00');
+    // 일요일 15:00 KST = UTC 06:00
+    return new Date(Date.UTC(y, m - 1, d, 6, 0, 0));
   }
   return date;
 }

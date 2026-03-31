@@ -194,12 +194,7 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
             <span className="text-[9px] sm:text-[10px] mt-0.5 text-red-400">마감</span>
           )}
           {available && !isPast && !closed && !dayClosed && (
-            <>
-              <span className="text-[10px] sm:text-xs mt-0.5 opacity-75">{timeSlot}</span>
-              {stats && stats.total > 0 && (
-                <span className="text-[8px] sm:text-[9px] mt-0.5 text-amber-300/80">{stats.total}명</span>
-              )}
-            </>
+            <span className="text-[10px] sm:text-xs mt-0.5 opacity-75">{timeSlot}</span>
           )}
         </div>
       </button>
