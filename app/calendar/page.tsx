@@ -159,6 +159,7 @@ export default function CalendarPage() {
               selectedDates={selectedDates}
               onDatesChange={setSelectedDates}
               activeMonths={user?.activeMonths}
+              isTrial={user?.phoneLast4?.startsWith('T-') || false}
             />
 
             {selectedDates.length > 0 && (

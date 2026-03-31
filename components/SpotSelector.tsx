@@ -333,12 +333,21 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                   </p>
                 </div>
 
-                {/* 스팟 안내 */}
-                {spotNotices[spotInfo.id] && !isClosed && (
-                  <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-amber-700/50 text-amber-100' : 'bg-amber-900/30 text-amber-300/80'} border border-amber-700/20`}>
-                    ℹ️ {spotNotices[spotInfo.id]}
-                  </div>
-                )}
+                {/* 스팟 안내 (수요일만 표시되는 안내 고려) */}
+                {spotNotices[spotInfo.id] && !isClosed && (() => {
+                  // 선택한 날짜의 요일 확인 (수요일=3)
+                  const selectedDay = new Date(date + 'T00:00:00+09:00').getDay();
+                  const notice = spotNotices[spotInfo.id];
+                  // "수요일" 키워드가 포함된 안내는 수요일에만 표시
+                  if (notice.includes('수요일') && selectedDay !== 3) return null;
+                  // "일요일" 키워드가 포함된 안내는 일요일에만 표시
+                  if (notice.includes('일요일') && selectedDay !== 0) return null;
+                  return (
+                    <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-amber-700/50 text-amber-100' : 'bg-amber-900/30 text-amber-300/80'} border border-amber-700/20`}>
+                      ℹ️ {notice}
+                    </div>
+                  );
+                })()}
 
                 {/* 모드별 인원 */}
                 {count > 0 && stats && (

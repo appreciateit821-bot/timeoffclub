@@ -18,9 +18,10 @@ interface CalendarProps {
   selectedDates: string[];
   onDatesChange: (dates: string[]) => void;
   activeMonths?: string;
+  isTrial?: boolean;
 }
 
-export default function Calendar({ selectedDates, onDatesChange, activeMonths }: CalendarProps) {
+export default function Calendar({ selectedDates, onDatesChange, activeMonths, isTrial }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
   const [alertMonth, setAlertMonth] = useState('');
@@ -54,6 +55,18 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths }:
   const nextMonth = () => {
     const nextY = month === 11 ? year + 1 : year;
     const nextM = month === 11 ? 0 : month + 1;
+    // 체험권은 현재 월(4월)만 가능
+    if (isTrial) {
+      const now = new Date();
+      const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000 + now.getTimezoneOffset() * 60 * 1000);
+      const curY = kst.getFullYear();
+      const curM = kst.getMonth();
+      if (nextY > curY || (nextY === curY && nextM > curM)) {
+        setAlertMonth(`${nextY}년 ${getMonthLabel(nextM)}`);
+        setShowMembershipAlert(true);
+        return;
+      }
+    }
     if (hasMonthRestriction && !isMonthActive(nextY, nextM)) {
       setAlertMonth(`${nextY}년 ${getMonthLabel(nextM)}`);
       setShowMembershipAlert(true);
