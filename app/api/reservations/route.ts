@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
     if (countResult?.count >= maxCap) return NextResponse.json({ error: '해당 스팟의 정원이 가득 찼습니다.' }, { status: 400 });
 
     await db.prepare('INSERT INTO reservations (user_name, date, spot, mode, memo, energy, is_trial) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(user.name, date, spot, mode || 'smalltalk', memo || '', energy || 'normal', isTrial ? 1 : 0).run();
-    await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action) VALUES (?, ?, ?, ?)').bind(user.name, date, spot, 'CREATE').run();
+    await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action, phone_last4) VALUES (?, ?, ?, ?, ?)').bind(user.name, date, spot, 'CREATE', user.phoneLast4 || '').run();
 
     return NextResponse.json({ success: true, message: '예약이 완료되었습니다.', warning: conflictWarning || undefined });
   } catch (error) {
@@ -146,7 +146,7 @@ export async function DELETE(request: NextRequest) {
     if (!user.isAdmin && reservation.user_name !== user.name) return NextResponse.json({ error: '본인의 예약만 취소할 수 있습니다.' }, { status: 403 });
 
     await db.prepare('DELETE FROM reservations WHERE id = ?').bind(id).run();
-    await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action) VALUES (?, ?, ?, ?)').bind(reservation.user_name, reservation.date, reservation.spot, 'CANCEL').run();
+    await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action, phone_last4) VALUES (?, ?, ?, ?, ?)').bind(reservation.user_name, reservation.date, reservation.spot, 'CANCEL', user.phoneLast4 || '').run();
 
     return NextResponse.json({ success: true, message: '예약이 취소되었습니다.' });
   } catch (error) {

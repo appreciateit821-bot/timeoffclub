@@ -35,7 +35,7 @@ export async function PUT(request: NextRequest) {
     } else {
       await db.prepare('UPDATE reservations SET spot = ? WHERE id = ?').bind(spot, id).run();
     }
-    await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action) VALUES (?, ?, ?, ?)').bind(user.name, reservation.date, spot, `UPDATE (from ${reservation.spot})`).run();
+    await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action, phone_last4) VALUES (?, ?, ?, ?, ?)').bind(user.name, reservation.date, spot, `UPDATE (from ${reservation.spot})`, user.phoneLast4 || '').run();
 
     return NextResponse.json({ success: true, message: '예약이 변경되었습니다.' });
   } catch (error) {
