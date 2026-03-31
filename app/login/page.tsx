@@ -51,7 +51,7 @@ export default function LoginPage() {
           <div className="text-center mb-6">
             {/* 5. 히어로 배지 */}
             <div className="inline-block px-4 py-1.5 bg-amber-900/30 border border-amber-700/30 rounded-full mb-3">
-              <p className="text-xs text-amber-300">🌿 누적 <strong className="text-amber-200">89명</strong>이 타임오프를 경험했습니다</p>
+              <p className="text-xs text-amber-300">🌿 누적 <strong className="text-amber-200">85명</strong>이 타임오프를 경험했습니다</p>
             </div>
             <h1 className="text-3xl font-bold text-amber-100 mb-2">타임오프클럽</h1>
             <p className="text-base sm:text-lg text-amber-200/90 font-medium mb-3 leading-relaxed">목적 없는 즐거움,<br/>다정한 디지털 로그아웃<br className="sm:hidden" /> 스몰토크를 제안합니다</p>
