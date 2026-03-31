@@ -53,14 +53,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '멤버십이 비활성 상태입니다. 관리자에게 문의하세요.' }, { status: 403 });
     }
 
-    // 활성 월 체크 (active_months가 설정된 경우)
+    // 활성 월 체크 — 현재 월 또는 미래 활성월이 있으면 로그인 허용
     if (member.active_months) {
       const now = new Date();
       const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000 + now.getTimezoneOffset() * 60 * 1000);
       const currentMonth = `${kstNow.getFullYear()}-${String(kstNow.getMonth() + 1).padStart(2, '0')}`;
       const activeMonths = member.active_months.split(',').map((m: string) => m.trim());
-      if (!activeMonths.includes(currentMonth)) {
-        return NextResponse.json({ error: `${currentMonth} 멤버십이 활성화되지 않았습니다. 관리자에게 문의하세요.` }, { status: 403 });
+      // 현재 월 이상의 활성월이 하나라도 있으면 OK
+      const hasValidMonth = activeMonths.some((m: string) => m >= currentMonth);
+      if (!hasValidMonth) {
+        return NextResponse.json({ error: `멤버십이 만료되었습니다. 관리자 (카카오톡 well__moment)로 연락 부탁드립니다 🦊` }, { status: 403 });
       }
     }
 
