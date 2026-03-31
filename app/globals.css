@@ -45,6 +45,18 @@ body {
   }
 }
 
+/* 크롬 다크모드 호환 */
+html.dark {
+  color-scheme: dark;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+select {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
