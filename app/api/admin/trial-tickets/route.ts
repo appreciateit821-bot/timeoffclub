@@ -4,12 +4,23 @@ import { getSession } from '@/lib/auth';
 
 export const runtime = 'edge';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const db = getDB();
   const session = await getSession();
   if (!session?.isAdmin || !db) return NextResponse.json({ error: '권한 없음' }, { status: 403 });
 
-  const { results: tickets } = await db.prepare('SELECT * FROM trial_tickets ORDER BY created_at DESC').all();
+  const { searchParams } = new URL(request.url);
+  const deliveredFilter = searchParams.get('delivered'); // 'all', 'delivered', 'not_delivered'
+
+  let query = 'SELECT * FROM trial_tickets';
+  if (deliveredFilter === 'delivered') {
+    query += ' WHERE is_delivered = 1';
+  } else if (deliveredFilter === 'not_delivered') {
+    query += ' WHERE is_delivered = 0';
+  }
+  query += ' ORDER BY created_at DESC';
+
+  const { results: tickets } = await db.prepare(query).all();
   return NextResponse.json({ tickets });
 }
 
@@ -27,6 +38,27 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({ success: true, codes, count: codes.length });
+}
+
+export async function PUT(request: NextRequest) {
+  const db = getDB();
+  const session = await getSession();
+  if (!session?.isAdmin || !db) return NextResponse.json({ error: '권한 없음' }, { status: 403 });
+
+  try {
+    const { id, is_delivered } = await request.json();
+    if (!id) return NextResponse.json({ error: 'ID 필요' }, { status: 400 });
+
+    if (is_delivered) {
+      await db.prepare('UPDATE trial_tickets SET is_delivered = 1, delivered_at = CURRENT_TIMESTAMP WHERE id = ?').bind(id).run();
+    } else {
+      await db.prepare('UPDATE trial_tickets SET is_delivered = 0, delivered_at = NULL WHERE id = ?').bind(id).run();
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: '업데이트 실패' }, { status: 500 });
+  }
 }
 
 export async function DELETE(request: NextRequest) {

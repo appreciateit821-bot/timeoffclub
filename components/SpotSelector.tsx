@@ -226,7 +226,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
           const icsUrl = `/api/reservations/ics?date=${successInfo.date}&spot=${encodeURIComponent(spotId)}`;
           const noticeText = spotNotices[spotId] ? ` | ℹ️ ${spotNotices[spotId]}` : '';
-          const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('타임오프클럽 - ' + (spotInfo?.name || spotId))}&dates=${fmt(start)}/${fmt(end)}&location=${encodeURIComponent(spotInfo?.address || '')}&details=${encodeURIComponent('📵 스마트폰 보관 | ☕ 1인 1음료' + noticeText)}`;
+          const bensonNote = spotId === '압구정로데오_벤슨 테이스팅 라운지' ? ' | 🏢 엘리베이터 타고 2층으로 올라와주세요' : '';
+          const googleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('타임오프클럽 - ' + (spotInfo?.name || spotId))}&dates=${fmt(start)}/${fmt(end)}&location=${encodeURIComponent(spotInfo?.address || '')}&details=${encodeURIComponent('📵 스마트폰 보관 | ☕ 1인 1음료' + bensonNote + noticeText)}`;
           return (
             <div className="bg-gradient-to-b from-blue-900/30 to-blue-900/10 border border-blue-600/30 rounded-xl p-5 space-y-3">
               <div className="text-center">

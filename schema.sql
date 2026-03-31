@@ -27,8 +27,13 @@ CREATE TABLE IF NOT EXISTS noshow_warnings (
 );
 CREATE TABLE IF NOT EXISTS trial_tickets (
   id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT NOT NULL UNIQUE, name TEXT, phone_last4 TEXT,
-  is_used INTEGER DEFAULT 0, used_at DATETIME, created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  is_used INTEGER DEFAULT 0, used_at DATETIME,
+  is_delivered INTEGER DEFAULT 0, delivered_at DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+-- 기존 trial_tickets 테이블에 컬럼 추가 (마이그레이션용)
+-- ALTER TABLE trial_tickets ADD COLUMN is_delivered INTEGER DEFAULT 0;
+-- ALTER TABLE trial_tickets ADD COLUMN delivered_at DATETIME;
 CREATE TABLE IF NOT EXISTS feedbacks (
   id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT NOT NULL, date TEXT NOT NULL, spot TEXT NOT NULL,
   service_rating INTEGER DEFAULT 0, service_feedback TEXT, person_issue TEXT, general_comment TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP

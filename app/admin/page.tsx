@@ -23,6 +23,7 @@ export default function AdminPage() {
   const [checkinDate, setCheckinDate] = useState('');
   const [trialTickets, setTrialTickets] = useState<any[]>([]);
   const [trialCount, setTrialCount] = useState(1);
+  const [trialFilter, setTrialFilter] = useState<'all' | 'delivered' | 'not_delivered'>('all');
   const [feedbackData, setFeedbackData] = useState<any>({ feedbacks: [], issues: [] });
   const [maxCapacity, setMaxCapacity] = useState(10);
   const [capacitySaving, setCapacitySaving] = useState(false);
@@ -257,9 +258,9 @@ export default function AdminPage() {
     }
   };
 
-  const fetchTrialTickets = async () => {
+  const fetchTrialTickets = async (filter: 'all' | 'delivered' | 'not_delivered' = trialFilter) => {
     try {
-      const res = await fetch('/api/admin/trial-tickets');
+      const res = await fetch(`/api/admin/trial-tickets?delivered=${filter}`);
       if (res.ok) { const data = await res.json(); setTrialTickets(data.tickets); }
     } catch (e) { console.error(e); }
   };
@@ -278,6 +279,17 @@ export default function AdminPage() {
   const handleDeleteTicket = async (id: number) => {
     try {
       await fetch(`/api/admin/trial-tickets?id=${id}`, { method: 'DELETE' });
+      fetchTrialTickets();
+    } catch (e) { console.error(e); }
+  };
+
+  const handleToggleDelivered = async (id: number, currentStatus: boolean) => {
+    try {
+      await fetch('/api/admin/trial-tickets', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, is_delivered: !currentStatus })
+      });
       fetchTrialTickets();
     } catch (e) { console.error(e); }
   };
@@ -1146,7 +1158,7 @@ export default function AdminPage() {
         {activeTab === 'trial' && (
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-white">체험권 관리</h2>
-            
+
             <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
               <h3 className="text-lg font-semibold text-white mb-4">체험권 발급</h3>
               <div className="flex gap-3 items-end">
@@ -1170,13 +1182,31 @@ export default function AdminPage() {
               </div>
             </div>
 
+            {/* 전달 상태 필터 */}
+            <div className="flex gap-2">
+              {(['all', 'not_delivered', 'delivered'] as const).map(f => (
+                <button
+                  key={f}
+                  onClick={() => { setTrialFilter(f); fetchTrialTickets(f); }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    trialFilter === f
+                      ? 'bg-amber-600 text-white'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  {f === 'all' ? '전체' : f === 'delivered' ? '전달 완료' : '미전달'}
+                </button>
+              ))}
+            </div>
+
             <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-900">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">코드</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">상태</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">사용 상태</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">전달</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">사용자</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">생성일</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">작업</th>
@@ -1190,6 +1220,18 @@ export default function AdminPage() {
                           <span className={`px-2 py-1 rounded text-xs ${t.is_used ? 'bg-gray-700 text-gray-400' : 'bg-green-900/50 text-green-300'}`}>
                             {t.is_used ? '사용됨' : '미사용'}
                           </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          <button
+                            onClick={() => handleToggleDelivered(t.id, !!t.is_delivered)}
+                            className={`px-2 py-1 rounded text-xs transition ${
+                              t.is_delivered
+                                ? 'bg-blue-900/50 text-blue-300 hover:bg-blue-800/50'
+                                : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                            }`}
+                          >
+                            {t.is_delivered ? '✓ 전달완료' : '미전달'}
+                          </button>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-300">{t.name || '-'}</td>
                         <td className="px-4 py-3 text-sm text-gray-400">{new Date(t.created_at).toLocaleDateString('ko-KR')}</td>

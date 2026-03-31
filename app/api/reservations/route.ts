@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     const existing = await db.prepare('SELECT * FROM reservations WHERE user_name = ? AND date = ?').bind(user.name, date).first();
-    if (existing) return NextResponse.json({ error: '이미 해당 날짜에 예약이 있습니다.' }, { status: 400 });
+    if (existing) return NextResponse.json({ error: '같은 날에는 하나의 스팟만 예약할 수 있어요' }, { status: 400 });
 
     // 연속 3번 같은 스팟 방지
     if (!isTrial) {

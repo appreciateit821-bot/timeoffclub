@@ -33,12 +33,17 @@ export async function GET(request: NextRequest) {
 
   const method = cancel ? 'CANCEL' : 'PUBLISH';
   const status = cancel ? 'CANCELLED' : 'CONFIRMED';
+
+  // 벤슨 테이스팅 라운지 특별 안내
+  const bensonNote = spot === '압구정로데오_벤슨 테이스팅 라운지' ? '🏢 엘리베이터 타고 2층으로 올라와주세요' : '';
+
   const desc = [
     `장소: ${spotInfo?.name || spot}`,
     `주소: ${spotInfo?.address || ''}`,
     '',
     '☕ 1인 1음료',
     '📵 스마트폰 보관',
+    bensonNote ? `\\n${bensonNote}` : '',
     spotNotice ? `\\nℹ️ ${spotNotice}` : '',
   ].filter(Boolean).join('\\n');
 
