@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SPOTS, isBookingClosed, getTodayKST } from '@/lib/constants';
 
 interface Reservation {
@@ -25,6 +25,30 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
   const [newSpot, setNewSpot] = useState<string>('');
   const [newMemo, setNewMemo] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [spotStats, setSpotStats] = useState<{ [key: string]: { total: number; smalltalk: number; reflection: number } }>({});
+
+  useEffect(() => {
+    // 각 예약의 스팟별 인원 조회
+    const dates = [...new Set(reservations.map(r => r.date))];
+    dates.forEach(async (date) => {
+      try {
+        const res = await fetch(`/api/reservations?date=${date}`);
+        if (res.ok) {
+          const data = await res.json();
+          const stats: typeof spotStats = {};
+          SPOTS.forEach(spot => {
+            const spotRes = data.reservations.filter((r: any) => r.spot === spot);
+            stats[`${date}_${spot}`] = {
+              total: spotRes.length,
+              smalltalk: spotRes.filter((r: any) => r.mode !== 'reflection').length,
+              reflection: spotRes.filter((r: any) => r.mode === 'reflection').length,
+            };
+          });
+          setSpotStats(prev => ({ ...prev, ...stats }));
+        }
+      } catch {}
+    });
+  }, [reservations]);
   const isToday = (dateStr: string) => {
     return dateStr === getTodayKST();
   };
@@ -167,7 +191,18 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                         }`}>
                           {reservation.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
                         </div>
-                        <div className="text-gray-300">{reservation.spot}</div>
+                        <div className="text-gray-300">{reservation.spot.split('_')[1] || reservation.spot}</div>
+                        {(() => {
+                          const s = spotStats[`${reservation.date}_${reservation.spot}`];
+                          if (!s || s.total === 0) return null;
+                          return (
+                            <div className="flex gap-2 mt-1">
+                              <span className="text-[10px] text-gray-500">총 {s.total}명</span>
+                              <span className="text-[10px] text-blue-400">💬 {s.smalltalk}</span>
+                              <span className="text-[10px] text-violet-400">🧘 {s.reflection}</span>
+                            </div>
+                          );
+                        })()}
                         {reservation.memo && (
                           <p className="text-gray-400 text-xs mt-1 italic">💭 "{reservation.memo}"</p>
                         )}
