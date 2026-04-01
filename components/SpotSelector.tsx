@@ -46,7 +46,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   const [error, setError] = useState('');
   const [reflectionActivity, setReflectionActivity] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
-  const [successInfo, setSuccessInfo] = useState<{ date: string; spot: string; mode: string; warning?: string } | null>(null);
+  const [successInfo, setSuccessInfo] = useState<{ date: string; spot: string; mode: string; warning?: string; smalltalkCount?: number } | null>(null);
   const [waitlistStatus, setWaitlistStatus] = useState<{ [key: string]: number }>({});
   const [closedSpots, setClosedSpots] = useState<Set<string>>(new Set());
   const [spotNotices, setSpotNotices] = useState<{ [spot: string]: string }>({});
@@ -167,7 +167,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       if (res.ok) {
         const data = await res.json();
         const spotInfo = SPOT_DETAILS.find(s => s.id === selectedSpot);
-        setSuccessInfo({ date, spot: spotInfo?.name || selectedSpot, mode: selectedMode, warning: data.warning });
+        const currentSmalltalk = (modeStats[selectedSpot]?.smalltalk || 0) + (selectedMode === 'smalltalk' ? 1 : 0);
+        setSuccessInfo({ date, spot: spotInfo?.name || selectedSpot, mode: selectedMode, warning: data.warning, smalltalkCount: currentSmalltalk });
         setShowSuccess(true);
 
         // 자동 캘린더 다운로드 (아이폰: 열면 "캘린더에 추가" 팝업)
@@ -226,6 +227,12 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
         {successInfo.warning && (
           <div className="bg-orange-900/30 border border-orange-700/30 rounded-lg p-3 text-sm text-orange-200">
             ⚠️ {successInfo.warning} 다른 스팟으로 변경을 고려해보세요.
+          </div>
+        )}
+
+        {successInfo.mode === 'smalltalk' && successInfo.smalltalkCount !== undefined && successInfo.smalltalkCount <= 2 && (
+          <div className="bg-amber-900/20 border border-amber-700/30 rounded-lg p-3 text-sm text-amber-200">
+            💬 현재 스몰토크 참여 인원이 {successInfo.smalltalkCount}명이에요. 인원과 관계없이 세션은 진행되지만, 더 많은 대화를 원하시면 다른 스팟의 스몰토크 인원도 확인해보세요!
           </div>
         )}
 
