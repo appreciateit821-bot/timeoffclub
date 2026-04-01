@@ -35,6 +35,10 @@ export default function Footer() {
                 <span className="text-amber-400 flex-shrink-0">🔔</span>
                 <span>종료 <strong className="text-amber-200">10분 전</strong> 안내가 나갑니다</span>
               </p>
+              <p className="flex items-start gap-2">
+                <span className="text-amber-400 flex-shrink-0">👥</span>
+                <span>참석 인원과 관계없이 진행됩니다. <strong className="text-amber-200">예약 현황은 언제든지</strong> 확인 가능합니다</span>
+              </p>
             </div>
           </div>
 
