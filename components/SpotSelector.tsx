@@ -50,6 +50,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   const [waitlistStatus, setWaitlistStatus] = useState<{ [key: string]: number }>({});
   const [closedSpots, setClosedSpots] = useState<Set<string>>(new Set());
   const [spotNotices, setSpotNotices] = useState<{ [spot: string]: string }>({});
+  const [visitedSpots, setVisitedSpots] = useState<Set<string>>(new Set());
 
   const [maxCapacity, setMaxCapacity] = useState(MAX_CAPACITY);
   const [spotCapacities, setSpotCapacities] = useState<{ [spot: string]: number }>({});
@@ -58,6 +59,12 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
   useEffect(() => {
     fetch('/api/admin/settings').then(r => r.json()).then(d => { if (d.maxCapacity) setMaxCapacity(d.maxCapacity); }).catch(() => {});
+    // 방문 기록 가져오기
+    fetch('/api/reservations').then(r => r.json()).then(d => {
+      const spots = new Set<string>();
+      (d.reservations || []).filter((r: any) => r.check_in_status === 'attended').forEach((r: any) => spots.add(r.spot));
+      setVisitedSpots(spots);
+    }).catch(() => {});
     fetch('/api/admin/spot-notices').then(r => r.json()).then(d => {
       const map: { [s: string]: string } = {};
       (d.notices || []).forEach((n: any) => { map[n.spot] = n.notice; });
@@ -284,18 +291,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       <h2 className="text-xl font-bold text-amber-100">스팟 선택</h2>
       <p className="text-xs text-gray-400">{date}</p>
 
-      {/* 소인원 넛지 */}
-      {showNudge && (() => {
-        const spotInfo = SPOT_DETAILS.find(s => s.id === lowest.spot);
-        return (
-          <div className="p-3 bg-purple-900/20 border border-purple-700/30 rounded-lg">
-            <p className="text-sm text-purple-200">
-              💜 <strong>{spotInfo?.name}</strong>에서 소규모로 더 깊은 대화를 나눠보는 건 어떨까요?
-            </p>
-            <p className="text-xs text-purple-300/70 mt-1">적은 인원만의 특별한 시간이 될 수 있어요</p>
-          </div>
-        );
-      })()}
+
 
       {/* 스팟 목록 (랜덤 순서) */}
       <div className="grid gap-3">
@@ -323,7 +319,12 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
             >
               <div className="space-y-2">
                 <div className="flex justify-between items-start">
-                  <span className="font-semibold text-base">{spotInfo.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-base">{spotInfo.name.split('_')[1] || spotInfo.name}</span>
+                    {!visitedSpots.has(spotInfo.id) && visitedSpots.size > 0 && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">NEW</span>
+                    )}
+                  </div>
                   <div className="text-right">
                     {isClosed ? (
                       <span className="text-sm font-medium px-2 py-1 rounded bg-gray-700 text-gray-500">휴무</span>
@@ -339,8 +340,11 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     {!isFull && count >= getCapForSpot(spotInfo.id) * 0.8 && (
                       <div className="text-[10px] text-orange-400 mt-0.5">🔥 마감 임박</div>
                     )}
-                    {count > 0 && count <= 3 && !isFull && (
-                      <div className="text-[10px] text-purple-300 mt-0.5">✨ 소규모</div>
+                    {count >= 0 && count <= 2 && !isFull && !isClosed && (
+                      <div className="text-[10px] text-emerald-300 mt-0.5">🌿 프라이빗 세션</div>
+                    )}
+                    {count === 3 && !isFull && (
+                      <div className="text-[10px] text-blue-300 mt-0.5">✨ 소규모</div>
                     )}
                   </div>
                 </div>
@@ -368,6 +372,18 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     </div>
                   );
                 })()}
+
+                {/* 인원별 넛지 메시지 */}
+                {!isClosed && !isFull && count <= 2 && (
+                  <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-emerald-700/40 text-emerald-100' : 'bg-emerald-900/20 text-emerald-300/80'} border border-emerald-700/20`}>
+                    {stats && stats.reflection > 0 && stats.smalltalk === 0
+                      ? '🧘 조용한 공간에서 여유롭게 사색할 수 있어요'
+                      : count === 0
+                      ? '🌿 첫 번째 참여자가 되어보세요. 공간을 온전히 즐길 수 있어요'
+                      : '💬 소수만의 깊은 대화가 가능한 프라이빗 세션이에요'
+                    }
+                  </div>
+                )}
 
                 {/* 모드별 인원 */}
                 {count > 0 && stats && (
