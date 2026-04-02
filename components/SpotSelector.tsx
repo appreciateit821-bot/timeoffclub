@@ -247,11 +247,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           </div>
         )}
 
-        {successInfo.mode === 'smalltalk' && successInfo.smalltalkCount !== undefined && successInfo.smalltalkCount <= 2 && (
-          <div className="bg-amber-900/20 border border-amber-700/30 rounded-lg p-3 text-sm text-amber-200">
-            💬 현재 스몰토크 참여 인원이 {successInfo.smalltalkCount}명이에요. 인원과 관계없이 세션은 진행되지만, 더 많은 대화를 원하시면 다른 스팟의 스몰토크 인원도 확인해보세요!
-          </div>
-        )}
+
 
         {/* 캘린더 등록 유도 (메인 CTA) */}
         {(() => {
