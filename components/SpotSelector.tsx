@@ -42,6 +42,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   const [memo, setMemo] = useState('');
   const [availability, setAvailability] = useState<{ [spot: string]: number }>({});
   const [modeStats, setModeStats] = useState<{ [spot: string]: { smalltalk: number; reflection: number } }>({});
+  const [spotMemos, setSpotMemos] = useState<{ [spot: string]: string[] }>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [reflectionActivity, setReflectionActivity] = useState('');
@@ -140,8 +141,17 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
         };
       });
 
+      // 스팟별 메모 수집 (스몰토크 모드만)
+      const memos: { [spot: string]: string[] } = {};
+      SPOTS.forEach(spot => {
+        memos[spot] = data.reservations
+          .filter((r: any) => r.spot === spot && r.mode !== 'reflection' && r.memo?.trim())
+          .map((r: any) => r.memo.trim());
+      });
+
       setAvailability(avail);
       setModeStats(modes);
+      setSpotMemos(memos);
     }
   };
 
@@ -292,6 +302,41 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       <p className="text-xs text-gray-400">{date}</p>
 
 
+
+      {/* 인원 적은 스팟 대화 주제 배너 */}
+      {(() => {
+        // 인원 가장 적은 스팟 찾기 (스몰톡 기준)
+        let minSpot = '';
+        let minCount = Infinity;
+        SPOTS.forEach(spot => {
+          if (closedSpots.has(spot)) return;
+          const count = availability[spot] || 0;
+          if (count < getCapForSpot(spot) && count < minCount) {
+            minCount = count;
+            minSpot = spot;
+          }
+        });
+        if (!minSpot || minCount >= 4) return null;
+        const spotInfo = SPOT_DETAILS.find(s => s.id === minSpot);
+        if (!spotInfo) return null;
+        // 메모가 있으면 메모, 없으면 랜덤 질문
+        const memos = (spotMemos[minSpot] || []).filter(m => m.trim());
+        const question = memos.length > 0
+          ? memos[Math.floor(Math.random() * memos.length)]
+          : SMALLTALK_PLACEHOLDERS[Math.floor(Math.random() * SMALLTALK_PLACEHOLDERS.length)];
+        return (
+          <button
+            onClick={() => setSelectedSpot(minSpot)}
+            className="w-full text-left bg-gradient-to-r from-blue-900/30 to-violet-900/20 border border-blue-700/30 rounded-xl p-4 transition active:scale-[0.98] hover:border-blue-600/50">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs text-blue-300 font-medium">💬 지금 {spotInfo.name.split('_')[1] || spotInfo.name}에서는...</span>
+              {minCount === 0 && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">🌿 프라이빗</span>}
+            </div>
+            <p className="text-white text-sm font-medium leading-relaxed">"{question}"</p>
+            <p className="text-gray-400 text-xs mt-1">이런 이야기를 나눌 수 있어요</p>
+          </button>
+        );
+      })()}
 
       {/* 스팟 목록 (랜덤 순서) */}
       <div className="grid gap-3">
