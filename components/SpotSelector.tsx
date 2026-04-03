@@ -494,13 +494,15 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 {/* 대화 열기 기능 */}
                 {(() => {
                   const hasTopic = conversationTopics[spotInfo.id];
-                  const canOpenTopic = !isClosed && !isFull && count === 0 && eligibleSpots.includes(spotInfo.id);
+                  // 스몰토크 인원만 체크 (사색 제외)
+                  const smalltalkCount = stats ? stats.smalltalk : 0;
+                  const canOpenTopic = !isClosed && !isFull && smalltalkCount === 0 && eligibleSpots.includes(spotInfo.id);
                   
                   if (hasTopic) {
                     // 이미 주제가 있는 경우
                     return (
                       <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? "bg-blue-700/50 text-blue-100" : "bg-blue-900/30 text-blue-300/80"} border border-blue-700/30`}>
-                        💬 "{hasTopic}"
+                        💬 "{hasTopic}" 주제로 함께 이야기 나누고 싶어요
                       </div>
                     );
                   } else if (canOpenTopic) {
@@ -560,7 +562,16 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition active:scale-95 border-2 ${
                   selectedMode === 'smalltalk' ? 'bg-blue-600 text-white border-blue-500' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 border-transparent'
                 }`}>💬 스몰토크</button>
-              <button type="button" onClick={() => setSelectedMode('reflection')}
+              <button type="button" onClick={() => {
+                // 대화 주제가 있을 때 사색 선택 시 확인
+                if (conversationTopics[selectedSpot]) {
+                  if (confirm('이 스팟에는 ""+conversationTopics[selectedSpot]+""라는 대화 주제가 설정되어 있어요. 대화 없이 사색으로 예약하시겠어요? (사색 예약 시 다른 멤버가 대화 주제를 새로 등록할 수 있습니다.)')) {
+                    setSelectedMode('reflection');
+                  }
+                } else {
+                  setSelectedMode('reflection');
+                }
+              }}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition active:scale-95 border-2 ${
                   selectedMode === 'reflection' ? 'bg-violet-600 text-white border-violet-500' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 border-transparent'
                 }`}>🧘 사색</button>
@@ -756,6 +767,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     if (success) {
                       // 주제 생성 후 데이터 새로고침
                       loadConversationTopics(date);
+                      // 대화 주제를 설정했으므로 자동으로 스몰토크 모드로 설정
+                      setSelectedMode('smalltalk');
                     }
                   }}
                   disabled={!customTopic.trim() || topicLoading}

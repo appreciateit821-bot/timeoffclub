@@ -9,10 +9,10 @@ export const runtime = 'edge';
 async function checkEligibleSpots(db: any, date: string): Promise<string[]> {
   const eligibleSpots: string[] = [];
   
-  // 모든 스팟의 예약 현황 조회
+  // 모든 스팟의 스몰토크 예약 현황 조회 (사색 제외)
   const spotCounts: { [spot: string]: number } = {};
   for (const spot of SPOTS) {
-    const countResult = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ?').bind(date, spot).first() as any;
+    const countResult = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ? AND mode != ?').bind(date, spot, 'reflection').first() as any;
     spotCounts[spot] = countResult?.count || 0;
   }
   
@@ -86,10 +86,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '이미 대화 주제가 설정된 스팟입니다.' }, { status: 400 });
     }
     
-    // 2. 해당 날짜+스팟에 예약이 0명인지 확인  
-    const reservationCount = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ?').bind(date, spot).first() as any;
-    if ((reservationCount?.count || 0) > 0) {
-      return NextResponse.json({ error: '이미 예약이 있는 스팟에는 대화 주제를 설정할 수 없습니다.' }, { status: 400 });
+    // 2. 해당 날짜+스팟에 스몰토크 예약이 0명인지 확인 (사색 예약은 제외)
+    const smalltalkCount = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ? AND mode != ?').bind(date, spot, 'reflection').first() as any;
+    if ((smalltalkCount?.count || 0) > 0) {
+      return NextResponse.json({ error: '이미 스몰토크 예약이 있는 스팟에는 대화 주제를 설정할 수 없습니다.' }, { status: 400 });
     }
     
     // 3. 대화 열기 조건 체크 (다른 스팟 중 4명 이상인 곳이 있는지)
