@@ -21,12 +21,13 @@ export async function GET() {
     }
   });
   
-  // 체험권 사용자의 전화번호 추가 (체험권 코드에서 추출)
+  // 체험권 사용자의 전화번호 추가 (체험권 코드에서 T- 제거 후 표시)
   const { results: trialTickets } = await db.prepare('SELECT name, code FROM trial_tickets WHERE is_used = 1 AND name IS NOT NULL').all();
   (trialTickets as any[]).forEach((ticket: any) => {
     if (ticket.name && ticket.code) {
-      // T-I0W2G3 → 2336 (뒤 4자리)
-      nameToPhone[ticket.name] = ticket.code.slice(-4);
+      // T-I0W2G3 → I0W2G3 (T- 접두사 제거)
+      const displayCode = ticket.code.replace(/^T-/, '');
+      nameToPhone[ticket.name] = displayCode;
     }
   });
   
