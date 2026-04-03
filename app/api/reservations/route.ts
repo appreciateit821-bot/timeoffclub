@@ -171,13 +171,17 @@ export async function DELETE(request: NextRequest) {
       try {
         const remainingMember = otherMembers.results[0] as any;
         const spotName = reservation.spot.replace('_', ' ');
+        const sessionDate = new Date(reservation.date + 'T19:00:00+09:00'); // 세션 시간 19시
+        const deadline = new Date(sessionDate.getTime() - 2 * 60 * 60 * 1000); // 2시간 전
+        const deadlineStr = deadline.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) + ' ' + deadline.toLocaleTimeString('ko-KR', { hour: 'numeric', minute: '2-digit' });
+        
         await fetch('/api/admin/notify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             target: remainingMember.user_name,
             title: '하지만 대화는 계속됩니다',
-            message: `${reservation.date} ${spotName}에서 한 멤버가 취소했어요. 하지만 다른 멤버가 참여할 수 있어요!`,
+            message: `${reservation.date} ${spotName}에서 한 멤버가 취소했어요. 하지만 ${deadlineStr}까지 새로운 멤버가 예약할 수 있어요. 기다려도 되고 다른 스팟으로 변경도 가능해요!`,
             priority: 'active'
           })
         });
