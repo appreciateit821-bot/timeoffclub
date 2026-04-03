@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getDB } from '@/lib/db';
 import { isBookingClosed } from '@/lib/constants';
+import { checkAndAwardBadges } from '@/lib/badges';
 
 export const runtime = 'edge';
 
@@ -121,6 +122,13 @@ export async function POST(request: NextRequest) {
 
     await db.prepare('INSERT INTO reservations (user_name, date, spot, mode, memo, energy, is_trial) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(user.name, date, spot, mode || 'smalltalk', memo || '', energy || 'normal', isTrial ? 1 : 0).run();
     await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action, phone_last4) VALUES (?, ?, ?, ?, ?)').bind(user.name, date, spot, 'CREATE', user.phoneLast4 || '').run();
+
+    // 뱃지 체크 (비동기로 처리)
+    try {
+      await checkAndAwardBadges(db, user.name);
+    } catch (e) {
+      console.error('Badge check failed:', e);
+    }
 
     return NextResponse.json({ success: true, message: '예약이 완료되었습니다.', warning: conflictWarning || undefined });
   } catch (error) {

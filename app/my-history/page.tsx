@@ -19,24 +19,31 @@ export default function MyHistoryPage() {
   const [activeView, setActiveView] = useState<'dashboard' | 'history'>('dashboard');
   const [shareCardVisible, setShareCardVisible] = useState(false);
   const shareCardRef = useRef<HTMLDivElement>(null);
+  const [badges, setBadges] = useState<any[]>([]);
+  const [spotStats, setSpotStats] = useState<any[]>([]);
+  const [availableBadges, setAvailableBadges] = useState<any>({});
   const router = useRouter();
 
   useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     try {
-      const [resRes, meRes, momRes] = await Promise.all([
-        fetch('/api/reservations'), fetch('/api/auth/me'), fetch('/api/moments')
+      const [resRes, meRes, momRes, badgeRes] = await Promise.all([
+        fetch('/api/reservations'), fetch('/api/auth/me'), fetch('/api/moments'), fetch('/api/badges')
       ]);
       if (!resRes.ok || !meRes.ok) { router.push('/login'); return; }
       const resData = await resRes.json();
       const meData = await meRes.json();
       const momData = momRes.ok ? await momRes.json() : { moments: [] };
+      const badgeData = badgeRes.ok ? await badgeRes.json() : { badges: [], spotStats: [], availableBadges: {} };
       setReservations(resData.reservations);
       setNoShowCount(resData.noShowCount || 0);
       setAttendedCount(resData.attendedCount || 0);
       setUserName(meData.user?.name || '');
       setMoments(momData.moments);
+      setBadges(badgeData.badges);
+      setSpotStats(badgeData.spotStats);
+      setAvailableBadges(badgeData.availableBadges);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
