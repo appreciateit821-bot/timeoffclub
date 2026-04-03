@@ -509,7 +509,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                   const hasTopic = conversationTopics[spotInfo.id];
                   // 스몰토크 인원만 체크 (사색 제외)
                   const smalltalkCount = stats ? stats.smalltalk : 0;
-                  const canOpenTopic = !isClosed && !isFull && smalltalkCount === 0 && eligibleSpots.includes(spotInfo.id);
+                  const canOpenTopic = !isClosed && !isFull && smalltalkCount <= 1 && eligibleSpots.includes(spotInfo.id);
                   const hasLonelyMember = !isClosed && !isFull && smalltalkCount === 1 && !hasTopic; // 혼자 대기 중인 멤버
                   
                   if (hasTopic) {

@@ -22,9 +22,9 @@ async function checkEligibleSpots(db: any, date: string): Promise<string[]> {
   
   // 조건 1: 4명 이상 스팟이 있거나, 조건 2: 전체 예약자 4명 이상
   if (hasFullSpot || totalReservations >= 4) {
-    // 0명인 스팟들을 eligible로 추가
+    // 0명~1명인 스팟들을 eligible로 추가 (대화 주제 설정 가능)
     for (const spot of SPOTS) {
-      if (spotCounts[spot] === 0) {
+      if (spotCounts[spot] <= 1) {
         eligibleSpots.push(spot);
       }
     }
