@@ -160,8 +160,31 @@ export async function DELETE(request: NextRequest) {
     if (!user.isAdmin && isBookingClosed(reservation.date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 취소할 수 없습니다.' }, { status: 400 });
     if (!user.isAdmin && reservation.user_name !== user.name) return NextResponse.json({ error: '본인의 예약만 취소할 수 있습니다.' }, { status: 403 });
 
+    // 취소 전 다른 맴버 체크
+    const otherMembers = await db.prepare('SELECT * FROM reservations WHERE date = ? AND spot = ? AND mode = ? AND id != ?').bind(reservation.date, reservation.spot, 'smalltalk', id).all();
+    
     await db.prepare('DELETE FROM reservations WHERE id = ?').bind(id).run();
     await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action, phone_last4) VALUES (?, ?, ?, ?, ?)').bind(reservation.user_name, reservation.date, reservation.spot, 'CANCEL', user.phoneLast4 || '').run();
+    
+    // 2명에서 1명으로 줄어드는 경우 알림
+    if (otherMembers.results && otherMembers.results.length === 1 && reservation.mode === 'smalltalk') {
+      try {
+        const remainingMember = otherMembers.results[0] as any;
+        const spotName = reservation.spot.replace('_', ' ');
+        await fetch('/api/admin/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            target: remainingMember.user_name,
+            title: '하지만 대화는 계속됩니다',
+            message: `${reservation.date} ${spotName}에서 한 멤버가 취소했어요. 하지만 다른 멤버가 참여할 수 있어요!`,
+            priority: 'active'
+          })
+        });
+      } catch (e) {
+        console.error('Notification failed:', e);
+      }
+    }
     
     // 대화 주제 정리 (비동기로 처리)
     try {

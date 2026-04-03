@@ -510,12 +510,20 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                   // 스몰토크 인원만 체크 (사색 제외)
                   const smalltalkCount = stats ? stats.smalltalk : 0;
                   const canOpenTopic = !isClosed && !isFull && smalltalkCount === 0 && eligibleSpots.includes(spotInfo.id);
+                  const hasLonelyMember = !isClosed && !isFull && smalltalkCount === 1 && !hasTopic; // 혼자 대기 중인 멤버
                   
                   if (hasTopic) {
                     // 이미 주제가 있는 경우
                     return (
                       <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? "bg-blue-700/50 text-blue-100" : "bg-blue-900/30 text-blue-300/80"} border border-blue-700/30`}>
                         💬 "{hasTopic}" 주제로 함께 이야기 나누고 싶어요
+                      </div>
+                    );
+                  } else if (hasLonelyMember) {
+                    // 혼자 대기 중인 멤버가 있는 경우
+                    return (
+                      <div className={`w-full text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-900/30 to-pink-900/30 text-purple-300 border border-purple-700/30`}>
+                        💭 깊은 대화를 나눠 한 명을 찾고 있어요
                       </div>
                     );
                   } else if (canOpenTopic) {
