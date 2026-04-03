@@ -33,13 +33,18 @@ export async function POST(request: NextRequest) {
 
     // 체험권 로그인
     if (phoneLast4 && phoneLast4.startsWith('T-')) {
-      const ticket = await db.prepare('SELECT * FROM trial_tickets WHERE code = ? AND is_used = 0').bind(phoneLast4).first();
-      if (!ticket) return NextResponse.json({ error: '유효하지 않거나 이미 사용된 체험권입니다.' }, { status: 403 });
+      const ticket = await db.prepare('SELECT * FROM trial_tickets WHERE code = ?').bind(phoneLast4).first();
+      if (!ticket) return NextResponse.json({ error: '유효하지 않은 체험권 코드입니다.' }, { status: 403 });
 
-      await db.prepare('UPDATE trial_tickets SET name = ? WHERE id = ?').bind(name, ticket.id).run();
-      await db.prepare('INSERT OR REPLACE INTO users (name, is_admin) VALUES (?, 0)').bind(name).run();
-      await createSession({ name, isAdmin: false, isSpotOperator: false, phoneLast4 });
-      return NextResponse.json({ success: true, user: { name, isTrial: true }, redirectUrl: '/calendar' });
+      // 사용되지 않은 체험권만 이름 업데이트
+      if (!ticket.is_used) {
+        await db.prepare('UPDATE trial_tickets SET name = ? WHERE id = ?').bind(name, ticket.id).run();
+      }
+      // 사용된 체험권은 기존 이름 사용
+      const finalName = ticket.is_used ? ticket.name : name;
+      await db.prepare('INSERT OR REPLACE INTO users (name, is_admin) VALUES (?, 0)').bind(finalName).run();
+      await createSession({ name: finalName, isAdmin: false, isSpotOperator: false, phoneLast4 });
+      return NextResponse.json({ success: true, user: { name: finalName, isTrial: true }, redirectUrl: '/calendar' });
     }
 
     // 일반 멤버 로그인
