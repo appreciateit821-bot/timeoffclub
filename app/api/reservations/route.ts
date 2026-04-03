@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getDB } from '@/lib/db';
 import { isBookingClosed } from '@/lib/constants';
-import { checkAndAwardBadges } from '@/lib/badges';
+import { checkAndAwardBadges, cleanupOrphanedTopics } from '@/lib/badges';
 
 export const runtime = 'edge';
 
@@ -129,6 +129,13 @@ export async function POST(request: NextRequest) {
     } catch (e) {
       console.error('Badge check failed:', e);
     }
+    
+    // 대화 주제 정리 (비동기로 처리)
+    try {
+      await cleanupOrphanedTopics(db, date);
+    } catch (e) {
+      console.error('Topic cleanup failed:', e);
+    }
 
     return NextResponse.json({ success: true, message: '예약이 완료되었습니다.', warning: conflictWarning || undefined });
   } catch (error) {
@@ -155,6 +162,13 @@ export async function DELETE(request: NextRequest) {
 
     await db.prepare('DELETE FROM reservations WHERE id = ?').bind(id).run();
     await db.prepare('INSERT INTO reservation_logs (user_name, date, spot, action, phone_last4) VALUES (?, ?, ?, ?, ?)').bind(reservation.user_name, reservation.date, reservation.spot, 'CANCEL', user.phoneLast4 || '').run();
+    
+    // 대화 주제 정리 (비동기로 처리)
+    try {
+      await cleanupOrphanedTopics(db, reservation.date);
+    } catch (e) {
+      console.error('Topic cleanup failed:', e);
+    }
 
     return NextResponse.json({ success: true, message: '예약이 취소되었습니다.' });
   } catch (error) {

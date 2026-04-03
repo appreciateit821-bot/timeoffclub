@@ -85,3 +85,25 @@ async function checkModeSpecialist(db: any, userName: string) {
     await db.prepare('INSERT OR IGNORE INTO member_badges (member_name, badge_type) VALUES (?, ?)').bind(userName, 'meditation').run();
   }
 }
+
+// 고아 대화 주제 자동 정리
+export async function cleanupOrphanedTopics(db: any, date: string) {
+  try {
+    // 해당 날짜의 모든 대화 주제 조회
+    const { results: topics } = await db.prepare('SELECT * FROM conversation_topics WHERE date = ?').bind(date).all();
+    
+    for (const topic of topics as any[]) {
+      // 해당 스팟에 스몰토크 예약자가 있는지 확인
+      const smalltalkCount = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ? AND mode != ?').bind(date, topic.spot, 'reflection').first() as any;
+      
+      if ((smalltalkCount?.count || 0) === 0) {
+        // 스몰토크 예약자가 0명이면 고아 주제로 간주하고 삭제
+        await db.prepare('DELETE FROM conversation_topics WHERE id = ?').bind(topic.id).run();
+        console.log(`Cleaned up orphaned topic: ${topic.topic} for ${topic.spot}`);
+      }
+    }
+  } catch (error) {
+    console.error('Failed to cleanup orphaned topics:', error);
+    throw error;
+  }
+}
