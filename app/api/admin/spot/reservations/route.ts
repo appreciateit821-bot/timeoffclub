@@ -39,6 +39,11 @@ export async function GET() {
       console.log(`전화번호 찾을 수 없음: ${r.user_name} (is_trial: ${r.is_trial})`);
     }
     
+    // 체험권 디버깅 로그
+    if (r.is_trial) {
+      console.log(`체험권 사용자: ${r.user_name} - ${displayId}`);
+    }
+    
     return {
       ...r, 
       display_id: displayId || '****',
