@@ -318,20 +318,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
         // 메모가 있으면 메모, 없으면 랜덤 질문
         const memos = (spotMemos[minSpot] || []).filter(m => m.trim());
         const question = memos.length > 0
-          ? memos[Math.floor(Math.random() * memos.length)]
-          : SMALLTALK_PLACEHOLDERS[Math.floor(Math.random() * SMALLTALK_PLACEHOLDERS.length)];
-        return (
-          <button
-            onClick={() => setSelectedSpot(minSpot)}
-            className="w-full text-left bg-gradient-to-r from-blue-900/30 to-violet-900/20 border border-blue-700/30 rounded-xl p-4 transition active:scale-[0.98] hover:border-blue-600/50">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs text-blue-300 font-medium">💬 지금 {spotInfo.name.split('_')[1] || spotInfo.name}에서는...</span>
-              {minCount === 0 && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">🌿 프라이빗</span>}
-            </div>
-            <p className="text-white text-sm font-medium leading-relaxed">"{question}"</p>
-            <p className="text-gray-400 text-xs mt-1">이런 이야기를 나눌 수 있어요</p>
-          </button>
-        );
+//         );
       })()}
 
       {/* 스팟 목록 (랜덤 순서) */}
@@ -381,9 +368,11 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     {!isFull && count >= getCapForSpot(spotInfo.id) * 0.8 && (
                       <div className="text-[10px] text-orange-400 mt-0.5">🔥 마감 임박</div>
                     )}
-                    {count >= 0 && count <= 2 && !isFull && !isClosed && (
+                    {/* 프라이빗 세션 라벨 비활성화
+                    count >= 0 && count <= 2 && !isFull && !isClosed && (
                       <div className="text-[10px] text-emerald-300 mt-0.5">🌿 프라이빗 세션</div>
-                    )}
+                    )
+                    */}
                     {count === 3 && !isFull && (
                       <div className="text-[10px] text-blue-300 mt-0.5">✨ 소규모</div>
                     )}
@@ -415,7 +404,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 })()}
 
                 {/* 인원별 넛지 메시지 */}
-                {!isClosed && !isFull && count <= 2 && (
+                {/* 소수 인원 홍보 문구 비활성화 - 시스템 개선 예정
+                !isClosed && !isFull && count <= 2 && (
                   <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-emerald-700/40 text-emerald-100' : 'bg-emerald-900/20 text-emerald-300/80'} border border-emerald-700/20`}>
                     {stats && stats.reflection > 0 && stats.smalltalk === 0
                       ? '🧘 조용한 공간에서 여유롭게 사색할 수 있어요'
@@ -424,7 +414,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                       : '💬 소수만의 깊은 대화가 가능한 프라이빗 세션이에요'
                     }
                   </div>
-                )}
+                )
+                */}
 
                 {/* 모드별 인원 */}
                 {count > 0 && stats && (
