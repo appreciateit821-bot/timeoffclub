@@ -16,10 +16,12 @@ async function checkEligibleSpots(db: any, date: string): Promise<string[]> {
     spotCounts[spot] = countResult?.count || 0;
   }
   
-  // 4명 이상인 스팟이 있는지 확인
-  const hasFullSpot = Object.values(spotCounts).some(count => count >= 4);
+  // 하이브리드 조건 체크
+  const hasFullSpot = Object.values(spotCounts).some(count => count >= 4); // 4명 이상 스팟 있는지
+  const totalReservations = Object.values(spotCounts).reduce((sum, count) => sum + count, 0); // 전체 예약자 수
   
-  if (hasFullSpot) {
+  // 조건 1: 4명 이상 스팟이 있거나, 조건 2: 전체 예약자 6명 이상
+  if (hasFullSpot || totalReservations >= 6) {
     // 0명인 스팟들을 eligible로 추가
     for (const spot of SPOTS) {
       if (spotCounts[spot] === 0) {
