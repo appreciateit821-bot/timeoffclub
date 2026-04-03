@@ -500,9 +500,9 @@ export default function AdminPage() {
         users: []
       };
     }
-    acc[key].users.push(res.display_id || res.user_name);
+    acc[key].users.push({ name: res.display_id || res.user_name, mode: res.mode || 'smalltalk' });
     return acc;
-  }, {} as Record<string, { date: string; spot: string; users: string[] }>);
+  }, {} as Record<string, { date: string; spot: string; users: { name: string; mode: string }[] }>);
 
   const groupedArray = Object.values(groupedReservations).sort((a: any, b: any) => {
     return b.date.localeCompare(a.date);
@@ -721,12 +721,19 @@ export default function AdminPage() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {group.users.map((userName: string, idx: number) => (
+                    {group.users.map((user: any, idx: number) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full text-sm"
+                        className={`px-3 py-1 rounded-full text-sm ${
+                          user.mode === 'reflection'
+                            ? 'bg-indigo-900/50 text-indigo-200 border border-indigo-700/30'
+                            : 'bg-gray-700 text-gray-200'
+                        }`}
                       >
-                        {userName}
+                        {user.name}
+                        <span className="ml-1 text-xs opacity-60">
+                          {user.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
+                        </span>
                       </span>
                     ))}
                   </div>
