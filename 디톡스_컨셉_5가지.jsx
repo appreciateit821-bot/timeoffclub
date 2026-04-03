@@ -1,11 +1,37 @@
 import { useState } from "react";
 
+// 실제로는 API에서 가져올 멤버 참여 데이터 (예시)
+const sampleData = {
+  userName: "지은",
+  date: "2026.04.05",
+  dayOfWeek: "일",
+  spot: "서촌 터틀도브",
+  detoxMinutes: 107, // 체크인 ~ 세션종료 (1시간 47분)
+  mode: "smalltalk",
+  // 누적 데이터
+  totalSessions: 6,
+  totalDetoxHours: 11.2,
+  streak: 3,
+  spotsVisited: 3,
+  rankPercent: 8,
+  smalltalkCount: 5,
+  reflectionCount: 1,
+};
+
+function formatDetoxTime(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h > 0 && m > 0) return `${h}시간 ${m}분`;
+  if (h > 0) return `${h}시간`;
+  return `${m}분`;
+}
+
 const concepts = [
   {
     id: 1,
     name: "스마트폰의 편지",
     desc: "폰 시점에서 주인에게 보내는 편지. 유머 + 공감",
-    render: () => (
+    render: (d) => (
       <div
         style={{
           width: 360,
@@ -49,10 +75,14 @@ const concepts = [
               fontFamily: "system-ui, sans-serif",
             }}
           >
-            주인님,
+            {d.userName}님,
             <br />
             <br />
-            오늘 2시간 동안 저 없이도
+            오늘{" "}
+            <span style={{ color: "#D6AA50", fontWeight: "bold" }}>
+              {formatDetoxTime(d.detoxMinutes)}
+            </span>{" "}
+            동안 저 없이도
             <br />
             잘 지내셨나 봐요.
             <br />
@@ -95,7 +125,7 @@ const concepts = [
               fontFamily: "monospace",
             }}
           >
-            2026.04.06 · 서촌 터틀도브
+            {d.date} ({d.dayOfWeek}) · {d.spot}
           </div>
           <div
             style={{
@@ -104,7 +134,7 @@ const concepts = [
               fontFamily: "monospace",
             }}
           >
-            @well__moment
+            TIMEOFF CLUB · @well__moment
           </div>
         </div>
       </div>
@@ -114,7 +144,7 @@ const concepts = [
     id: 2,
     name: "스크린타임 대비",
     desc: "평소 스크린타임 vs 오늘 디톡스. 충격 + 자각",
-    render: () => (
+    render: (d) => (
       <div
         style={{
           width: 360,
@@ -221,7 +251,7 @@ const concepts = [
               fontWeight: "bold",
             }}
           >
-            2시간의 자유
+            {formatDetoxTime(d.detoxMinutes)}의 자유
           </div>
           <div
             style={{
@@ -231,7 +261,7 @@ const concepts = [
               fontFamily: "system-ui, sans-serif",
             }}
           >
-            스마트폰 없이 보낸 시간
+            {d.userName}님이 스마트폰 없이 보낸 시간
           </div>
         </div>
 
@@ -245,7 +275,7 @@ const concepts = [
               fontFamily: "monospace",
             }}
           >
-            2026.04.06 · 서촌 터틀도브
+            {d.date} ({d.dayOfWeek}) · {d.spot}
           </div>
           <div
             style={{
@@ -264,7 +294,7 @@ const concepts = [
     id: 3,
     name: "보관함 번호표",
     desc: "코트체크 티켓 컨셉. 미니멀 + 드라이한 유머",
-    render: () => (
+    render: (d) => (
       <div
         style={{
           width: 360,
@@ -330,8 +360,11 @@ const concepts = [
           }}
         >
           {[
+            ["이름", d.userName],
+            ["날짜", `${d.date} (${d.dayOfWeek})`],
+            ["장소", d.spot],
             ["보관물", "스마트폰 1대"],
-            ["보관시간", "2시간 0분"],
+            ["보관시간", formatDetoxTime(d.detoxMinutes)],
             ["보관 중 알림", "읽지 않음"],
             ["반환 상태", "주인 없이도 괜찮았음 ✓"],
           ].map(([label, value]) => (
@@ -370,16 +403,6 @@ const concepts = [
         <div style={{ textAlign: "center" }}>
           <div
             style={{
-              fontSize: 12,
-              color: "#999",
-              marginBottom: 4,
-              fontFamily: "system-ui, sans-serif",
-            }}
-          >
-            서촌 터틀도브 · 2026.04.06
-          </div>
-          <div
-            style={{
               fontSize: 13,
               color: "#26231E",
               fontWeight: "bold",
@@ -407,12 +430,13 @@ const concepts = [
     id: 4,
     name: "디톡스 랭킹",
     desc: "스포티파이 랩드 스타일. 경쟁심 + 자랑",
-    render: () => (
+    render: (d) => (
       <div
         style={{
           width: 360,
           minHeight: 640,
-          background: "linear-gradient(160deg, #1B0F2E 0%, #0D1B2A 50%, #1A2F1A 100%)",
+          background:
+            "linear-gradient(160deg, #1B0F2E 0%, #0D1B2A 50%, #1A2F1A 100%)",
           borderRadius: 16,
           padding: "48px 28px",
           display: "flex",
@@ -448,7 +472,7 @@ const concepts = [
               marginBottom: 8,
             }}
           >
-            나의 디톡스 리포트
+            {d.userName}님의 디톡스 리포트
           </div>
         </div>
 
@@ -477,7 +501,7 @@ const concepts = [
               letterSpacing: -2,
             }}
           >
-            12h
+            {d.totalDetoxHours}h
           </div>
         </div>
 
@@ -512,7 +536,7 @@ const concepts = [
               fontFamily: "monospace",
             }}
           >
-            상위 8%
+            상위 {d.rankPercent}%
           </div>
           <div
             style={{
@@ -522,7 +546,7 @@ const concepts = [
               fontFamily: "system-ui, sans-serif",
             }}
           >
-            6회 참여 · 4개 스팟 중 3곳 방문
+            {d.totalSessions}회 참여 · 4개 스팟 중 {d.spotsVisited}곳 방문
           </div>
         </div>
 
@@ -535,9 +559,9 @@ const concepts = [
           }}
         >
           {[
-            ["🔥", "연속 3주"],
-            ["💬", "스몰토크 5회"],
-            ["🧘", "사색 1회"],
+            ["🔥", `연속 ${d.streak}주`],
+            ["💬", `스몰토크 ${d.smalltalkCount}회`],
+            ["🧘", `사색 ${d.reflectionCount}회`],
           ].map(([emoji, label]) => (
             <div key={label} style={{ textAlign: "center" }}>
               <div style={{ fontSize: 24, marginBottom: 4 }}>{emoji}</div>
@@ -552,6 +576,36 @@ const concepts = [
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Today's session info */}
+        <div
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            borderRadius: 10,
+            padding: "12px 16px",
+            marginBottom: 24,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 11,
+              color: "rgba(255,255,255,0.35)",
+              fontFamily: "monospace",
+              marginBottom: 4,
+            }}
+          >
+            TODAY'S SESSION
+          </div>
+          <div
+            style={{
+              fontSize: 13,
+              color: "rgba(255,255,255,0.6)",
+              fontFamily: "system-ui, sans-serif",
+            }}
+          >
+            {d.date} ({d.dayOfWeek}) · {d.spot} · {formatDetoxTime(d.detoxMinutes)}
+          </div>
         </div>
 
         <div style={{ textAlign: "center" }}>
@@ -572,180 +626,196 @@ const concepts = [
     id: 5,
     name: "무시한 알림들",
     desc: "놓친 알림 리스트를 보여주며 '그래도 괜찮았다' 메시지",
-    render: () => (
-      <div
-        style={{
-          width: 360,
-          minHeight: 640,
-          background: "#000",
-          borderRadius: 16,
-          padding: "48px 24px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
-        }}
-      >
+    render: (d) => {
+      // 세션 시작 시간 기반으로 알림 시간 생성
+      // 일요일 15:00~17:00 / 수요일 20:00~22:00
+      const isWed = d.dayOfWeek === "수";
+      const startHour = isWed ? 20 : 15;
+      const notifTimes = [12, 23, 31, 45, 62, 78, 94].map((min) => {
+        const totalMin = startHour * 60 + min;
+        const hh = Math.floor(totalMin / 60);
+        const mm = totalMin % 60;
+        return `${hh}:${String(mm).padStart(2, "0")}`;
+      });
+
+      return (
         <div
           style={{
-            textAlign: "center",
-            marginBottom: 32,
+            width: 360,
+            minHeight: 640,
+            background: "#000",
+            borderRadius: 16,
+            padding: "48px 24px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
           }}
         >
           <div
             style={{
-              fontSize: 12,
-              color: "#555",
-              fontFamily: "system-ui, sans-serif",
-              marginBottom: 8,
+              textAlign: "center",
+              marginBottom: 32,
             }}
           >
-            2시간 동안 내가 놓친 것들
-          </div>
-        </div>
-
-        {/* Fake notifications */}
-        {[
-          {
-            icon: "💬",
-            app: "카카오톡",
-            text: "엄마: 저녁 뭐 먹을...",
-            time: "15:12",
-          },
-          {
-            icon: "📸",
-            app: "Instagram",
-            text: "님의 게시물을 좋아합니...",
-            time: "15:23",
-          },
-          {
-            icon: "📰",
-            app: "뉴스",
-            text: "[속보] 내일 날씨...",
-            time: "15:31",
-          },
-          {
-            icon: "🛒",
-            app: "쿠팡",
-            text: "장바구니 상품이 할인...",
-            time: "15:45",
-          },
-          {
-            icon: "💬",
-            app: "카카오톡",
-            text: "회사 단톡방: 내일 회...",
-            time: "16:02",
-          },
-          {
-            icon: "📧",
-            app: "Gmail",
-            text: "Your weekly summa...",
-            time: "16:18",
-          },
-          {
-            icon: "💬",
-            app: "카카오톡",
-            text: "친구: 주말에 시간...",
-            time: "16:44",
-          },
-        ].map((notif, i) => (
-          <div
-            key={i}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "10px 12px",
-              background: i % 2 === 0 ? "rgba(255,255,255,0.03)" : "transparent",
-              borderRadius: 8,
-              marginBottom: 2,
-              opacity: 0.4 + i * 0.02,
-            }}
-          >
-            <div style={{ fontSize: 18, flexShrink: 0 }}>{notif.icon}</div>
-            <div style={{ flex: 1, overflow: "hidden" }}>
-              <div
-                style={{
-                  fontSize: 11,
-                  color: "#666",
-                  fontFamily: "system-ui, sans-serif",
-                }}
-              >
-                {notif.app}
-              </div>
-              <div
-                style={{
-                  fontSize: 13,
-                  color: "#888",
-                  fontFamily: "system-ui, sans-serif",
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {notif.text}
-              </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: "#555",
+                fontFamily: "system-ui, sans-serif",
+                marginBottom: 4,
+              }}
+            >
+              {d.userName}님이
             </div>
             <div
               style={{
-                fontSize: 10,
-                color: "#444",
-                fontFamily: "monospace",
-                flexShrink: 0,
+                fontSize: 12,
+                color: "#555",
+                fontFamily: "system-ui, sans-serif",
               }}
             >
-              {notif.time}
+              {formatDetoxTime(d.detoxMinutes)} 동안 놓친 것들
             </div>
           </div>
-        ))}
 
-        {/* Punchline */}
-        <div
-          style={{
-            textAlign: "center",
-            marginTop: 40,
-            marginBottom: 8,
-          }}
-        >
+          {/* Fake notifications */}
+          {[
+            {
+              icon: "💬",
+              app: "카카오톡",
+              text: "엄마: 저녁 뭐 먹을...",
+            },
+            {
+              icon: "📸",
+              app: "Instagram",
+              text: "님의 게시물을 좋아합니...",
+            },
+            {
+              icon: "📰",
+              app: "뉴스",
+              text: "[속보] 내일 날씨...",
+            },
+            {
+              icon: "🛒",
+              app: "쿠팡",
+              text: "장바구니 상품이 할인...",
+            },
+            {
+              icon: "💬",
+              app: "카카오톡",
+              text: "회사 단톡방: 내일 회...",
+            },
+            {
+              icon: "📧",
+              app: "Gmail",
+              text: "Your weekly summa...",
+            },
+            {
+              icon: "💬",
+              app: "카카오톡",
+              text: "친구: 주말에 시간...",
+            },
+          ].map((notif, i) => (
+            <div
+              key={i}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "10px 12px",
+                background:
+                  i % 2 === 0 ? "rgba(255,255,255,0.03)" : "transparent",
+                borderRadius: 8,
+                marginBottom: 2,
+                opacity: 0.4 + i * 0.02,
+              }}
+            >
+              <div style={{ fontSize: 18, flexShrink: 0 }}>{notif.icon}</div>
+              <div style={{ flex: 1, overflow: "hidden" }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: "#666",
+                    fontFamily: "system-ui, sans-serif",
+                  }}
+                >
+                  {notif.app}
+                </div>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "#888",
+                    fontFamily: "system-ui, sans-serif",
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {notif.text}
+                </div>
+              </div>
+              <div
+                style={{
+                  fontSize: 10,
+                  color: "#444",
+                  fontFamily: "monospace",
+                  flexShrink: 0,
+                }}
+              >
+                {notifTimes[i]}
+              </div>
+            </div>
+          ))}
+
+          {/* Punchline */}
           <div
             style={{
-              fontSize: 32,
-              fontWeight: "bold",
-              color: "#fff",
-              fontFamily: "system-ui, sans-serif",
-              lineHeight: 1.4,
+              textAlign: "center",
+              marginTop: 40,
+              marginBottom: 8,
             }}
           >
-            다 놓쳤는데
-            <br />
-            괜찮았다
+            <div
+              style={{
+                fontSize: 32,
+                fontWeight: "bold",
+                color: "#fff",
+                fontFamily: "system-ui, sans-serif",
+                lineHeight: 1.4,
+              }}
+            >
+              다 놓쳤는데
+              <br />
+              괜찮았다
+            </div>
+          </div>
+
+          <div style={{ textAlign: "center", marginTop: 24 }}>
+            <div
+              style={{
+                fontSize: 11,
+                color: "#444",
+                letterSpacing: 2,
+                fontFamily: "monospace",
+                marginBottom: 4,
+              }}
+            >
+              {d.date} ({d.dayOfWeek}) · {d.spot}
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                color: "#D6AA50",
+                fontFamily: "monospace",
+              }}
+            >
+              TIMEOFF CLUB · @well__moment
+            </div>
           </div>
         </div>
-
-        <div style={{ textAlign: "center", marginTop: 24 }}>
-          <div
-            style={{
-              fontSize: 11,
-              color: "#444",
-              letterSpacing: 2,
-              fontFamily: "monospace",
-              marginBottom: 4,
-            }}
-          >
-            2026.04.06 · 서촌 터틀도브
-          </div>
-          <div
-            style={{
-              fontSize: 11,
-              color: "#D6AA50",
-              fontFamily: "monospace",
-            }}
-          >
-            TIMEOFF CLUB · @well__moment
-          </div>
-        </div>
-      </div>
-    ),
+      );
+    },
   },
 ];
 
@@ -805,6 +875,22 @@ export default function ConceptPicker() {
         {concepts[selected].desc}
       </div>
 
+      {/* Data info banner */}
+      <div
+        style={{
+          textAlign: "center",
+          marginBottom: 16,
+          padding: "8px 16px",
+          background: "#1A1A1A",
+          borderRadius: 8,
+          fontSize: 11,
+          color: "#888",
+          fontFamily: "system-ui, sans-serif",
+        }}
+      >
+        예시 데이터: {sampleData.userName}님 · {sampleData.date} · {sampleData.spot} · 디톡스 {formatDetoxTime(sampleData.detoxMinutes)}
+      </div>
+
       {/* Preview */}
       <div
         style={{
@@ -812,7 +898,7 @@ export default function ConceptPicker() {
           justifyContent: "center",
         }}
       >
-        {concepts[selected].render()}
+        {concepts[selected].render(sampleData)}
       </div>
 
       {/* Concept number */}

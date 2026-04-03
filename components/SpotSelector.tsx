@@ -420,7 +420,20 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           return (
             <button
               key={spotInfo.id}
-              onClick={() => !isFull && !isClosed && setSelectedSpot(spotInfo.id)}
+              onClick={() => {
+                if (isFull || isClosed) return;
+                // 대화 주제가 이미 있는 스팟이면 바로 선택
+                if (conversationTopics[spotInfo.id]) {
+                  setSelectedSpot(spotInfo.id);
+                } else if (eligibleSpots.includes(spotInfo.id)) {
+                  // eligible 스팟이면 대화 주제 먼저 선택
+                  setSelectedTopicSpot(spotInfo.id);
+                  setShowTopicModal(true);
+                } else {
+                  // 일반 스팟은 바로 선택
+                  setSelectedSpot(spotInfo.id);
+                }
+              }}
               disabled={isFull || isClosed}
               className={`p-3 sm:p-4 rounded-lg transition text-left active:scale-[0.98] ${
                 isSelected
@@ -663,7 +676,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto border border-gray-600">
             <div className="space-y-4">
               <div className="text-center">
-                <h3 className="text-xl font-bold text-amber-100 mb-2">어떤 이야기를 열어본까요?</h3>
+                <h3 className="text-xl font-bold text-amber-100 mb-2">어떤 이야기를 해보고 싶나요?</h3>
                 <p className="text-sm text-gray-300">같은 이야기를 나누고 싶은 멤버들이 이 주제를 보고 모일 수 있어요</p>
               </div>
               
