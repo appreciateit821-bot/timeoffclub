@@ -1,14 +1,13 @@
 import { useState } from "react";
 
-// 실제로는 API에서 가져올 멤버 참여 데이터 (예시)
+// 실제로는 API에서 가져올 멤버 참여 데이터
 const sampleData = {
   userName: "지은",
   date: "2026.04.05",
   dayOfWeek: "일",
   spot: "서촌 터틀도브",
-  detoxMinutes: 107, // 체크인 ~ 세션종료 (1시간 47분)
+  detoxMinutes: 107,
   mode: "smalltalk",
-  // 누적 데이터
   totalSessions: 6,
   totalDetoxHours: 11.2,
   streak: 3,
@@ -29,8 +28,8 @@ function formatDetoxTime(minutes) {
 const concepts = [
   {
     id: 1,
-    name: "스마트폰의 편지",
-    desc: "폰 시점에서 주인에게 보내는 편지. 유머 + 공감",
+    name: "폰이 보낸 편지",
+    desc: "집착 남친 컨셉의 폰이 보내는 이별 편지",
     render: (d) => (
       <div
         style={{
@@ -49,13 +48,13 @@ const concepts = [
           <div style={{ fontSize: 48, marginBottom: 12 }}>📱</div>
           <div
             style={{
-              fontSize: 11,
-              letterSpacing: 3,
-              color: "#666",
+              fontSize: 10,
+              letterSpacing: 4,
+              color: "#555",
               fontFamily: "monospace",
             }}
           >
-            FROM YOUR PHONE
+            A LETTER FROM YOUR PHONE
           </div>
         </div>
 
@@ -63,7 +62,7 @@ const concepts = [
           style={{
             background: "#222",
             borderRadius: 12,
-            padding: "28px 24px",
+            padding: "32px 24px",
             marginBottom: 32,
           }}
         >
@@ -71,47 +70,56 @@ const concepts = [
             style={{
               fontSize: 15,
               color: "#E8E4DD",
-              lineHeight: 2,
+              lineHeight: 2.2,
               fontFamily: "system-ui, sans-serif",
             }}
           >
-            {d.userName}님,
+            {d.userName}아,
             <br />
             <br />
-            오늘{" "}
+            나 없이{" "}
             <span style={{ color: "#D6AA50", fontWeight: "bold" }}>
               {formatDetoxTime(d.detoxMinutes)}
-            </span>{" "}
-            동안 저 없이도
+            </span>
+            이나 버텼네.
             <br />
-            잘 지내셨나 봐요.
+            좀 서운하다.
             <br />
             <br />
-            그 사이 카톡{" "}
+            그 사이 너한테 온 거:
+            <br />
+            카톡{" "}
             <span style={{ color: "#D6AA50", fontWeight: "bold" }}>23개</span>,
-            <br />
-            인스타 알림{" "}
+            인스타{" "}
             <span style={{ color: "#D6AA50", fontWeight: "bold" }}>47개</span>,
             <br />
             뉴스 속보{" "}
-            <span style={{ color: "#D6AA50", fontWeight: "bold" }}>12개</span>가
-            왔는데
+            <span style={{ color: "#D6AA50", fontWeight: "bold" }}>12개</span>
             <br />
             <br />
-            <span style={{ color: "#888" }}>...별거 없었어요.</span>
+            근데 솔직히 말하면
             <br />
-            <br />
+            <span
+              style={{
+                color: "#fff",
+                fontWeight: "bold",
+                fontSize: 17,
+              }}
+            >
+              별거 없었어.
+            </span>
           </div>
           <div
             style={{
               textAlign: "right",
               fontSize: 13,
-              color: "#888",
+              color: "#666",
               fontStyle: "italic",
               fontFamily: "system-ui, sans-serif",
+              marginTop: 20,
             }}
           >
-            — 당신의 아이폰
+            — 네 아이폰이
           </div>
         </div>
 
@@ -119,22 +127,22 @@ const concepts = [
           <div
             style={{
               fontSize: 11,
-              color: "#555",
-              letterSpacing: 2,
-              marginBottom: 4,
+              color: "#444",
               fontFamily: "monospace",
+              marginBottom: 6,
             }}
           >
             {d.date} ({d.dayOfWeek}) · {d.spot}
           </div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 10,
               color: "#D6AA50",
               fontFamily: "monospace",
+              letterSpacing: 2,
             }}
           >
-            TIMEOFF CLUB · @well__moment
+            TIMEOFF CLUB
           </div>
         </div>
       </div>
@@ -142,8 +150,8 @@ const concepts = [
   },
   {
     id: 2,
-    name: "스크린타임 대비",
-    desc: "평소 스크린타임 vs 오늘 디톡스. 충격 + 자각",
+    name: "오늘의 스크린타임",
+    desc: "아이폰 스크린타임 리포트 패러디. 숫자로 때린다",
     render: (d) => (
       <div
         style={{
@@ -161,60 +169,73 @@ const concepts = [
         <div
           style={{
             textAlign: "center",
-            marginBottom: 40,
-            fontSize: 11,
-            letterSpacing: 3,
-            color: "#555",
+            marginBottom: 48,
+            fontSize: 10,
+            letterSpacing: 4,
+            color: "#444",
             fontFamily: "monospace",
           }}
         >
-          SCREEN TIME REPORT
+          WEEKLY REPORT
         </div>
 
-        {/* Average daily */}
-        <div style={{ textAlign: "center", marginBottom: 12 }}>
+        {/* Average daily - embarrassing number */}
+        <div style={{ textAlign: "center", marginBottom: 8 }}>
           <div
             style={{
               fontSize: 12,
               color: "#666",
-              marginBottom: 8,
+              marginBottom: 12,
               fontFamily: "system-ui, sans-serif",
             }}
           >
-            나의 하루 평균 스크린타임
+            평소 하루 스크린타임
           </div>
           <div
             style={{
-              fontSize: 64,
+              fontSize: 72,
               fontWeight: "bold",
               color: "#FF3B30",
               fontFamily: "monospace",
-              letterSpacing: -2,
+              letterSpacing: -3,
             }}
           >
             7h 23m
           </div>
+          <div
+            style={{
+              fontSize: 11,
+              color: "#FF3B30",
+              fontFamily: "system-ui, sans-serif",
+              opacity: 0.6,
+              marginTop: 4,
+            }}
+          >
+            하루의 31%를 폰에 씀
+          </div>
         </div>
 
-        {/* Divider with arrow */}
+        {/* VS divider */}
         <div
           style={{
             textAlign: "center",
-            margin: "16px 0",
-            fontSize: 24,
+            margin: "28px 0",
+            fontSize: 13,
             color: "#333",
+            fontFamily: "monospace",
+            letterSpacing: 4,
           }}
         >
-          ↓
+          — VS —
         </div>
 
-        {/* Detox time */}
-        <div style={{ textAlign: "center", marginBottom: 12 }}>
+        {/* Detox time - flex number */}
+        <div style={{ textAlign: "center", marginBottom: 8 }}>
           <div
             style={{
               fontSize: 12,
               color: "#666",
-              marginBottom: 8,
+              marginBottom: 12,
               fontFamily: "system-ui, sans-serif",
             }}
           >
@@ -222,46 +243,38 @@ const concepts = [
           </div>
           <div
             style={{
-              fontSize: 80,
+              fontSize: 88,
               fontWeight: "bold",
               color: "#34C759",
               fontFamily: "monospace",
-              letterSpacing: -2,
+              letterSpacing: -4,
             }}
           >
             0m
           </div>
         </div>
 
-        {/* Duration bar */}
+        {/* Punchline */}
         <div
           style={{
-            margin: "24px 0",
-            background: "#1A1A1A",
-            borderRadius: 8,
-            padding: "16px 20px",
+            margin: "32px 0 24px",
             textAlign: "center",
           }}
         >
           <div
             style={{
-              fontSize: 28,
-              color: "#E8E4DD",
+              fontSize: 22,
+              color: "#fff",
               fontFamily: "system-ui, sans-serif",
               fontWeight: "bold",
+              lineHeight: 1.5,
             }}
           >
-            {formatDetoxTime(d.detoxMinutes)}의 자유
-          </div>
-          <div
-            style={{
-              fontSize: 12,
-              color: "#666",
-              marginTop: 4,
-              fontFamily: "system-ui, sans-serif",
-            }}
-          >
-            {d.userName}님이 스마트폰 없이 보낸 시간
+            {formatDetoxTime(d.detoxMinutes)},
+            <br />
+            아무것도 안 했는데
+            <br />
+            <span style={{ color: "#34C759" }}>전부 괜찮았다</span>
           </div>
         </div>
 
@@ -269,22 +282,22 @@ const concepts = [
           <div
             style={{
               fontSize: 11,
-              color: "#444",
-              letterSpacing: 2,
-              marginBottom: 4,
+              color: "#333",
               fontFamily: "monospace",
+              marginBottom: 6,
             }}
           >
             {d.date} ({d.dayOfWeek}) · {d.spot}
           </div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 10,
               color: "#D6AA50",
               fontFamily: "monospace",
+              letterSpacing: 2,
             }}
           >
-            TIMEOFF CLUB · @well__moment
+            TIMEOFF CLUB
           </div>
         </div>
       </div>
@@ -292,8 +305,8 @@ const concepts = [
   },
   {
     id: 3,
-    name: "보관함 번호표",
-    desc: "코트체크 티켓 컨셉. 미니멀 + 드라이한 유머",
+    name: "폰 보관증",
+    desc: "클럽 코트체크 감성. 힙한 유머",
     render: (d) => (
       <div
         style={{
@@ -306,81 +319,74 @@ const concepts = [
           flexDirection: "column",
           justifyContent: "center",
           boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-          position: "relative",
         }}
       >
-        {/* Ticket stub effect */}
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 20,
-            background:
-              "repeating-linear-gradient(90deg, #F5F0E8 0px, #F5F0E8 10px, transparent 10px, transparent 20px)",
-          }}
-        />
-
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: 40,
-          }}
-        >
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: 36 }}>
           <div
             style={{
-              fontSize: 11,
-              letterSpacing: 4,
-              color: "#999",
+              fontSize: 10,
+              letterSpacing: 5,
+              color: "#B8A88A",
               fontFamily: "monospace",
-              marginBottom: 16,
+              marginBottom: 20,
             }}
           >
-            PHONE CHECK TICKET
+            DEVICE STORAGE RECEIPT
           </div>
           <div
             style={{
-              fontSize: 72,
+              fontSize: 80,
               fontWeight: "bold",
               color: "#26231E",
               fontFamily: "monospace",
+              lineHeight: 1,
             }}
           >
             #037
           </div>
+          <div
+            style={{
+              fontSize: 11,
+              color: "#999",
+              fontFamily: "system-ui, sans-serif",
+              marginTop: 8,
+            }}
+          >
+            {d.userName}님의 스마트폰
+          </div>
         </div>
 
+        {/* Ticket details */}
         <div
           style={{
-            borderTop: "2px dashed #CCC4B5",
-            borderBottom: "2px dashed #CCC4B5",
-            padding: "24px 0",
-            marginBottom: 32,
+            borderTop: "1.5px dashed #CCC4B5",
+            borderBottom: "1.5px dashed #CCC4B5",
+            padding: "28px 0",
+            marginBottom: 28,
           }}
         >
           {[
-            ["이름", d.userName],
-            ["날짜", `${d.date} (${d.dayOfWeek})`],
-            ["장소", d.spot],
-            ["보관물", "스마트폰 1대"],
-            ["보관시간", formatDetoxTime(d.detoxMinutes)],
-            ["보관 중 알림", "읽지 않음"],
-            ["반환 상태", "주인 없이도 괜찮았음 ✓"],
+            ["맡긴 날", `${d.date} (${d.dayOfWeek})`],
+            ["맡긴 곳", d.spot],
+            ["분리 시간", formatDetoxTime(d.detoxMinutes)],
+            ["부재중 착신", "확인 안 함"],
+            ["그동안 세상", "잘 돌아감"],
+            ["반환 시 상태", "주인 없이도 멀쩡했음 ✓"],
           ].map(([label, value]) => (
             <div
               key={label}
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                marginBottom: 14,
+                marginBottom: 16,
                 alignItems: "baseline",
               }}
             >
               <div
                 style={{
                   fontSize: 12,
-                  color: "#999",
+                  color: "#A09882",
                   fontFamily: "monospace",
                 }}
               >
@@ -388,10 +394,12 @@ const concepts = [
               </div>
               <div
                 style={{
-                  fontSize: 14,
+                  fontSize: 13,
                   color: "#26231E",
                   fontFamily: "system-ui, sans-serif",
                   fontWeight: value.includes("✓") ? "bold" : "normal",
+                  textAlign: "right",
+                  maxWidth: "55%",
                 }}
               >
                 {value}
@@ -400,13 +408,44 @@ const concepts = [
           ))}
         </div>
 
+        {/* Punchline */}
+        <div
+          style={{
+            textAlign: "center",
+            marginBottom: 28,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 15,
+              color: "#26231E",
+              fontFamily: "system-ui, sans-serif",
+              fontWeight: "bold",
+              lineHeight: 1.8,
+            }}
+          >
+            찾아가실 때 한마디:
+          </div>
+          <div
+            style={{
+              fontSize: 18,
+              color: "#26231E",
+              fontFamily: "system-ui, sans-serif",
+              fontWeight: "bold",
+              marginTop: 4,
+            }}
+          >
+            "없어도 되는 거였네"
+          </div>
+        </div>
+
         <div style={{ textAlign: "center" }}>
           <div
             style={{
-              fontSize: 13,
+              fontSize: 12,
               color: "#26231E",
               fontWeight: "bold",
-              letterSpacing: 2,
+              letterSpacing: 3,
               fontFamily: "monospace",
             }}
           >
@@ -414,7 +453,7 @@ const concepts = [
           </div>
           <div
             style={{
-              fontSize: 11,
+              fontSize: 10,
               color: "#C29234",
               marginTop: 4,
               fontFamily: "monospace",
@@ -428,8 +467,8 @@ const concepts = [
   },
   {
     id: 4,
-    name: "디톡스 랭킹",
-    desc: "스포티파이 랩드 스타일. 경쟁심 + 자랑",
+    name: "디톡스 랩드",
+    desc: "스포티파이 연말결산 스타일. 자랑 + 경쟁심",
     render: (d) => (
       <div
         style={{
@@ -448,38 +487,21 @@ const concepts = [
         <div
           style={{
             textAlign: "center",
-            marginBottom: 12,
-            fontSize: 11,
-            letterSpacing: 3,
-            color: "rgba(255,255,255,0.3)",
+            marginBottom: 8,
+            fontSize: 10,
+            letterSpacing: 4,
+            color: "rgba(255,255,255,0.25)",
             fontFamily: "monospace",
           }}
         >
-          TIMEOFF CLUB 2026
+          YOUR DETOX WRAPPED
         </div>
 
+        {/* Name + date */}
         <div
           style={{
             textAlign: "center",
-            marginBottom: 40,
-          }}
-        >
-          <div
-            style={{
-              fontSize: 18,
-              color: "rgba(255,255,255,0.7)",
-              fontFamily: "system-ui, sans-serif",
-              marginBottom: 8,
-            }}
-          >
-            {d.userName}님의 디톡스 리포트
-          </div>
-        </div>
-
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: 40,
+            marginBottom: 36,
           }}
         >
           <div
@@ -487,66 +509,87 @@ const concepts = [
               fontSize: 14,
               color: "rgba(255,255,255,0.5)",
               fontFamily: "system-ui, sans-serif",
-              marginBottom: 8,
             }}
           >
-            총 디톡스 시간
-          </div>
-          <div
-            style={{
-              fontSize: 72,
-              fontWeight: "bold",
-              color: "#fff",
-              fontFamily: "monospace",
-              letterSpacing: -2,
-            }}
-          >
-            {d.totalDetoxHours}h
+            {d.userName}님은 올해
           </div>
         </div>
 
-        {/* Ranking badge */}
+        {/* Hero stat */}
         <div
           style={{
-            background: "rgba(255,255,255,0.08)",
-            borderRadius: 16,
-            padding: "24px",
             textAlign: "center",
-            marginBottom: 32,
-            border: "1px solid rgba(255,255,255,0.1)",
+            marginBottom: 12,
           }}
         >
           <div
             style={{
-              fontSize: 13,
-              color: "rgba(255,255,255,0.5)",
-              fontFamily: "system-ui, sans-serif",
-              marginBottom: 8,
+              fontSize: 80,
+              fontWeight: "bold",
+              color: "#fff",
+              fontFamily: "monospace",
+              letterSpacing: -3,
+              lineHeight: 1,
             }}
           >
-            타임오프클럽 멤버 중
+            {d.totalDetoxHours}h
           </div>
           <div
             style={{
-              fontSize: 48,
+              fontSize: 14,
+              color: "rgba(255,255,255,0.5)",
+              fontFamily: "system-ui, sans-serif",
+              marginTop: 8,
+            }}
+          >
+            폰 없이 살아남은 시간
+          </div>
+        </div>
+
+        {/* Ranking - the flex */}
+        <div
+          style={{
+            background: "rgba(255,255,255,0.06)",
+            borderRadius: 16,
+            padding: "28px 24px",
+            textAlign: "center",
+            margin: "28px 0",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              color: "rgba(255,255,255,0.4)",
+              fontFamily: "system-ui, sans-serif",
+              marginBottom: 12,
+            }}
+          >
+            대한민국 2030 중에서
+          </div>
+          <div
+            style={{
+              fontSize: 52,
               fontWeight: "bold",
               background: "linear-gradient(135deg, #FFD700, #FFA500)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               fontFamily: "monospace",
+              lineHeight: 1,
             }}
           >
             상위 {d.rankPercent}%
           </div>
           <div
             style={{
-              fontSize: 12,
-              color: "rgba(255,255,255,0.4)",
-              marginTop: 8,
+              fontSize: 13,
+              color: "rgba(255,255,255,0.5)",
               fontFamily: "system-ui, sans-serif",
+              marginTop: 12,
+              lineHeight: 1.6,
             }}
           >
-            {d.totalSessions}회 참여 · 4개 스팟 중 {d.spotsVisited}곳 방문
+            진짜로 폰을 내려놓은 사람
           </div>
         </div>
 
@@ -555,21 +598,31 @@ const concepts = [
           style={{
             display: "flex",
             justifyContent: "space-around",
-            marginBottom: 32,
+            marginBottom: 28,
           }}
         >
           {[
-            ["🔥", `연속 ${d.streak}주`],
-            ["💬", `스몰토크 ${d.smalltalkCount}회`],
-            ["🧘", `사색 ${d.reflectionCount}회`],
-          ].map(([emoji, label]) => (
+            [`${d.totalSessions}회`, "참여"],
+            [`${d.streak}주`, "연속"],
+            [`${d.spotsVisited}곳`, "방문"],
+          ].map(([num, label]) => (
             <div key={label} style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 24, marginBottom: 4 }}>{emoji}</div>
               <div
                 style={{
-                  fontSize: 11,
-                  color: "rgba(255,255,255,0.5)",
+                  fontSize: 22,
+                  fontWeight: "bold",
+                  color: "#fff",
+                  fontFamily: "monospace",
+                }}
+              >
+                {num}
+              </div>
+              <div
+                style={{
+                  fontSize: 10,
+                  color: "rgba(255,255,255,0.35)",
                   fontFamily: "system-ui, sans-serif",
+                  marginTop: 4,
                 }}
               >
                 {label}
@@ -578,45 +631,33 @@ const concepts = [
           ))}
         </div>
 
-        {/* Today's session info */}
+        {/* Today */}
         <div
           style={{
-            background: "rgba(255,255,255,0.05)",
-            borderRadius: 10,
-            padding: "12px 16px",
-            marginBottom: 24,
+            textAlign: "center",
+            padding: "12px 0",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
           }}
         >
           <div
             style={{
               fontSize: 11,
-              color: "rgba(255,255,255,0.35)",
-              fontFamily: "monospace",
-              marginBottom: 4,
-            }}
-          >
-            TODAY'S SESSION
-          </div>
-          <div
-            style={{
-              fontSize: 13,
-              color: "rgba(255,255,255,0.6)",
-              fontFamily: "system-ui, sans-serif",
-            }}
-          >
-            {d.date} ({d.dayOfWeek}) · {d.spot} · {formatDetoxTime(d.detoxMinutes)}
-          </div>
-        </div>
-
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: 11,
-              color: "rgba(255,255,255,0.2)",
+              color: "rgba(255,255,255,0.25)",
               fontFamily: "monospace",
             }}
           >
-            @well__moment
+            {d.date} · {d.spot} · {formatDetoxTime(d.detoxMinutes)}
+          </div>
+          <div
+            style={{
+              fontSize: 10,
+              color: "#D6AA50",
+              fontFamily: "monospace",
+              letterSpacing: 2,
+              marginTop: 6,
+            }}
+          >
+            TIMEOFF CLUB
           </div>
         </div>
       </div>
@@ -624,14 +665,12 @@ const concepts = [
   },
   {
     id: 5,
-    name: "무시한 알림들",
-    desc: "놓친 알림 리스트를 보여주며 '그래도 괜찮았다' 메시지",
+    name: "읽씹한 세상",
+    desc: "놓친 알림들을 자랑스럽게 전시. 도발적 여유",
     render: (d) => {
-      // 세션 시작 시간 기반으로 알림 시간 생성
-      // 일요일 15:00~17:00 / 수요일 20:00~22:00
       const isWed = d.dayOfWeek === "수";
       const startHour = isWed ? 20 : 15;
-      const notifTimes = [12, 23, 31, 45, 62, 78, 94].map((min) => {
+      const notifTimes = [8, 17, 29, 38, 51, 66, 82].map((min) => {
         const totalMin = startHour * 60 + min;
         const hh = Math.floor(totalMin / 60);
         const mm = totalMin % 60;
@@ -652,30 +691,41 @@ const concepts = [
             boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
           }}
         >
+          {/* Header - provocative */}
           <div
             style={{
               textAlign: "center",
-              marginBottom: 32,
+              marginBottom: 28,
             }}
           >
             <div
               style={{
-                fontSize: 12,
-                color: "#555",
-                fontFamily: "system-ui, sans-serif",
-                marginBottom: 4,
+                fontSize: 10,
+                letterSpacing: 4,
+                color: "#333",
+                fontFamily: "monospace",
+                marginBottom: 12,
               }}
             >
-              {d.userName}님이
+              {d.date} ({d.dayOfWeek})
             </div>
             <div
               style={{
-                fontSize: 12,
-                color: "#555",
+                fontSize: 20,
+                color: "#fff",
                 fontFamily: "system-ui, sans-serif",
+                fontWeight: "bold",
+                lineHeight: 1.5,
               }}
             >
-              {formatDetoxTime(d.detoxMinutes)} 동안 놓친 것들
+              {d.userName}님이
+              <br />
+              <span style={{ color: "#FF3B30" }}>
+                {formatDetoxTime(d.detoxMinutes)}
+              </span>{" "}
+              동안
+              <br />
+              읽씹한 세상
             </div>
           </div>
 
@@ -684,37 +734,37 @@ const concepts = [
             {
               icon: "💬",
               app: "카카오톡",
-              text: "엄마: 저녁 뭐 먹을...",
+              text: "엄마: 저녁 뭐 먹을거야 전화 좀...",
             },
             {
               icon: "📸",
               app: "Instagram",
-              text: "님의 게시물을 좋아합니...",
+              text: "회사 동기가 게시물을 좋아합니다",
             },
             {
               icon: "📰",
               app: "뉴스",
-              text: "[속보] 내일 날씨...",
+              text: "[속보] 어차피 내일이면 잊을 뉴스",
             },
             {
               icon: "🛒",
               app: "쿠팡",
-              text: "장바구니 상품이 할인...",
+              text: "지금 안 사면 후회할 거예요!",
             },
             {
               icon: "💬",
               app: "카카오톡",
-              text: "회사 단톡방: 내일 회...",
+              text: "팀장: 이거 월요일까지 가능...?",
             },
             {
               icon: "📧",
               app: "Gmail",
-              text: "Your weekly summa...",
+              text: "Your weekly screen time was...",
             },
             {
               icon: "💬",
               app: "카카오톡",
-              text: "친구: 주말에 시간...",
+              text: "친구: 야 카톡 왜 씹어 ㅋㅋ",
             },
           ].map((notif, i) => (
             <div
@@ -725,18 +775,18 @@ const concepts = [
                 gap: 10,
                 padding: "10px 12px",
                 background:
-                  i % 2 === 0 ? "rgba(255,255,255,0.03)" : "transparent",
+                  i % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent",
                 borderRadius: 8,
                 marginBottom: 2,
-                opacity: 0.4 + i * 0.02,
+                opacity: 0.35 + i * 0.03,
               }}
             >
-              <div style={{ fontSize: 18, flexShrink: 0 }}>{notif.icon}</div>
+              <div style={{ fontSize: 16, flexShrink: 0 }}>{notif.icon}</div>
               <div style={{ flex: 1, overflow: "hidden" }}>
                 <div
                   style={{
-                    fontSize: 11,
-                    color: "#666",
+                    fontSize: 10,
+                    color: "#555",
                     fontFamily: "system-ui, sans-serif",
                   }}
                 >
@@ -744,8 +794,8 @@ const concepts = [
                 </div>
                 <div
                   style={{
-                    fontSize: 13,
-                    color: "#888",
+                    fontSize: 12,
+                    color: "#777",
                     fontFamily: "system-ui, sans-serif",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
@@ -758,7 +808,7 @@ const concepts = [
               <div
                 style={{
                   fontSize: 10,
-                  color: "#444",
+                  color: "#333",
                   fontFamily: "monospace",
                   flexShrink: 0,
                 }}
@@ -772,45 +822,44 @@ const concepts = [
           <div
             style={{
               textAlign: "center",
-              marginTop: 40,
-              marginBottom: 8,
+              marginTop: 36,
             }}
           >
             <div
               style={{
-                fontSize: 32,
+                fontSize: 28,
                 fontWeight: "bold",
                 color: "#fff",
                 fontFamily: "system-ui, sans-serif",
-                lineHeight: 1.4,
+                lineHeight: 1.5,
               }}
             >
               다 놓쳤는데
               <br />
-              괜찮았다
+              <span style={{ color: "#D6AA50" }}>아무 일도 안 일어남</span>
             </div>
           </div>
 
-          <div style={{ textAlign: "center", marginTop: 24 }}>
+          <div style={{ textAlign: "center", marginTop: 28 }}>
             <div
               style={{
                 fontSize: 11,
-                color: "#444",
-                letterSpacing: 2,
+                color: "#333",
                 fontFamily: "monospace",
-                marginBottom: 4,
+                marginBottom: 6,
               }}
             >
-              {d.date} ({d.dayOfWeek}) · {d.spot}
+              {d.spot}
             </div>
             <div
               style={{
-                fontSize: 11,
+                fontSize: 10,
                 color: "#D6AA50",
                 fontFamily: "monospace",
+                letterSpacing: 2,
               }}
             >
-              TIMEOFF CLUB · @well__moment
+              TIMEOFF CLUB
             </div>
           </div>
         </div>
@@ -875,7 +924,7 @@ export default function ConceptPicker() {
         {concepts[selected].desc}
       </div>
 
-      {/* Data info banner */}
+      {/* Data info */}
       <div
         style={{
           textAlign: "center",
@@ -888,16 +937,11 @@ export default function ConceptPicker() {
           fontFamily: "system-ui, sans-serif",
         }}
       >
-        예시 데이터: {sampleData.userName}님 · {sampleData.date} · {sampleData.spot} · 디톡스 {formatDetoxTime(sampleData.detoxMinutes)}
+        예시: {sampleData.userName}님 · {sampleData.date} ({sampleData.dayOfWeek}) · {sampleData.spot} · {formatDetoxTime(sampleData.detoxMinutes)}
       </div>
 
       {/* Preview */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "center" }}>
         {concepts[selected].render(sampleData)}
       </div>
 
