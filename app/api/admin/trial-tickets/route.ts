@@ -21,7 +21,32 @@ export async function GET(request: NextRequest) {
   query += ' ORDER BY created_at DESC';
 
   const { results: tickets } = await db.prepare(query).all();
-  return NextResponse.json({ tickets });
+  
+  // 각 체험권의 예약 정보 추가
+  const ticketsWithReservations = await Promise.all(
+    (tickets as any[]).map(async (ticket) => {
+      if (ticket.name && ticket.is_used) {
+        // 사용된 체험권의 예약 조회
+        const reservation = await db.prepare(
+          'SELECT date, spot, mode FROM reservations WHERE user_name = ? AND is_trial = 1 ORDER BY created_at DESC LIMIT 1'
+        ).bind(ticket.name).first();
+        
+        if (reservation) {
+          return {
+            ...ticket,
+            reservation: {
+              date: reservation.date,
+              spot: reservation.spot.replace('_', ' '),
+              mode: reservation.mode
+            }
+          };
+        }
+      }
+      return ticket;
+    })
+  );
+  
+  return NextResponse.json({ tickets: ticketsWithReservations });
 }
 
 export async function POST(request: NextRequest) {

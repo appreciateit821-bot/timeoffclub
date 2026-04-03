@@ -1215,6 +1215,7 @@ export default function AdminPage() {
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">사용 상태</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">전달</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">사용자</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">예약 정보</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">생성일</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">작업</th>
                     </tr>
@@ -1241,6 +1242,21 @@ export default function AdminPage() {
                           </button>
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-300">{t.name || '-'}</td>
+                        <td className="px-4 py-3 text-sm">
+                          {t.reservation ? (
+                            <div className="text-xs">
+                              <div className="text-gray-300 font-medium">{t.reservation.date}</div>
+                              <div className="text-gray-400">{t.reservation.spot}</div>
+                              <div className={`text-xs px-1.5 py-0.5 rounded mt-1 inline-block ${
+                                t.reservation.mode === 'reflection' ? 'bg-indigo-900/50 text-indigo-300' : 'bg-gray-700 text-gray-300'
+                              }`}>
+                                {t.reservation.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-gray-500 text-xs">-</span>
+                          )}
+                        </td>
                         <td className="px-4 py-3 text-sm text-gray-400">{new Date(t.created_at).toLocaleDateString('ko-KR')}</td>
                         <td className="px-4 py-3">
                           {!t.is_used && (
