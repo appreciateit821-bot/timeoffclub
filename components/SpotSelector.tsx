@@ -48,6 +48,16 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   const [reflectionActivity, setReflectionActivity] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [successInfo, setSuccessInfo] = useState<{ date: string; spot: string; mode: string; warning?: string; smalltalkCount?: number } | null>(null);
+  
+  // 대화 열기 관련 상태
+  const [conversationTopics, setConversationTopics] = useState<{ [spot: string]: string }>({});
+  const [eligibleSpots, setEligibleSpots] = useState<string[]>([]);
+  const [showTopicModal, setShowTopicModal] = useState(false);
+  const [selectedTopicSpot, setSelectedTopicSpot] = useState('');
+  const [topicSuggestions, setTopicSuggestions] = useState<{ [category: string]: string[] }>({});
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [customTopic, setCustomTopic] = useState('');
+  const [topicLoading, setTopicLoading] = useState(false);
   const [waitlistStatus, setWaitlistStatus] = useState<{ [key: string]: number }>({});
   const [closedSpots, setClosedSpots] = useState<Set<string>>(new Set());
   const [spotNotices, setSpotNotices] = useState<{ [spot: string]: string }>({});
@@ -82,8 +92,41 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
         if (d.defaultCapacity) setMaxCapacity(d.defaultCapacity);
         if (d.spotDefaults) setSpotDefaultCaps(d.spotDefaults);
       }).catch(() => {});
+      
+      // 대화 주제 로드
+      loadConversationTopics(date);
     }
   }, [date]);
+  
+  // 대화 주제 로드 함수
+  const loadConversationTopics = async (selectedDate: string) => {
+    try {
+      const response = await fetch(`/api/conversation-topics?date=${selectedDate}`);
+      const data = await response.json();
+      
+      // 주제 데이터를 spot 기준으로 매핑
+      const topicMap: { [spot: string]: string } = {};
+      (data.topics || []).forEach((topic: any) => {
+        topicMap[topic.spot] = topic.topic;
+      });
+      
+      setConversationTopics(topicMap);
+      setEligibleSpots(data.eligible_spots || []);
+    } catch (error) {
+      console.error('Failed to load conversation topics:', error);
+    }
+  };
+  
+  // 대화 주제 추천 로드
+  const loadTopicSuggestions = async () => {
+    try {
+      const response = await fetch('/api/conversation-topics/suggestions');
+      const data = await response.json();
+      setTopicSuggestions(data.suggestions || {});
+    } catch (error) {
+      console.error('Failed to load topic suggestions:', error);
+    }
+  };
 
   // 랜덤 placeholder
   const smalltalkPlaceholder = useMemo(() =>
@@ -124,6 +167,50 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
         setClosedSpots(closed);
       }
     } catch (e) { console.error(e); }
+  };
+  
+  // 대화 주제 생성 함수
+  const createConversationTopic = async (spot: string, topic: string, category?: string) => {
+    setTopicLoading(true);
+    try {
+      const response = await fetch('/api/conversation-topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date,
+          spot,
+          topic,
+          category
+        })
+      });
+      
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.error || '대화 주제 생성에 실패했습니다.');
+        return false;
+      }
+      
+      // 상태 업데이트
+      setConversationTopics(prev => ({
+        ...prev,
+        [spot]: topic
+      }));
+      
+      // 이 스팟을 선택하고 예약 계속 진행
+      setSelectedSpot(spot);
+      setShowTopicModal(false);
+      setSelectedTopicSpot('');
+      setCustomTopic('');
+      setSelectedCategory('');
+      
+      return true;
+    } catch (error) {
+      console.error('Create topic error:', error);
+      setError('대화 주제 생성 중 오류가 발생했습니다.');
+      return false;
+    } finally {
+      setTopicLoading(false);
+    }
   };
 
   const fetchAvailability = async () => {
@@ -404,19 +491,37 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 })()}
 
                 {/* 인원별 넛지 메시지 */}
-                {/* 소수 인원 홍보 문구 비활성화 - 시스템 개선 예정
-                !isClosed && !isFull && count <= 2 && (
-                  <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-emerald-700/40 text-emerald-100' : 'bg-emerald-900/20 text-emerald-300/80'} border border-emerald-700/20`}>
-                    {stats && stats.reflection > 0 && stats.smalltalk === 0
-                      ? '🧘 조용한 공간에서 여유롭게 사색할 수 있어요'
-                      : count === 0
-                      ? '🌿 첫 번째 참여자가 되어보세요. 공간을 온전히 즐길 수 있어요'
-                      : '💬 소수만의 깊은 대화가 가능한 프라이빗 세션이에요'
-                    }
-                  </div>
-                )
-                */}
-
+                {/* 대화 열기 기능 */}
+                {(() => {
+                  const hasTopic = conversationTopics[spotInfo.id];
+                  const canOpenTopic = !isClosed && !isFull && count === 0 && eligibleSpots.includes(spotInfo.id);
+                  
+                  if (hasTopic) {
+                    // 이미 주제가 있는 경우
+                    return (
+                      <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? "bg-blue-700/50 text-blue-100" : "bg-blue-900/30 text-blue-300/80"} border border-blue-700/30`}>
+                        💬 "{hasTopic}"
+                      </div>
+                    );
+                  } else if (canOpenTopic) {
+                    // 대화 열기 가능한 경우
+                    return (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedTopicSpot(spotInfo.id);
+                          setShowTopicModal(true);
+                          loadTopicSuggestions();
+                        }}
+                        className={`w-full text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-900/30 to-blue-900/30 text-emerald-300 border border-emerald-700/30 hover:bg-emerald-800/40 transition`}
+                      >
+                        ✨ 첫 번째로 예약하고, 나누고 싶은 대화를 열어보세요
+                      </button>
+                    );
+                  }
+                  
+                  return null;
+                })()}
                 {/* 모드별 인원 */}
                 {count > 0 && stats && (
                   <div className="flex gap-2 mt-1.5">
@@ -540,6 +645,129 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       >
         {loading ? '예약 중...' : '예약하기'}
       </button>
+      
+      {/* 대화 주제 입력 모달 */}
+      {showTopicModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto border border-gray-600">
+            <div className="space-y-4">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-amber-100 mb-2">어떤 이야기를 열어본까요?</h3>
+                <p className="text-sm text-gray-300">같은 이야기를 나누고 싶은 멤버들이 이 주제를 보고 모일 수 있어요</p>
+              </div>
+              
+              {/* 카테고리 탭 */}
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {Object.keys(topicSuggestions).map(category => (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        setSelectedCategory(selectedCategory === category ? '' : category);
+                        setCustomTopic('');
+                      }}
+                      className={`px-3 py-1.5 rounded-full transition ${
+                        selectedCategory === category
+                          ? 'bg-amber-600 text-white'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('직접 작성');
+                      setCustomTopic('');
+                    }}
+                    className={`px-3 py-1.5 rounded-full transition ${
+                      selectedCategory === '직접 작성'
+                        ? 'bg-amber-600 text-white'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                  >
+                    직접 작성하기
+                  </button>
+                </div>
+                
+                {/* 선택된 카테고리의 주제 목록 */}
+                {selectedCategory && selectedCategory !== '직접 작성' && topicSuggestions[selectedCategory] && (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {topicSuggestions[selectedCategory].map((topic, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCustomTopic(topic)}
+                        className={`w-full text-left p-3 rounded-lg text-sm transition ${
+                          customTopic === topic
+                            ? 'bg-amber-700/50 text-amber-100 border border-amber-600'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600'
+                        }`}
+                      >
+                        {topic}
+                      </button>
+                    ))}
+                  </div>
+                )}
+                
+                {/* 직접 작성 */}
+                {selectedCategory === '직접 작성' && (
+                  <div>
+                    <input
+                      type="text"
+                      value={customTopic}
+                      onChange={(e) => setCustomTopic(e.target.value)}
+                      placeholder="나누고 싶은 주제를 입력하세요 (최대 30자)"
+                      maxLength={30}
+                      className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-amber-500"
+                    />
+                    <div className="text-xs text-gray-400 mt-1 text-right">
+                      {customTopic.length}/30
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* 버튼 */}
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    setShowTopicModal(false);
+                    setSelectedTopicSpot('');
+                    setSelectedCategory('');
+                    setCustomTopic('');
+                  }}
+                  className="flex-1 py-3 bg-gray-600 text-gray-300 rounded-lg hover:bg-gray-500 transition"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!customTopic.trim()) {
+                      setError('주제를 선택하거나 입력해주세요.');
+                      return;
+                    }
+                    
+                    const success = await createConversationTopic(
+                      selectedTopicSpot,
+                      customTopic.trim(),
+                      selectedCategory !== '직접 작성' ? selectedCategory : undefined
+                    );
+                    
+                    if (success) {
+                      // 주제 생성 후 데이터 새로고침
+                      loadConversationTopics(date);
+                    }
+                  }}
+                  disabled={!customTopic.trim() || topicLoading}
+                  className="flex-1 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  {topicLoading ? '생성 중...' : '이 주제로 대화 열기'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
