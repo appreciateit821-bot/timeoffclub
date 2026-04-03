@@ -523,7 +523,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     // 혼자 대기 중인 멤버가 있는 경우
                     return (
                       <div className={`w-full text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-900/30 to-pink-900/30 text-purple-300 border border-purple-700/30`}>
-                        💭 깊은 대화를 나눠 한 명을 찾고 있어요
+                        💭 특별한 대화를 나눠 누군가를 기다리고 있어요
                       </div>
                     );
                   } else if (canOpenTopic) {
