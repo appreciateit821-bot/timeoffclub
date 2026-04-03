@@ -8,7 +8,9 @@
     "pages:build": "npx @cloudflare/next-on-pages",
     "preview": "npx wrangler pages dev .vercel/output/static",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "./deploy.sh",
+    "deploy:auto": "npm run build && npx @cloudflare/next-on-pages && npx wrangler pages deploy .vercel/output/static --project-name=timeoffclub --branch=main"
   },
   "dependencies": {
     "next": "^15.1.12",
