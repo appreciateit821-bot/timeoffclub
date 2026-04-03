@@ -403,7 +403,7 @@ export default function SpotOperatorPage() {
                       <span className="text-white font-mono font-bold text-base">{r.display_id}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         r.is_trial ? 'bg-orange-900/50 text-orange-300' : 'bg-gray-700 text-gray-400'
-                      }`}>{r.is_trial ? '🎫 체험' : '멤버'}</span>
+                      }`}>{r.is_trial ? '🎫 체험권' : '멤버'}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
                       }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
