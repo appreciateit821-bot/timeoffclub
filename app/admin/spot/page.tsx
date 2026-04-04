@@ -349,11 +349,13 @@ export default function SpotOperatorPage() {
 
             {/* 오늘 세션 요약 */}
             {checkinList.length > 0 && (
-              <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700">
-                <div className="flex items-center justify-between mb-2">
+              <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700 space-y-3">
+                <div className="flex items-center justify-between">
                   <span className="text-gray-300 text-sm font-medium">세션 참가자 구성</span>
                   <span className="text-amber-300 text-sm font-bold">{checkinList.length}명</span>
                 </div>
+                
+                {/* 모드별 통계 */}
                 <div className="flex gap-3">
                   <div className="flex-1 bg-blue-900/30 rounded-lg p-2.5 text-center border border-blue-800/30">
                     <div className="text-blue-300 text-lg font-bold">{checkinList.filter(r => r.mode !== 'reflection').length}</div>
@@ -362,6 +364,18 @@ export default function SpotOperatorPage() {
                   <div className="flex-1 bg-violet-900/30 rounded-lg p-2.5 text-center border border-violet-800/30">
                     <div className="text-violet-300 text-lg font-bold">{checkinList.filter(r => r.mode === 'reflection').length}</div>
                     <div className="text-violet-400 text-[10px]">🧘 사색</div>
+                  </div>
+                </div>
+                
+                {/* 멤버 유형별 통계 */}
+                <div className="flex gap-3">
+                  <div className="flex-1 bg-orange-900/30 rounded-lg p-2.5 text-center border border-orange-800/30">
+                    <div className="text-orange-300 text-lg font-bold">{checkinList.filter(r => r.is_trial).length}</div>
+                    <div className="text-orange-400 text-[10px]">🎫 체험권</div>
+                  </div>
+                  <div className="flex-1 bg-gray-700/50 rounded-lg p-2.5 text-center border border-gray-600/30">
+                    <div className="text-gray-300 text-lg font-bold">{checkinList.filter(r => !r.is_trial).length}</div>
+                    <div className="text-gray-400 text-[10px]">👤 멤버</div>
                   </div>
                 </div>
               </div>
@@ -377,14 +391,26 @@ export default function SpotOperatorPage() {
               <div className="bg-green-900/30 border border-green-700/50 rounded-lg p-3 text-center">
                 <div className="text-xl font-bold text-green-400">{attendedCount}</div>
                 <div className="text-xs text-green-300">출석</div>
+                <div className="flex justify-center gap-2 mt-1">
+                  <span className="text-[9px] text-orange-300">🎫{checkinList.filter(r => r.check_in_status === 'attended' && r.is_trial).length}</span>
+                  <span className="text-[9px] text-gray-300">👤{checkinList.filter(r => r.check_in_status === 'attended' && !r.is_trial).length}</span>
+                </div>
               </div>
               <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-3 text-center">
                 <div className="text-xl font-bold text-red-400">{noShowCount}</div>
                 <div className="text-xs text-red-300">노쇼</div>
+                <div className="flex justify-center gap-2 mt-1">
+                  <span className="text-[9px] text-orange-300">🎫{checkinList.filter(r => r.check_in_status === 'no_show' && r.is_trial).length}</span>
+                  <span className="text-[9px] text-gray-300">👤{checkinList.filter(r => r.check_in_status === 'no_show' && !r.is_trial).length}</span>
+                </div>
               </div>
               <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-center">
                 <div className="text-xl font-bold text-gray-400">{uncheckedCount}</div>
                 <div className="text-xs text-gray-400">미체크</div>
+                <div className="flex justify-center gap-2 mt-1">
+                  <span className="text-[9px] text-orange-300">🎫{checkinList.filter(r => r.check_in_status === 'unchecked' && r.is_trial).length}</span>
+                  <span className="text-[9px] text-gray-300">👤{checkinList.filter(r => r.check_in_status === 'unchecked' && !r.is_trial).length}</span>
+                </div>
               </div>
             </div>
 
