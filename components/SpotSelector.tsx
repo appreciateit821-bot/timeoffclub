@@ -120,12 +120,16 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   // 대화 주제 추천 로드
   const loadTopicSuggestions = async () => {
     try {
+      console.log('🔄 Loading topic suggestions...');
       const response = await fetch('/api/conversation-topics/suggestions');
       const data = await response.json();
-      console.log('Topic suggestions loaded:', data);
+      console.log('📋 Topic suggestions response:', data);
+      console.log('📋 data.suggestions:', data.suggestions);
+      console.log('📋 Object.keys(data.suggestions):', Object.keys(data.suggestions || {}));
       setTopicSuggestions(data.suggestions || {});
+      console.log('✅ Topic suggestions state updated');
     } catch (error) {
-      console.error('Failed to load topic suggestions:', error);
+      console.error('❌ Failed to load topic suggestions:', error);
     }
   };
 
@@ -151,6 +155,11 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       fetchClosedSpots();
     }
   }, [date]);
+
+  useEffect(() => {
+    console.log('🔄 topicSuggestions state changed:', topicSuggestions);
+    console.log('🔄 Keys count:', Object.keys(topicSuggestions).length);
+  }, [topicSuggestions]);
 
   const fetchClosedSpots = async () => {
     try {
@@ -693,7 +702,9 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-2 text-xs">
                   {(() => {
-                    console.log('Rendering categories:', Object.keys(topicSuggestions));
+                    console.log('🎨 Rendering categories. topicSuggestions:', topicSuggestions);
+                    console.log('🎨 Object.keys(topicSuggestions):', Object.keys(topicSuggestions));
+                    console.log('🎨 typeof topicSuggestions:', typeof topicSuggestions);
                     return Object.keys(topicSuggestions).map(category => (
                     <button
                       key={category}
