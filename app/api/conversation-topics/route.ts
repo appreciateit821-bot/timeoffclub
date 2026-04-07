@@ -16,15 +16,15 @@ async function checkEligibleSpots(db: any, date: string): Promise<string[]> {
     spotCounts[spot] = countResult?.count || 0;
   }
   
-  // 하이브리드 조건 체크
-  const hasFullSpot = Object.values(spotCounts).some(count => count >= 4); // 4명 이상 스팟 있는지
+  // 더 엄격한 조건 체크
+  const hasFullSpot = Object.values(spotCounts).some(count => count >= 6); // 6명 이상 스팟 있는지
   const totalReservations = Object.values(spotCounts).reduce((sum, count) => sum + count, 0); // 전체 예약자 수
   
-  // 조건 1: 4명 이상 스팟이 있거나, 조건 2: 전체 예약자 4명 이상
-  if (hasFullSpot || totalReservations >= 4) {
-    // 0명~1명인 스팟들을 eligible로 추가 (대화 주제 설정 가능)
+  // 조건 1: 6명 이상 스팟이 있고, 조건 2: 전체 예약자 8명 이상
+  if (hasFullSpot && totalReservations >= 8) {
+    // 0명인 스팟들만 eligible로 추가 (완전히 비어있는 스팟만)
     for (const spot of SPOTS) {
-      if (spotCounts[spot] <= 1) {
+      if (spotCounts[spot] === 0) {
         eligibleSpots.push(spot);
       }
     }
@@ -88,16 +88,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '이미 대화 주제가 설정된 스팟입니다.' }, { status: 400 });
     }
     
-    // 2. 해당 날짜+스팟에 스몰토크 예약이 0명인지 확인 (사색 예약은 제외)
+    // 2. 해당 날짜+스팟에 스몰토크 예약이 없는지 확인 (완전히 0명)
     const smalltalkCount = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ? AND mode != ?').bind(date, spot, 'reflection').first() as any;
     if ((smalltalkCount?.count || 0) > 0) {
-      return NextResponse.json({ error: '이미 스몰토크 예약이 있는 스팟에는 대화 주제를 설정할 수 없습니다.' }, { status: 400 });
+      return NextResponse.json({ error: '대화 주제는 완전히 비어있는 스팟에만 설정할 수 있습니다.' }, { status: 400 });
     }
     
-    // 3. 대화 열기 조건 체크 (다른 스팟 중 4명 이상인 곳이 있는지)
+    // 3. 대화 열기 조건 체크 (다른 스팟 6명+ & 전체 8명+)
     const eligibleSpots = await checkEligibleSpots(db, date);
     if (!eligibleSpots.includes(spot)) {
-      return NextResponse.json({ error: '현재 대화 열기 조건을 충족하지 않습니다.' }, { status: 400 });
+      return NextResponse.json({ error: '대화 주제 설정 조건: 다른 스팟에 6명 이상 & 전체 8명 이상 필요' }, { status: 400 });
     }
     
     // 4. 대화 주제 생성
