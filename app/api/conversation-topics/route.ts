@@ -5,18 +5,28 @@ import { SPOTS, SPOT_DETAILS } from '@/lib/constants';
 
 export const runtime = 'edge';
 
-// 대화 열기 조건 체크: 완전히 비어있는 스팟(0명)만
+// 대화 열기 조건 체크: 어느정도 활발할 때 + 0명 스팟
 async function checkEligibleSpots(db: any, date: string): Promise<string[]> {
   const eligibleSpots: string[] = [];
   
   // 모든 스팟의 스몰토크 예약 현황 조회 (사색 제외)
+  const spotCounts: { [spot: string]: number } = {};
   for (const spot of SPOTS) {
     const countResult = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ? AND mode != ?').bind(date, spot, 'reflection').first() as any;
-    const count = countResult?.count || 0;
-    
-    // 0명인 스팟만 대화 주제 설정 가능
-    if (count === 0) {
-      eligibleSpots.push(spot);
+    spotCounts[spot] = countResult?.count || 0;
+  }
+  
+  // 활성화 조건 체크
+  const hasPopularSpot = Object.values(spotCounts).some(count => count >= 4); // 4명 이상 스팟 있는지
+  const totalReservations = Object.values(spotCounts).reduce((sum, count) => sum + count, 0); // 전체 예약자 수
+  
+  // 조건: 다른 스팟 중 4명 이상 OR 전체 6명 이상
+  if (hasPopularSpot || totalReservations >= 6) {
+    // 0명인 스팟들만 대화 주제 설정 가능
+    for (const spot of SPOTS) {
+      if (spotCounts[spot] === 0) {
+        eligibleSpots.push(spot);
+      }
     }
   }
   
@@ -84,10 +94,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '대화 주제는 완전히 비어있는 스팟에만 설정할 수 있습니다.' }, { status: 400 });
     }
     
-    // 3. 대화 열기 조건 체크 (빈 스팟에만 가능)
+    // 3. 대화 열기 조건 체크 (활발한 날 + 빈 스팟)
     const eligibleSpots = await checkEligibleSpots(db, date);
     if (!eligibleSpots.includes(spot)) {
-      return NextResponse.json({ error: '대화 주제는 완전히 비어있는 스팟(0명)에만 설정할 수 있습니다.' }, { status: 400 });
+      return NextResponse.json({ error: '대화 주제 설정 조건: 다른 스팟 4명+ 또는 전체 6명+ & 빈 스팟에만 가능' }, { status: 400 });
     }
     
     // 4. 대화 주제 생성
