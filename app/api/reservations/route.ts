@@ -8,18 +8,22 @@ export const runtime = 'edge';
 
 export async function GET(request: NextRequest) {
   const db = getDB();
-  const user = await getSession();
-  if (!user || !db) return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
+  if (!db) return NextResponse.json({ error: 'DB 연결 실패' }, { status: 500 });
 
   const { searchParams } = new URL(request.url);
   const date = searchParams.get('date');
 
   try {
     if (date) {
-      const { results: reservations } = await db.prepare('SELECT * FROM reservations WHERE date = ? ORDER BY created_at').bind(date).all();
+      // 특정 날짜 예약 현황 - 공개 정보 (로그인 불필요)
+      const { results: reservations } = await db.prepare('SELECT user_name, spot, mode, memo, energy, created_at FROM reservations WHERE date = ? ORDER BY created_at').bind(date).all();
       const { results: modeStats } = await db.prepare('SELECT spot, mode, COUNT(*) as count FROM reservations WHERE date = ? GROUP BY spot, mode').bind(date).all();
       return NextResponse.json({ reservations, modeStats });
     } else {
+      // 개인 예약 목록 - 인증 필요
+      const user = await getSession();
+      if (!user) return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
+      
       const { results: reservations } = await db.prepare('SELECT * FROM reservations WHERE user_name = ? ORDER BY date').bind(user.name).all();
       // 노쇼 횟수
       const noShowResult = await db.prepare("SELECT COUNT(*) as count FROM reservations WHERE user_name = ? AND check_in_status = 'no_show'").bind(user.name).first() as any;
