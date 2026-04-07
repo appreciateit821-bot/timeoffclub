@@ -122,6 +122,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
     try {
       const response = await fetch('/api/conversation-topics/suggestions');
       const data = await response.json();
+      console.log('Topic suggestions loaded:', data);
       setTopicSuggestions(data.suggestions || {});
     } catch (error) {
       console.error('Failed to load topic suggestions:', error);
@@ -691,6 +692,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
               {/* 카테고리 탭 */}
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-2 text-xs">
+                  {console.log('Rendering categories:', Object.keys(topicSuggestions))}
                   {Object.keys(topicSuggestions).map(category => (
                     <button
                       key={category}
