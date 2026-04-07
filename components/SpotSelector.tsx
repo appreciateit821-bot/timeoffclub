@@ -692,8 +692,9 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
               {/* 카테고리 탭 */}
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-2 text-xs">
-                  {console.log('Rendering categories:', Object.keys(topicSuggestions))}
-                  {Object.keys(topicSuggestions).map(category => (
+                  {(() => {
+                    console.log('Rendering categories:', Object.keys(topicSuggestions));
+                    return Object.keys(topicSuggestions).map(category => (
                     <button
                       key={category}
                       onClick={() => {
@@ -708,7 +709,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     >
                       {category}
                     </button>
-                  ))}
+                    ));
+                  })()} 
                   <button
                     onClick={() => {
                       setSelectedCategory('직접 작성');
