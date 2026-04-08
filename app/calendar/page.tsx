@@ -13,12 +13,18 @@ export default function CalendarPage() {
   const [reservations, setReservations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [bannerNotification, setBannerNotification] = useState<any>(null);
   const router = useRouter();
 
   useEffect(() => {
     fetchUser();
     fetchReservations();
     fetchNotifications();
+    fetchBannerNotification();
+    
+    // 매분 배너 상태 업데이트
+    const interval = setInterval(fetchBannerNotification, 60000); // 1분마다
+    return () => clearInterval(interval);
   }, []);
 
   const fetchNotifications = async () => {
@@ -26,6 +32,18 @@ export default function CalendarPage() {
       const res = await fetch('/api/notifications');
       if (res.ok) setNotifications((await res.json()).notifications);
     } catch (e) {}
+  };
+
+  const fetchBannerNotification = async () => {
+    try {
+      const res = await fetch('/api/notifications/banner');
+      if (res.ok) {
+        const data = await res.json();
+        setBannerNotification(data.showBanner ? data : null);
+      }
+    } catch (e) {
+      setBannerNotification(null);
+    }
   };
 
   const dismissNotifications = async () => {
@@ -133,7 +151,25 @@ export default function CalendarPage() {
         </div>
       </header>
 
-      {/* 알림 배너 */}
+      {/* 동적 세션 배너 */}
+      {bannerNotification && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <div className={`${
+            bannerNotification.type === 'warning' 
+              ? 'bg-orange-900/30 border border-orange-700/40' 
+              : 'bg-emerald-900/30 border border-emerald-700/40'
+          } rounded-xl p-4 mb-2`}>
+            <p className={`${
+              bannerNotification.type === 'warning' 
+                ? 'text-orange-200' 
+                : 'text-emerald-200'
+            } text-sm font-medium`}>{bannerNotification.title}</p>
+            <p className="text-gray-300 text-xs mt-1">{bannerNotification.body}</p>
+          </div>
+        </div>
+      )}
+
+      {/* 기존 알림 배너 */}
       {notifications.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
           {notifications.map((n: any) => (
