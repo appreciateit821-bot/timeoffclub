@@ -6,6 +6,7 @@ import Calendar from '@/components/Calendar';
 import SpotSelector from '@/components/SpotSelector';
 import ReservationList from '@/components/ReservationList';
 import Footer from '@/components/Footer';
+import PushNotificationManager from '@/components/PushNotificationManager';
 
 export default function CalendarPage() {
   const [user, setUser] = useState<{ name: string; isAdmin: boolean; isTrial?: boolean; phoneLast4?: string; activeMonths?: string } | null>(null);
@@ -112,6 +113,10 @@ export default function CalendarPage() {
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-amber-100 whitespace-nowrap">타임오프클럽</h1>
               <p className="text-xs sm:text-sm text-gray-400 mt-1 whitespace-nowrap">{user?.name}님, 환영합니다</p>
+              {/* 푸시 알림 설정 */}
+              <div className="mt-2">
+                <PushNotificationManager />
+              </div>
             </div>
             <div className="flex gap-1.5 sm:gap-2 flex-wrap justify-end">
               <button
@@ -169,8 +174,8 @@ export default function CalendarPage() {
         </div>
       )}
 
-      {/* 기존 알림 배너 */}
-      {notifications.length > 0 && (
+      {/* 개별 알림 배너 (동적 세션 배너가 없을 때만) */}
+      {!bannerNotification && notifications.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
           {notifications.map((n: any) => (
             <div key={n.id} className="bg-amber-900/30 border border-amber-700/40 rounded-xl p-4 mb-2 flex items-start justify-between gap-3">

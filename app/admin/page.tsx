@@ -1603,6 +1603,70 @@ export default function AdminPage() {
                 📢 미예약자 푸시 보내기
               </button>
             </div>
+
+            {/* 진짜 팝업 푸시 알림 */}
+            <div className="bg-purple-900/30 rounded-lg p-4 border border-purple-700/50 space-y-3">
+              <h3 className="text-sm font-medium text-purple-100">📨 웹 푸시 알림 (브라우저 팝업)</h3>
+              <p className="text-xs text-purple-200/70">디바이스 알림 센터에 팝업으로 표시되는 진짜 푸시 알림</p>
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  placeholder="알림 제목 (예: 오늘 저녁 타임오프클럽!)"
+                  className="w-full px-3 py-2 bg-purple-800/30 border border-purple-600/50 rounded text-white text-sm"
+                  id="pushTitle"
+                />
+                <textarea
+                  placeholder="알림 내용 (예: 다시점과 벤슨에서 좋은 대화를 나누어보세요!)"
+                  className="w-full px-3 py-2 bg-purple-800/30 border border-purple-600/50 rounded text-white text-sm min-h-[60px]"
+                  id="pushBody"
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      const title = (document.getElementById('pushTitle') as HTMLInputElement)?.value;
+                      const body = (document.getElementById('pushBody') as HTMLTextAreaElement)?.value;
+                      
+                      if (!title || !body) {
+                        alert('제목과 내용을 입력해주세요');
+                        return;
+                      }
+                      
+                      if (!confirm(`웹 푸시 알림 대량 발송\n제목: ${title}\n내용: ${body}\n\n모든 활성 멤버에게 발송하시겠습니까?`)) return;
+                      
+                      try {
+                        const response = await fetch('/api/admin/push-notification', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            title,
+                            body,
+                            targetType: 'active_members',
+                            url: '/calendar'
+                          })
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                          alert(`웹 푸시 발송 성공! 🎉\n발송: ${result.sent}/${result.total}명\n\n사용자들의 디바이스에 팝업 알림이 표시됩니다!`);
+                          (document.getElementById('pushTitle') as HTMLInputElement).value = '';
+                          (document.getElementById('pushBody') as HTMLTextAreaElement).value = '';
+                        } else {
+                          alert('발송 실패: ' + result.error);
+                        }
+                      } catch (e) {
+                        alert('웹 푸시 발송 오류: ' + e);
+                      }
+                    }}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm transition"
+                  >
+                    📨 전체 활성 멤버에게 푸시 발송
+                  </button>
+                </div>
+                <p className="text-xs text-purple-300/60">
+                  ⚠️ 사용자가 푸시 알림을 허용한 경우에만 표시됩니다.
+                </p>
+              </div>
+            </div>
           </div>
         )}
         {/* 공지 관리 */}
