@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     console.error('Push notification error:', error);
     return NextResponse.json({ 
       error: '푸시 발송 실패',
-      details: error.message 
+      details: error instanceof Error ? error.message : String(error)
     }, { status: 500 });
   }
 }
