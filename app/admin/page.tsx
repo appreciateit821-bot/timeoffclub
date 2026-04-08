@@ -1566,6 +1566,43 @@ export default function AdminPage() {
                 🔔 알림 보내기
               </button>
             </div>
+
+            {/* 미예약자 마케팅 푸시 */}
+            <div className="bg-orange-900/30 rounded-lg p-4 border border-orange-700/50 space-y-3">
+              <h3 className="text-sm font-medium text-orange-100">📢 미예약자 마케팅 푸시</h3>
+              <p className="text-xs text-orange-200/70">특정 날짜에 예약하지 않은 모든 멤버에게 알림 보내기</p>
+              <button
+                onClick={async () => {
+                  const date = prompt('날짜 (YYYY-MM-DD):', '2026-04-08');
+                  if (!date) return;
+                  
+                  const title = '🌿 오늘 타임오프클럽은 어때요?';
+                  const spots = ['다시점 (한적한 사색)', '벤슨 테이스팅 라운지 (품격있는 대화)'];
+                  const body = `아직 예약하지 않으셨네요! 특히 ${spots.join(', ')}에서 좋은 대화를 나눌 수 있어요 ✨ 오늘 저녁 어떠세요?`;
+                  
+                  if (!confirm(`미예약자 마케팅 푸시 발송\n날짜: ${date}\n제목: ${title}\n내용: ${body}\n\n발송하시겠습니까?`)) return;
+                  
+                  try {
+                    const response = await fetch('/api/admin/push-unreserved', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ date, title, body })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                      alert(`미예약자 마케팅 푸시 발송 완료! 🎉\n\n대상: ${result.sent}/${result.total}명\n예시: ${result.members?.join(', ')}등...\n\n이제 예약 증가를 모니터링해주세요!`);
+                    } else {
+                      alert('오류: ' + result.error);
+                    }
+                  } catch (e) {
+                    alert('발송 실패: ' + e);
+                  }
+                }}
+                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-medium transition"
+              >
+                📢 미예약자 푸시 보내기
+              </button>
+            </div>
           </div>
         )}
         {/* 공지 관리 */}
