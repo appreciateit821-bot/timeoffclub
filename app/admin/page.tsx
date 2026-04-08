@@ -55,6 +55,7 @@ export default function AdminPage() {
   const [editingNotice, setEditingNotice] = useState<any>(null);
   const [reports, setReports] = useState<any[]>([]);
   const router = useRouter();
+  const [pushTargetType, setPushTargetType] = useState('all');
 
   useEffect(() => {
     fetch('/api/admin/settings').then(r => r.json()).then(d => { if (d.maxCapacity) setMaxCapacity(d.maxCapacity); }).catch(() => {});
@@ -1608,7 +1609,7 @@ export default function AdminPage() {
             <div className="bg-purple-900/30 rounded-lg p-4 border border-purple-700/50 space-y-3">
               <h3 className="text-sm font-medium text-purple-100">📨 웹 푸시 알림 (브라우저 팝업)</h3>
               <p className="text-xs text-purple-200/70">디바이스 알림 센터에 팝업으로 표시되는 진짜 푸시 알림</p>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <input
                   type="text"
                   placeholder="알림 제목 (예: 오늘 저녁 타임오프클럽!)"
@@ -1620,18 +1621,75 @@ export default function AdminPage() {
                   className="w-full px-3 py-2 bg-purple-800/30 border border-purple-600/50 rounded text-white text-sm min-h-[60px]"
                   id="pushBody"
                 />
+                
+                {/* 타겟 선택 */}
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <label className="flex items-center gap-2 text-xs text-purple-200">
+                      <input 
+                        type="radio" 
+                        name="pushTarget" 
+                        value="all" 
+                        checked={pushTargetType === 'all'}
+                        onChange={(e) => setPushTargetType(e.target.value)}
+                        className="text-purple-600" 
+                      />
+                      전체 활성 멤버
+                    </label>
+                    <label className="flex items-center gap-2 text-xs text-purple-200">
+                      <input 
+                        type="radio" 
+                        name="pushTarget" 
+                        value="specific" 
+                        checked={pushTargetType === 'specific'}
+                        onChange={(e) => setPushTargetType(e.target.value)}
+                        className="text-purple-600" 
+                      />
+                      특정 멤버
+                    </label>
+                  </div>
+                  
+                  {/* 특정 멤버 입력 */}
+                  {pushTargetType === 'specific' && (
+                    <div className="space-y-1">
+                      <input
+                        type="text"
+                        placeholder="멤버 이름 (예: 김동현, 박영희) - 여러 명은 콤마로 구분"
+                        className="w-full px-3 py-2 bg-purple-800/30 border border-purple-600/50 rounded text-white text-sm"
+                        id="pushTargetUsers"
+                      />
+                      <p className="text-xs text-purple-300/60">
+                        특정 멤버에게만 푸시 알림을 보냅니다. 정확한 이름을 입력해주세요.
+                      </p>
+                    </div>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <button
                     onClick={async () => {
                       const title = (document.getElementById('pushTitle') as HTMLInputElement)?.value;
                       const body = (document.getElementById('pushBody') as HTMLTextAreaElement)?.value;
+                      const selectedTarget = pushTargetType;
+                      const targetUsers = (document.getElementById('pushTargetUsers') as HTMLInputElement)?.value;
                       
                       if (!title || !body) {
                         alert('제목과 내용을 입력해주세요');
                         return;
                       }
                       
-                      if (!confirm(`웹 푸시 알림 대량 발송\n제목: ${title}\n내용: ${body}\n\n모든 활성 멤버에게 발송하시겠습니까?`)) return;
+                      if (selectedTarget === 'specific' && !targetUsers) {
+                        alert('특정 멤버를 선택하셨으면 멤버 이름을 입력해주세요');
+                        return;
+                      }
+                      
+                      const targetType = selectedTarget === 'specific' ? 'specific' : 'active_members';
+                      const targetUsersList = targetType === 'specific' && targetUsers 
+                        ? targetUsers.split(',').map(name => name.trim()).filter(name => name) : [];
+                      const confirmMessage = targetType === 'specific' 
+                        ? `웹 푸시 알림 발송\n제목: ${title}\n내용: ${body}\n대상: ${targetUsersList.join(', ')}`
+                        : `웹 푸시 알림 대량 발송\n제목: ${title}\n내용: ${body}\n대상: 모든 활성 멤버`;
+                      
+                      if (!confirm(confirmMessage + '\n\n발송하시겠습니까?')) return;
                       
                       try {
                         const response = await fetch('/api/admin/push-notification', {
@@ -1640,16 +1698,25 @@ export default function AdminPage() {
                           body: JSON.stringify({
                             title,
                             body,
-                            targetType: 'active_members',
+                            targetType,
+                            targetUsers: targetUsersList,
                             url: '/calendar'
                           })
                         });
                         
                         const result = await response.json();
                         if (result.success) {
-                          alert(`웹 푸시 발송 성공! 🎉\n발송: ${result.sent}/${result.total}명\n\n사용자들의 디바이스에 팝업 알림이 표시됩니다!`);
+                          const successMessage = targetType === 'specific' 
+                            ? `웹 푸시 발송 성공! 🎉\n발송: ${result.sent}/${result.total}명\n대상: ${targetUsersList.join(', ')}`
+                            : `웹 푸시 발송 성공! 🎉\n발송: ${result.sent}/${result.total}명\n\n사용자들의 디바이스에 팝업 알림이 표시됩니다!`;
+                          
+                          alert(successMessage);
                           (document.getElementById('pushTitle') as HTMLInputElement).value = '';
                           (document.getElementById('pushBody') as HTMLTextAreaElement).value = '';
+                          if (document.getElementById('pushTargetUsers')) {
+                            (document.getElementById('pushTargetUsers') as HTMLInputElement).value = '';
+                          }
+                          setPushTargetType('all');
                         } else {
                           alert('발송 실패: ' + result.error);
                         }
@@ -1659,7 +1726,7 @@ export default function AdminPage() {
                     }}
                     className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm transition"
                   >
-                    📨 전체 활성 멤버에게 푸시 발송
+                    📨 푸시 알림 발송
                   </button>
                 </div>
                 <p className="text-xs text-purple-300/60">
