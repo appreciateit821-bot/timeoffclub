@@ -120,21 +120,16 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   // 대화 주제 추천 로드
   const loadTopicSuggestions = async () => {
     try {
-      console.log('🔄 Loading topic suggestions...');
       const response = await fetch('/api/conversation-topics/suggestions?_=' + Date.now());
       const data = await response.json();
-      console.log('📋 Topic suggestions response:', data);
-      console.log('📋 data.suggestions:', data.suggestions);
-      console.log('📋 Object.keys(data.suggestions):', Object.keys(data.suggestions || {}));
       
       // 강제로 상태 초기화 후 설정
       setTopicSuggestions({});
       setTimeout(() => {
         setTopicSuggestions(data.suggestions || {});
-        console.log('✅ Topic suggestions state updated (forced)');
       }, 100);
     } catch (error) {
-      console.error('❌ Failed to load topic suggestions:', error);
+      console.error('Failed to load topic suggestions:', error);
       // 백업 데이터
       setTopicSuggestions({
         '일상 수다': ['요즘 빠져있는 넷플릭스/유튜브 추천'],
@@ -167,10 +162,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
     }
   }, [date]);
 
-  useEffect(() => {
-    console.log('🔄 topicSuggestions state changed:', topicSuggestions);
-    console.log('🔄 Keys count:', Object.keys(topicSuggestions).length);
-  }, [topicSuggestions]);
+
 
   const fetchClosedSpots = async () => {
     try {
@@ -703,10 +695,6 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       {showTopicModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto border border-gray-600">
-            {/* 디버그용 정보 */}
-            <div className="text-red-400 text-xs mb-4 p-2 bg-red-900/20 rounded">
-              Debug: keys={Object.keys(topicSuggestions).length}, type={typeof topicSuggestions}
-            </div>
             <div className="space-y-4">
               <div className="text-center">
                 <h3 className="text-xl font-bold text-amber-100 mb-2">어떤 이야기를 해보고 싶나요?</h3>
@@ -716,11 +704,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
               {/* 카테고리 탭 */}
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-2 text-xs">
-                  {(() => {
-                    console.log('🎨 Rendering categories. topicSuggestions:', topicSuggestions);
-                    console.log('🎨 Object.keys(topicSuggestions):', Object.keys(topicSuggestions));
-                    console.log('🎨 typeof topicSuggestions:', typeof topicSuggestions);
-                    return Object.keys(topicSuggestions).map(category => (
+                  {Object.keys(topicSuggestions).map(category => (
                     <button
                       key={category}
                       onClick={() => {
