@@ -140,35 +140,8 @@ export default function PushNotificationManager() {
   };
 
   if (!isPushSupported) {
-    // 디버그 정보 수집
-    const debugInfo = {
-      hasServiceWorker: typeof navigator !== 'undefined' && 'serviceWorker' in navigator,
-      hasPushManager: typeof window !== 'undefined' && 'PushManager' in window,
-      isSecureContext: typeof window !== 'undefined' && window.isSecureContext,
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
-      protocol: typeof window !== 'undefined' ? window.location.protocol : 'unknown'
-    };
-    
-    return (
-      <div className="text-xs text-gray-500 p-2 bg-red-900/20 border border-red-700/30 rounded space-y-1">
-        <div>🚫 푸시 알림 지원 안됨</div>
-        <details className="text-xs text-gray-400">
-          <summary className="cursor-pointer hover:text-gray-300">디버그 정보 (클릭)</summary>
-          <div className="mt-1 p-2 bg-gray-900/50 rounded text-xs space-y-1">
-            <div>Service Worker: {debugInfo.hasServiceWorker ? '✅' : '❌'}</div>
-            <div>Push Manager: {debugInfo.hasPushManager ? '✅' : '❌'}</div>
-            <div>HTTPS: {debugInfo.isSecureContext ? '✅' : '❌'} ({debugInfo.protocol})</div>
-            <div>Browser: {debugInfo.userAgent.includes('Chrome') ? 'Chrome' : debugInfo.userAgent.includes('Firefox') ? 'Firefox' : debugInfo.userAgent.includes('Safari') ? 'Safari' : 'Other'}</div>
-            <div className="text-yellow-400 text-xs mt-2">
-              ⚠️ 해결방법:<br/>
-              - HTTPS로 접속 확인<br/>
-              - 일반 브라우징 모드 사용<br/>
-              - Chrome/Firefox 추천
-            </div>
-          </div>
-        </details>
-      </div>
-    );
+    // 푸시 알림을 지원하지 않는 브라우저에서는 아예 컴포넌트를 숨김
+    return null;
   }
 
   if (loading) {
