@@ -70,7 +70,7 @@ export default function PushNotificationManager() {
       
     } catch (error) {
       console.error('Push subscription failed:', error);
-      alert('푸시 알림 구독에 실패했습니다: ' + error.message);
+      alert('푸시 알림 구독에 실패했습니다: ' + (error instanceof Error ? error.message : String(error)));
     } finally {
       setLoading(false);
     }
@@ -135,7 +135,7 @@ export default function PushNotificationManager() {
         alert('테스트 푸시 실패: ' + result.error);
       }
     } catch (error) {
-      alert('테스트 푸시 오류: ' + error.message);
+      alert('테스트 푸시 오류: ' + (error instanceof Error ? error.message : String(error)));
     }
   };
 
