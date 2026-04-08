@@ -16,17 +16,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '날짜와 메시지 필요' }, { status: 400 });
   }
 
-  // 해당 날짜 미예약자 목록 조회
+  // 현재 월 추출 (YYYY-MM 형식)
+  const currentMonth = date.substring(0, 7); // '2026-04-08' -> '2026-04'
+  
+  // 해당 날짜 미예약자 중 활성 멤버만 조회 (체험권 제외)
   const { results: unreservedMembers } = await db.prepare(`
     SELECT m.name 
     FROM members m 
-    WHERE m.name NOT IN (
+    WHERE m.is_active = 1
+    AND m.active_months LIKE '%' || ? || '%'
+    AND m.name NOT IN (
       SELECT r.user_name 
       FROM reservations r 
       WHERE r.date = ?
     )
+    AND m.name NOT IN (
+      SELECT t.name 
+      FROM trial_tickets t 
+      WHERE t.name IS NOT NULL
+    )
     ORDER BY m.name
-  `).bind(date).all();
+  `).bind(currentMonth, date).all();
 
   if (unreservedMembers.length === 0) {
     return NextResponse.json({ 

@@ -1570,7 +1570,7 @@ export default function AdminPage() {
             {/* 미예약자 마케팅 푸시 */}
             <div className="bg-orange-900/30 rounded-lg p-4 border border-orange-700/50 space-y-3">
               <h3 className="text-sm font-medium text-orange-100">📢 미예약자 마케팅 푸시</h3>
-              <p className="text-xs text-orange-200/70">특정 날짜에 예약하지 않은 모든 멤버에게 알림 보내기</p>
+              <p className="text-xs text-orange-200/70">해당 달 활성 멤버 중 미예약자에게만 알림 (체험권 제외)</p>
               <button
                 onClick={async () => {
                   const date = prompt('날짜 (YYYY-MM-DD):', '2026-04-08');
