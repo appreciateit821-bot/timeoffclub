@@ -1768,7 +1768,11 @@ export default function AdminPage() {
                         
                         const result = await response.json();
                         if (result.success) {
-                          alert(`참석 확인 완료! 🎯\n날짜: ${result.targetDate}\n위험 스팟: ${result.totalRiskySpots}개\n알림 발송: ${result.pushSent}명\n\n${result.riskySpots.map((s: any) => `${s.spotName}: ${s.member}`).join('\n')}`);
+                          const details = result.notificationResults?.map((nr: any) => 
+                            `${nr.member} (${nr.spot}): ${nr.methods.join(', ')} 발송`
+                          ).join('\n') || '';
+                          
+                          alert(`참석 확인 완료! 🎯\n날짜: ${result.targetDate}\n위험 스팟: ${result.totalRiskySpots}개\n알림 발송: 푸시 ${result.pushSent}명, SMS ${result.smsSent}명\n\n${details}`);
                           dateInput.value = '';
                         } else {
                           alert('참석 확인 실패: ' + result.error);

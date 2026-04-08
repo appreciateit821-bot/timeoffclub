@@ -15,6 +15,7 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [bannerNotification, setBannerNotification] = useState<any>(null);
+  const [urgentNotifications, setUrgentNotifications] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -22,6 +23,7 @@ export default function CalendarPage() {
     fetchReservations();
     fetchNotifications();
     fetchBannerNotification();
+    fetchUrgentNotifications();
     
     // 매분 배너 상태 업데이트
     const interval = setInterval(fetchBannerNotification, 60000); // 1분마다
@@ -50,6 +52,31 @@ export default function CalendarPage() {
   const dismissNotifications = async () => {
     await fetch('/api/notifications', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '{}' });
     setNotifications([]);
+  };
+
+  const fetchUrgentNotifications = async () => {
+    try {
+      const res = await fetch('/api/urgent-notifications');
+      if (res.ok) {
+        const data = await res.json();
+        setUrgentNotifications(data.notifications || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch urgent notifications:', error);
+    }
+  };
+
+  const dismissUrgentNotifications = async () => {
+    try {
+      await fetch('/api/urgent-notifications', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({}) // 둘에 아무 ID도 주지 않으면 전체 읽음 처리
+      });
+      setUrgentNotifications([]);
+    } catch (error) {
+      console.error('Failed to dismiss urgent notifications:', error);
+    }
   };
 
   const fetchUser = async () => {
@@ -170,6 +197,37 @@ export default function CalendarPage() {
                 : 'text-emerald-200'
             } text-sm font-medium`}>{bannerNotification.title}</p>
             <p className="text-gray-300 text-xs mt-1">{bannerNotification.body}</p>
+          </div>
+        </div>
+      )}
+      
+      {/* 긴급 알림 배너 */}
+      {urgentNotifications.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2">
+          <div className="bg-red-900/40 border border-red-700/50 rounded-xl p-4 mb-2">
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <p className="text-red-200 text-sm font-semibold flex items-center gap-2">
+                  ⚠️ 긴급 알림 ({urgentNotifications.length}개)
+                </p>
+                <div className="mt-2 space-y-2">
+                  {urgentNotifications.map((notif, idx) => (
+                    <div key={notif.id || idx} className="bg-red-800/30 p-3 rounded border border-red-600/30">
+                      <p className="text-red-100 text-sm font-medium">{notif.title}</p>
+                      <p className="text-red-200/80 text-xs mt-1">{notif.content}</p>
+                      <p className="text-red-300/60 text-xs mt-1">확인 시간: {new Date(notif.created_at).toLocaleString('ko-KR')}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <button
+                onClick={dismissUrgentNotifications}
+                className="ml-3 p-1.5 hover:bg-red-800/40 rounded text-red-300 hover:text-red-200 transition"
+                title="알림 닫기"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         </div>
       )}

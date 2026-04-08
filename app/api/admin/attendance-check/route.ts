@@ -43,55 +43,113 @@ export async function POST(request: NextRequest) {
           count: res.count
         });
 
-        // 해당 멤버의 푸시 구독 정보 조회
-        const pushSub = await db.prepare(`
-          SELECT ps.* 
-          FROM push_subscriptions ps 
-          JOIN members m ON ps.member_id = m.id 
-          WHERE m.name = ? AND ps.active = 1
+        // 해당 멤버의 연락처 정보 조회 (푸시 구독 + 휴대폰)
+        const memberInfo = await db.prepare(`
+          SELECT m.name, m.phone, ps.endpoint, ps.p256dh, ps.auth
+          FROM members m
+          LEFT JOIN push_subscriptions ps ON ps.member_id = m.id AND ps.active = 1
+          WHERE m.name = ?
         `).bind(res.members).first() as any;
 
-        if (pushSub) {
+        if (memberInfo) {
           pushTargets.push({
             member: res.members,
             spot: res.spot,
             spotName: spotInfo?.name || res.spot,
-            subscription: pushSub
+            phone: memberInfo.phone,
+            hasPushSubscription: !!memberInfo.endpoint,
+            subscription: memberInfo.endpoint ? {
+              endpoint: memberInfo.endpoint,
+              p256dh: memberInfo.p256dh,
+              auth: memberInfo.auth
+            } : null
           });
         }
       }
     }
 
-    // 푸시 알림 발송 (웹 푸시 API 호출)
+    // 다양한 방법으로 알림 발송
     let pushedCount = 0;
-    for (const target of pushTargets) {
-      try {
-        const pushResponse = await fetch('/api/push/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            subscription: {
-              endpoint: target.subscription.endpoint,
-              keys: {
-                p256dh: target.subscription.p256dh,
-                auth: target.subscription.auth
-              }
-            },
-            payload: {
-              title: '⚠️ 참석 확인 필요',
-              body: `${target.spotName}에 혼자 예약되어 있습니다. 참석 가능하신지 확인해주세요!`,
-              url: '/calendar',
-              urgent: true
-            }
-          })
-        });
+    let smsCount = 0;
+    let emailCount = 0;
+    const notificationResults = [];
 
-        if (pushResponse.ok) {
-          pushedCount++;
+    for (const target of pushTargets) {
+      const alertMessage = `⚠️ 타임오프클럽 참석 확인\n\n안녕하세요 ${target.member}님!\n\n오늘 세션에 ${target.spotName}에 혼자 예약되어 계신데, 스몰토크는 2명 이상이어야 진행됩니다.\n\n참석 가능하시다면 그대로 두시고, 참석이 어려우시다면 예약을 취소해주세요.\n\n예약 변경: https://timeoffclub.pages.dev/calendar`;
+
+      let methodsUsed = [];
+
+      // 1. 웹 푸시 알림 시도
+      if (target.hasPushSubscription && target.subscription) {
+        try {
+          const pushResponse = await fetch('/api/push/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              subscription: target.subscription,
+              payload: {
+                title: '⚠️ 참석 확인 필요',
+                body: `${target.spotName}에 혼자 예약되어 있습니다. 참석 가능하신지 확인해주세요!`,
+                url: '/calendar',
+                urgent: true
+              }
+            })
+          });
+
+          if (pushResponse.ok) {
+            pushedCount++;
+            methodsUsed.push('푸시');
+          }
+        } catch (error) {
+          console.error(`Push failed for ${target.member}:`, error);
         }
-      } catch (error) {
-        console.error(`Push failed for ${target.member}:`, error);
       }
+
+      // 2. SMS 발송 (휴대폰 번호가 있는 경우)
+      if (target.phone && target.phone.length > 8) {
+        try {
+          const smsResponse = await fetch('/api/admin/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: target.member,
+              title: '타임오프클럽 참석 확인',
+              body: alertMessage,
+              method: 'sms' // SMS 전송 지정
+            })
+          });
+
+          if (smsResponse.ok) {
+            smsCount++;
+            methodsUsed.push('SMS');
+          }
+        } catch (error) {
+          console.error(`SMS failed for ${target.member}:`, error);
+        }
+      }
+
+      // 3. 대체 방법: 인앱 알림 (다음 로그인 시 표시)
+      try {
+        await db.prepare(`
+          INSERT INTO urgent_notifications (member_name, title, content, created_at, expires_at) 
+          VALUES (?, ?, ?, datetime('now'), datetime('now', '+4 hours'))
+        `).bind(
+          target.member,
+          '⚠️ 참석 확인 필요',
+          `${target.spotName}에 혼자 예약되어 있습니다. 참석 가능하신지 확인해주세요!`
+        ).run();
+        methodsUsed.push('인얁알림');
+      } catch (error) {
+        console.error(`In-app notification failed for ${target.member}:`, error);
+      }
+
+      notificationResults.push({
+        member: target.member,
+        spot: target.spotName,
+        methods: methodsUsed,
+        phone: target.phone ? `${target.phone.slice(0, 3)}-****-${target.phone.slice(-4)}` : '없음',
+        pushEnabled: target.hasPushSubscription
+      });
     }
 
     return NextResponse.json({
@@ -100,8 +158,11 @@ export async function POST(request: NextRequest) {
       riskySpots,
       totalRiskySpots: riskySpots.length,
       pushSent: pushedCount,
-      pushTargets: pushTargets.length,
-      message: `${targetDate} 세션 확인: ${riskySpots.length}개 스팟에서 1명 예약 발견, ${pushedCount}명에게 알림 발송`
+      smsSent: smsCount,
+      emailSent: emailCount,
+      totalTargets: pushTargets.length,
+      notificationResults,
+      message: `${targetDate} 세션 확인: ${riskySpots.length}개 스팟에서 1명 예약 발견, 알림 발송 (푸시: ${pushedCount}명, SMS: ${smsCount}명)`
     });
 
   } catch (error) {
