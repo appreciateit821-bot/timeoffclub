@@ -18,10 +18,20 @@ export async function GET(request: NextRequest) {
   const currentHour = kst.getHours();
   const currentMinute = kst.getMinutes();
   const currentTimeInMinutes = currentHour * 60 + currentMinute;
+  const dayOfWeek = kst.getDay(); // 0=일요일, 3=수요일
   
-  // 세션 시작 시간 (20:00 = 1200분)
-  const sessionStartMinutes = 20 * 60; // 1200분
-  const registrationDeadlineMinutes = sessionStartMinutes - 120; // 18:00 = 1080분
+  // 요일별 세션 시작 시간
+  let sessionStartMinutes;
+  if (dayOfWeek === 0) { // 일요일
+    sessionStartMinutes = 15 * 60; // 15:00 = 900분
+  } else if (dayOfWeek === 3) { // 수요일
+    sessionStartMinutes = 20 * 60; // 20:00 = 1200분
+  } else {
+    // 세션이 없는 날
+    return NextResponse.json({ showBanner: false });
+  }
+  
+  const registrationDeadlineMinutes = sessionStartMinutes - 120; // 2시간 전
 
   try {
     // 1. 오늘 세션이 있는지 확인
@@ -58,20 +68,26 @@ export async function GET(request: NextRequest) {
     // 3. 시간대별 메시지 결정
     let bannerData = { showBanner: false, title: '', body: '', type: 'info' };
 
+    // 마감 시간 표시용 문자열
+    const deadlineHour = Math.floor(registrationDeadlineMinutes / 60);
+    const deadlineDisplay = `${deadlineHour}:00`;
+    const sessionStartHour = Math.floor(sessionStartMinutes / 60);
+    const sessionStartDisplay = `${sessionStartHour}:00`;
+    
     if (currentTimeInMinutes < registrationDeadlineMinutes) {
-      // 18:00 전: 예약 가능
+      // 마감 전: 예약 가능
       bannerData = {
         showBanner: true,
         title: '오늘은 타임오프클럽이 있는 날이에요 🚀',
-        body: '시작 2시간 전까지 예약/변경이 가능합니다',
+        body: `시작 2시간 전(${deadlineDisplay})까지 예약/변경이 가능합니다`,
         type: 'info'
       };
     } else if (currentTimeInMinutes < sessionStartMinutes) {
-      // 18:00~20:00: 마감
+      // 마감 후~시작 전: 마감
       bannerData = {
         showBanner: true,
         title: '오늘 타임오프클럽 예약이 마감되었습니다',
-        body: '다음 세션을 기대해주세요!',
+        body: `다음 세션(${dayOfWeek === 0 ? '수요일' : '일요일'})을 기대해주세요!`,
         type: 'warning'
       };
     }
