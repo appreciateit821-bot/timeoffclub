@@ -21,13 +21,18 @@ export async function GET(request: NextRequest) {
   const formatICSDate = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const uid = `timeoffclub-${date}-${encodeURIComponent(spot)}-${session.name}@timeoffclub`;
 
-  // 스팟 안내 메시지 조회
+  // 스팟 안내 메시지 조회 및 예약 현황 확인
   let spotNotice = '';
+  let reservationCount = 0;
   try {
     const db = getDB();
     if (db) {
       const notice = await db.prepare('SELECT notice FROM spot_notices WHERE spot = ?').bind(spot).first() as any;
       if (notice?.notice) spotNotice = notice.notice;
+      
+      // 해당 날짜/스팟의 예약 인원 수 확인
+      const countResult = await db.prepare('SELECT COUNT(*) as count FROM reservations WHERE date = ? AND spot = ?').bind(date, spot).first() as any;
+      reservationCount = countResult?.count || 0;
     }
   } catch {}
 
@@ -47,6 +52,21 @@ export async function GET(request: NextRequest) {
     spotNotice ? `\\nℹ️ ${spotNotice}` : '',
   ].filter(Boolean).join('\\n');
 
+  // 예약 인원에 따른 동적 알림 메시지 생성
+  const getAlarmMessage = (hoursBeforeStart: number) => {
+    if (hoursBeforeStart === 5) {
+      // 5시간 전 알림: 예약 인원에 따른 맞춤 메시지
+      if (reservationCount <= 3) {
+        return '⚠️ 타임오프클럽 5시간 전! 현재 ' + reservationCount + '명 예약. 스몰토크는 2명 이상이어야 진행됩니다. 참석 확인해주세요! (2시간 전까지 변경 가능)';
+      } else {
+        return '🎉 타임오프클럽 5시간 전! ' + reservationCount + '멤이 함께합니다. 정시 참석 부탁드려요❤️';
+      }
+    } else if (hoursBeforeStart === 1) {
+      return '🚨 타임오프클럽 1시간 전! 출발 준비 부탁드려요!';
+    }
+    return '타임오프클럽 알림';
+  };
+
   const icsContent = [
     'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//타임오프클럽//KO','CALSCALE:GREGORIAN',`METHOD:${method}`,
     'BEGIN:VEVENT',`UID:${uid}`,`DTSTAMP:${formatICSDate(new Date())}`,`STATUS:${status}`,
@@ -54,8 +74,8 @@ export async function GET(request: NextRequest) {
     `SUMMARY:${cancel ? '[취소됨] ' : ''}타임오프클럽 - ${spotInfo?.name || spot}`,
     `DESCRIPTION:${desc}`,
     `LOCATION:${spotInfo?.address || spot}`,`URL:${spotInfo?.mapUrl || ''}`,
-    'BEGIN:VALARM','TRIGGER:-PT5H','ACTION:DISPLAY','DESCRIPTION:타임오프클럽까지 5시간! 멤버들이 기다리고 있으니 정시 참석 부탁드려요❤️','END:VALARM',
-    'BEGIN:VALARM','TRIGGER:-PT1H','ACTION:DISPLAY','DESCRIPTION:타임오프클럽 1시간 후!','END:VALARM',
+    'BEGIN:VALARM','TRIGGER:-PT5H','ACTION:DISPLAY',`DESCRIPTION:${getAlarmMessage(5)}`,'END:VALARM',
+    'BEGIN:VALARM','TRIGGER:-PT1H','ACTION:DISPLAY',`DESCRIPTION:${getAlarmMessage(1)}`,'END:VALARM',
     'END:VEVENT','END:VCALENDAR'
   ].join('\r\n');
 
