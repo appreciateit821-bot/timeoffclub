@@ -1734,6 +1734,82 @@ export default function AdminPage() {
                 </p>
               </div>
             </div>
+            
+            {/* 자동 참석 확인 시스템 */}
+            <div className="bg-orange-900/30 rounded-lg p-4 border border-orange-700/50 space-y-3">
+              <h3 className="text-sm font-medium text-orange-100">⚠️ 1명 스몰토크 참석 확인</h3>
+              <p className="text-xs text-orange-200/70">스몰토크에 1명만 예약된 경우 해당 멤버에게 참석 확인 푸시 알림을 발송합니다</p>
+              <div className="space-y-2">
+                <input
+                  type="date"
+                  className="px-3 py-2 bg-orange-800/30 border border-orange-600/50 rounded text-white text-sm"
+                  id="attendanceCheckDate"
+                  min={new Date().toISOString().split('T')[0]}
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={async () => {
+                      const dateInput = document.getElementById('attendanceCheckDate') as HTMLInputElement;
+                      const targetDate = dateInput.value;
+                      
+                      if (!targetDate) {
+                        alert('날짜를 선택해주세요');
+                        return;
+                      }
+                      
+                      if (!confirm(`${targetDate} 세션의 1명 스몰토크 예약자들에게 참석 확인 알림을 발송하시겠습니까?`)) return;
+                      
+                      try {
+                        const response = await fetch('/api/admin/attendance-check', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ targetDate })
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                          alert(`참석 확인 완료! 🎯\n날짜: ${result.targetDate}\n위험 스팟: ${result.totalRiskySpots}개\n알림 발송: ${result.pushSent}명\n\n${result.riskySpots.map((s: any) => `${s.spotName}: ${s.member}`).join('\n')}`);
+                          dateInput.value = '';
+                        } else {
+                          alert('참석 확인 실패: ' + result.error);
+                        }
+                      } catch (e) {
+                        alert('참석 확인 오류: ' + e);
+                      }
+                    }}
+                    className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded text-sm transition"
+                  >
+                    ⚠️ 참석 확인 알림 발송
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const response = await fetch('/api/admin/attendance-check', {
+                          method: 'GET'
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                          alert(`자동 체크 완료! 🤖\n총 위험 스팟: ${result.totalChecked}개\n총 알림 발송: ${result.totalAlerts}명\n\n오늘~모레 세션을 모두 확인했습니다.`);
+                        } else {
+                          alert('자동 체크 실패: ' + result.error);
+                        }
+                      } catch (e) {
+                        alert('자동 체크 오류: ' + e);
+                      }
+                    }}
+                    className="px-3 py-2 bg-orange-700 hover:bg-orange-800 text-white rounded text-sm transition"
+                  >
+                    🤖 자동 체크
+                  </button>
+                </div>
+              </div>
+              <div className="text-xs text-orange-300/60 space-y-1">
+                <div>💡 세션 시작 3시간 전에 크론잡으로 자동 실행 예정</div>
+                <div>🎯 스몰토크 1명 예약 → 해당 멤버에게 참석 확인 요청</div>
+                <div>📱 웹 푸시로 "참석 가능하신지 확인해주세요" 알림 발송</div>
+              </div>
+            </div>
           </div>
         )}
         {/* 공지 관리 */}
