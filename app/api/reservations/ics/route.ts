@@ -52,15 +52,10 @@ export async function GET(request: NextRequest) {
     spotNotice ? `\\nℹ️ ${spotNotice}` : '',
   ].filter(Boolean).join('\\n');
 
-  // 예약 인원에 따른 동적 알림 메시지 생성
+  // 캘린더 알림 메시지 생성 (인원수 정보 제거, 실용적 타이밍)
   const getAlarmMessage = (hoursBeforeStart: number) => {
-    if (hoursBeforeStart === 5) {
-      // 5시간 전 알림: 예약 인원에 따른 맞춤 메시지
-      if (reservationCount <= 3) {
-        return '⚠️ 타임오프클럽 5시간 전! 현재 ' + reservationCount + '명 예약. 스몰토크는 2명 이상이어야 진행됩니다. 참석 확인해주세요! (2시간 전까지 변경 가능)';
-      } else {
-        return '🎉 타임오프클럽 5시간 전! ' + reservationCount + '멤이 함께합니다. 정시 참석 부탁드려요❤️';
-      }
+    if (hoursBeforeStart === 3) {
+      return '오늘 타임오프클럽 참석인원을 확인해주세요! 📍 timeoffclub.pages.dev';
     } else if (hoursBeforeStart === 1) {
       return '🚨 타임오프클럽 1시간 전! 출발 준비 부탁드려요!';
     }
@@ -74,7 +69,7 @@ export async function GET(request: NextRequest) {
     `SUMMARY:${cancel ? '[취소됨] ' : ''}타임오프클럽 - ${spotInfo?.name || spot}`,
     `DESCRIPTION:${desc}`,
     `LOCATION:${spotInfo?.address || spot}`,`URL:${spotInfo?.mapUrl || ''}`,
-    'BEGIN:VALARM','TRIGGER:-PT5H','ACTION:DISPLAY',`DESCRIPTION:${getAlarmMessage(5)}`,'END:VALARM',
+    'BEGIN:VALARM','TRIGGER:-PT3H','ACTION:DISPLAY',`DESCRIPTION:${getAlarmMessage(3)}`,'END:VALARM',
     'BEGIN:VALARM','TRIGGER:-PT1H','ACTION:DISPLAY',`DESCRIPTION:${getAlarmMessage(1)}`,'END:VALARM',
     'END:VEVENT','END:VCALENDAR'
   ].join('\r\n');
