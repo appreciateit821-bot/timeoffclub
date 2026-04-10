@@ -20,6 +20,12 @@ export async function GET(request: NextRequest) {
   const currentTimeInMinutes = currentHour * 60 + currentMinute;
   const dayOfWeek = kst.getDay(); // 0=일요일, 3=수요일
   
+  // 세션이 있는 날인지 먼저 확인 (수요일, 일요일만)
+  if (dayOfWeek !== 0 && dayOfWeek !== 3) {
+    // 세션이 없는 날 (월,화,목,금,토)
+    return NextResponse.json({ showBanner: false });
+  }
+  
   // 요일별 세션 시작 시간
   let sessionStartMinutes;
   if (dayOfWeek === 0) { // 일요일
@@ -27,24 +33,17 @@ export async function GET(request: NextRequest) {
   } else if (dayOfWeek === 3) { // 수요일
     sessionStartMinutes = 20 * 60; // 20:00 = 1200분
   } else {
-    // 세션이 없는 날
+    // 예기치 못한 경우 (이미 위에서 처리했지만 안전 처리)
     return NextResponse.json({ showBanner: false });
   }
   
   const registrationDeadlineMinutes = sessionStartMinutes - 120; // 2시간 전
 
   try {
-    // 1. 오늘 세션이 있는지 확인
-    const { results: sessions } = await db.prepare(
-      'SELECT COUNT(*) as count FROM session_capacity WHERE date = ?'
-    ).bind(today).all();
+    // 세션이 있는 날인지는 이미 요일 체크로 확인했으므로 session_capacity 체크는 생략
+    // (수요일 20:00, 일요일 15:00만 세션이 있음)
 
-    const hasSession = (sessions[0] as any)?.count > 0;
-    if (!hasSession) {
-      return NextResponse.json({ showBanner: false });
-    }
-
-    // 2. 사용자가 타겟 조건에 맞는지 확인 (4월 활성 멤버, 체험권 제외)
+    // 1. 사용자가 타겟 조건에 맞는지 확인 (4월 활성 멤버, 체험권 제외)
     const currentMonth = today.substring(0, 7); // '2026-04'
     
     const { results: userCheck } = await db.prepare(`
@@ -65,7 +64,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ showBanner: false });
     }
 
-    // 3. 시간대별 메시지 결정
+    // 2. 시간대별 메시지 결정
     let bannerData = { showBanner: false, title: '', body: '', type: 'info' };
 
     // 마감 시간 표시용 문자열
