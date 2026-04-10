@@ -81,6 +81,9 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       (d.notices || []).forEach((n: any) => { map[n.spot] = n.notice; });
       setSpotNotices(map);
     }).catch(() => {});
+    
+    // 대화 주제 추천 데이터 미리 로드
+    loadTopicSuggestions();
   }, []);
 
   useEffect(() => {
@@ -119,27 +122,26 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   
   // 대화 주제 추천 로드
   const loadTopicSuggestions = async () => {
+    // 이미 로드된 경우 스킵
+    if (Object.keys(topicSuggestions).length > 0) {
+      console.log('✅ Topic suggestions already loaded, skipping API call');
+      return;
+    }
+    
     try {
       console.log('🔄 Loading topic suggestions...');
-      const response = await fetch('/api/conversation-topics/suggestions?_=' + Date.now());
+      const response = await fetch('/api/conversation-topics/suggestions');
       const data = await response.json();
-      console.log('📋 Topic suggestions response:', data);
-      console.log('📋 data.suggestions:', data.suggestions);
-      console.log('📋 Object.keys(data.suggestions):', Object.keys(data.suggestions || {}));
+      console.log('📋 Topic suggestions loaded:', Object.keys(data.suggestions || {}));
       
-      // 강제로 상태 초기화 후 설정
-      setTopicSuggestions({});
-      setTimeout(() => {
-        setTopicSuggestions(data.suggestions || {});
-        console.log('✅ Topic suggestions state updated (forced)');
-      }, 100);
+      setTopicSuggestions(data.suggestions || {});
     } catch (error) {
       console.error('❌ Failed to load topic suggestions:', error);
       // 백업 데이터
       setTopicSuggestions({
-        '일상 수다': ['요즘 빠져있는 넷플릭스/유튜브 추천'],
-        '취미와 취향': ['남들한테 말하면 의외라는 나의 취미'],
-        '여행과 장소': ['혼자 여행에서 생긴 에피소드']
+        '일상 수다': ['요즘 빠져있는 넷플릭스/유튜브 추천', '인생 최애 카페 or 단골집 자랑'],
+        '취미와 취향': ['남들한테 말하면 의외라는 나의 취미', '시간 가는 줄 모르고 빠져드는 것'],
+        '여행과 장소': ['혼자 여행에서 생긴 에피소드', '다시 가고 싶은 장소와 그 이유']
       });
     }
   };
@@ -555,6 +557,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                           e.stopPropagation();
                           setSelectedTopicSpot(spotInfo.id);
                           setShowTopicModal(true);
+                          // 모달 열 때 추천 주제 로드 (캐시됨)
                           loadTopicSuggestions();
                         }}
                         className={`w-full text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-900/30 to-blue-900/30 text-emerald-300 border border-emerald-700/30 hover:bg-emerald-800/40 transition`}
