@@ -1,26 +1,22 @@
 # Cloudflare Pages 자동 배포 설정
 
 name = "timeoffclub"
-compatibility_date = "2024-01-01"
-
-# Pages 빌드 설정
-[build]
-command = "npm run build && npx @cloudflare/next-on-pages"
-cwd = ""
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
 
 # Pages 빌드 결과 디렉토리
 pages_build_output_dir = ".vercel/output/static"
 
-# 환경 변수 (필요시)
-[env.production]
+# D1 데이터베이스 바인딩 (로컬 dev용)
+[[d1_databases]]
+binding = "DB"
+database_name = "timeoffclub-db"
+database_id = "2f2b43cb-935d-4b01-89dd-a609eb0de7fc"
 
-# 브랜치별 설정
-[env.production.vars]
-
-# D1 데이터베이스 바인딩
+# D1 데이터베이스 바인딩 (배포용)
 [[env.production.d1_databases]]
 binding = "DB"
-database_name = "timeoffclub-db" 
+database_name = "timeoffclub-db"
 database_id = "2f2b43cb-935d-4b01-89dd-a609eb0de7fc"
 
 [[env.preview.d1_databases]]

@@ -184,6 +184,24 @@ export default function FeedbackPage() {
     }
   };
 
+  const shareToInstagram = async () => {
+    try {
+      const res = await fetch('/share-detox.png');
+      const blob = await res.blob();
+      const file = new File([blob], 'timeoffclub-detox.png', { type: 'image/png' });
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'Time-off Club Digital Detox' });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'timeoffclub-detox.png';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (e) {}
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-gray-950"><div className="text-gray-400">로딩 중...</div></div>;
   }
@@ -200,6 +218,21 @@ export default function FeedbackPage() {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        {/* 인스타 스토리 공유 배너 */}
+        <div className="bg-gradient-to-r from-purple-900/40 to-pink-900/40 border border-purple-700/30 rounded-xl p-4 flex items-center gap-4">
+          <img src="/share-detox.png" alt="Digital Detox" className="w-16 h-16 rounded-lg object-cover" />
+          <div className="flex-1 min-w-0">
+            <p className="text-purple-100 text-sm font-medium">오늘의 디톡스를 공유해보세요</p>
+            <p className="text-purple-300/70 text-xs mt-0.5">인스타 스토리에 올려보세요</p>
+          </div>
+          <button
+            onClick={shareToInstagram}
+            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-sm font-medium whitespace-nowrap hover:from-purple-700 hover:to-pink-700 transition active:scale-95"
+          >
+            공유
+          </button>
+        </div>
+
         {/* 탭 전환 */}
         <div className="flex gap-2">
           <button
