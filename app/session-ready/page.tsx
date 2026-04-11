@@ -15,6 +15,9 @@ function SessionReadyContent() {
   const [loading, setLoading] = useState(true);
   const [rulesChecked, setRulesChecked] = useState({ smalltalk: false, reflection: false });
   const [ruleSlide, setRuleSlide] = useState(0);
+  const [starRating, setStarRating] = useState(0);
+  const [starSubmitted, setStarSubmitted] = useState(false);
+  const [submittingRating, setSubmittingRating] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const date = searchParams.get('date');
@@ -98,6 +101,23 @@ function SessionReadyContent() {
     return () => clearInterval(timer);
   }, [date]);
 
+  const submitStarRating = async (rating: number) => {
+    if (submittingRating || !date || !spot) return;
+    setSubmittingRating(true);
+    setStarRating(rating);
+    try {
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date, spot, serviceRating: rating })
+      });
+      if (res.ok) {
+        setStarSubmitted(true);
+      }
+    } catch (e) {}
+    finally { setSubmittingRating(false); }
+  };
+
   const shareToInstagram = async () => {
     try {
       const res = await fetch('/share-detox.png');
@@ -154,9 +174,35 @@ function SessionReadyContent() {
 
           <div className="w-12 h-px bg-gray-700 mx-auto" />
 
+          {/* 별점 섹션 */}
+          <div className="bg-gray-800/60 border border-amber-700/20 rounded-2xl p-5 text-center space-y-4">
+            <div>
+              <p className="text-amber-100 text-base font-medium">오늘 세션은 어떠셨나요?</p>
+              <p className="text-gray-400 text-xs mt-1">별점으로 만족도를 남겨주세요</p>
+            </div>
+            <div className="flex justify-center gap-2">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => !starSubmitted && submitStarRating(n)}
+                  disabled={starSubmitted || submittingRating}
+                  className={`text-4xl transition-transform ${!starSubmitted ? 'hover:scale-110 active:scale-95' : ''} ${
+                    n <= starRating ? 'grayscale-0' : 'grayscale opacity-40'
+                  }`}
+                  aria-label={`${n}점`}
+                >
+                  ⭐
+                </button>
+              ))}
+            </div>
+            {starSubmitted && (
+              <p className="text-emerald-300 text-sm">별점이 저장되었어요 💛</p>
+            )}
+          </div>
+
           {/* 피드백 섹션 */}
           <div className="space-y-3">
-            <p className="text-center text-gray-300 text-sm">오늘 세션은 어떠셨나요?</p>
+            <p className="text-center text-gray-300 text-sm">더 자세한 이야기를 남기고 싶다면</p>
 
             <button
               onClick={() => router.push('/feedback')}
