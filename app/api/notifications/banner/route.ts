@@ -40,57 +40,43 @@ export async function GET(request: NextRequest) {
   const registrationDeadlineMinutes = sessionStartMinutes - 120; // 2시간 전
 
   try {
-    // 세션이 있는 날인지는 이미 요일 체크로 확인했으므로 session_capacity 체크는 생략
-    // (수요일 20:00, 일요일 15:00만 세션이 있음)
+    // 1. 오늘 이 멤버가 예약했는지 확인
+    const reservation = await db.prepare(
+      `SELECT id, spot FROM reservations WHERE user_name = ? AND date = ?`
+    ).bind(session.name, today).first() as any;
 
-    // 1. 사용자가 타겟 조건에 맞는지 확인 (4월 활성 멤버, 체험권 제외)
-    const currentMonth = today.substring(0, 7); // '2026-04'
-    
-    const { results: userCheck } = await db.prepare(`
-      SELECT COUNT(*) as count 
-      FROM members m 
-      WHERE m.name = ?
-      AND m.is_active = 1
-      AND m.active_months LIKE '%' || ? || '%'
-      AND m.name NOT IN (
-        SELECT COALESCE(t.name, '') 
-        FROM trial_tickets t 
-        WHERE t.name IS NOT NULL
-      )
-    `).bind(session.name, currentMonth).all();
-
-    const isTargetUser = (userCheck[0] as any)?.count > 0;
-    if (!isTargetUser) {
+    // 예약하지 않은 멤버에게는 배너 표시 안 함
+    if (!reservation) {
       return NextResponse.json({ showBanner: false });
     }
 
-    // 2. 시간대별 메시지 결정
-    let bannerData = { showBanner: false, title: '', body: '', type: 'info' };
+    const spotName = reservation.spot.split('_')[1] || reservation.spot;
 
-    // 마감 시간 표시용 문자열
-    const deadlineHour = Math.floor(registrationDeadlineMinutes / 60);
-    const deadlineDisplay = `${deadlineHour}:00`;
+    // 2. 시간대별 메시지 결정
+    let bannerData = { showBanner: false, title: '', body: '', type: 'info', dismissible: true };
+
     const sessionStartHour = Math.floor(sessionStartMinutes / 60);
-    const sessionStartDisplay = `${sessionStartHour}:00`;
-    
+
     if (currentTimeInMinutes < registrationDeadlineMinutes) {
-      // 마감 전: 예약 가능
+      // 마감 전
       bannerData = {
         showBanner: true,
-        title: '오늘은 타임오프클럽이 있는 날이에요 🚀',
-        body: `시작 2시간 전(${deadlineDisplay})까지 예약/변경이 가능합니다`,
-        type: 'info'
+        title: `🌿 오늘 ${sessionStartHour === 20 ? '저녁' : '오후'} ${sessionStartHour}시 타임오프클럽`,
+        body: `${spotName}에서 만나요! 변경은 2시간 전까지 가능합니다.`,
+        type: 'info',
+        dismissible: true
       };
     } else if (currentTimeInMinutes < sessionStartMinutes) {
-      // 마감 후~시작 전: 마감
+      // 마감 후~시작 전
       bannerData = {
         showBanner: true,
-        title: '오늘 타임오프클럽 예약이 마감되었습니다',
-        body: `다음 세션(${dayOfWeek === 0 ? '수요일' : '일요일'})을 기대해주세요!`,
-        type: 'warning'
+        title: `🌿 오늘 ${sessionStartHour === 20 ? '저녁' : '오후'} ${sessionStartHour}시 타임오프클럽`,
+        body: `${spotName}에서 만나요! 예약이 확정되었습니다.`,
+        type: 'info',
+        dismissible: true
       };
     }
-    // 20:00 이후는 showBanner: false (기본값)
+    // 세션 시작 이후는 showBanner: false (기본값)
 
     return NextResponse.json(bannerData);
     

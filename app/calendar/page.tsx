@@ -232,16 +232,30 @@ export default function CalendarPage() {
       {bannerNotification && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
           <div className={`${
-            bannerNotification.type === 'warning' 
-              ? 'bg-orange-900/30 border border-orange-700/40' 
+            bannerNotification.type === 'warning'
+              ? 'bg-orange-900/30 border border-orange-700/40'
               : 'bg-emerald-900/30 border border-emerald-700/40'
           } rounded-xl p-4 mb-2`}>
-            <p className={`${
-              bannerNotification.type === 'warning' 
-                ? 'text-orange-200' 
-                : 'text-emerald-200'
-            } text-sm font-medium`}>{bannerNotification.title}</p>
-            <p className="text-gray-300 text-xs mt-1">{bannerNotification.body}</p>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className={`${
+                  bannerNotification.type === 'warning'
+                    ? 'text-orange-200'
+                    : 'text-emerald-200'
+                } text-sm font-medium`}>{bannerNotification.title}</p>
+                <p className="text-gray-300 text-xs mt-1">{bannerNotification.body}</p>
+              </div>
+              <button
+                onClick={() => setBannerNotification(null)}
+                className={`p-1.5 rounded transition shrink-0 ${
+                  bannerNotification.type === 'warning'
+                    ? 'hover:bg-orange-800/40 text-orange-300 hover:text-orange-200'
+                    : 'hover:bg-emerald-800/40 text-emerald-300 hover:text-emerald-200'
+                }`}
+              >
+                ✕
+              </button>
+            </div>
           </div>
         </div>
       )}
