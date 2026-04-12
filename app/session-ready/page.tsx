@@ -19,6 +19,7 @@ function SessionReadyContent() {
   const [starSubmitted, setStarSubmitted] = useState(false);
   const [submittingRating, setSubmittingRating] = useState(false);
   const [selectedCard, setSelectedCard] = useState(0);
+  const [isTrial, setIsTrial] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const date = searchParams.get('date');
@@ -55,6 +56,7 @@ function SessionReadyContent() {
           const meData = await meRes.json();
           const myRes = spotReservations.find((r: any) => r.user_name === meData.user?.name);
           setReservation(myRes);
+          if (meData.user?.phoneLast4?.startsWith('T-')) setIsTrial(true);
         }
       }
     } catch (e) { console.error(e); }
@@ -303,6 +305,56 @@ function SessionReadyContent() {
               </div>
             </button>
           </div>
+
+          {/* 체험권 사용자 전환 CTA */}
+          {isTrial && (
+            <div className="bg-gradient-to-br from-amber-900/30 to-amber-800/10 border border-amber-700/30 rounded-2xl p-6 space-y-5">
+              <div className="text-center">
+                <p className="text-amber-100 text-lg font-medium">오늘의 경험, 어떠셨나요?</p>
+                <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                  이 고요한 시간이 좋으셨다면,<br/>다음 주에도 만나요.
+                </p>
+              </div>
+
+              {/* 체험권 재구매 */}
+              <a
+                href="https://smartstore.naver.com/wellmoment/products/13210795609"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-gray-800/80 border border-gray-700/50 rounded-xl p-4 hover:bg-gray-800 transition active:scale-[0.98]"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🎟️</span>
+                  <div className="flex-1">
+                    <p className="text-amber-100 text-sm font-medium">체험권 한 번 더</p>
+                    <p className="text-gray-400 text-xs mt-0.5">부담 없이 1회 더 참여하기</p>
+                  </div>
+                  <span className="text-gray-500 text-xs">→</span>
+                </div>
+              </a>
+
+              {/* 멤버십 전환 */}
+              <a
+                href="https://smartstore.naver.com/wellmoment/products/13132932761"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full bg-gradient-to-r from-amber-600 to-amber-700 rounded-xl p-4 hover:from-amber-700 hover:to-amber-800 transition active:scale-[0.98] shadow-lg shadow-amber-900/30"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">🌿</span>
+                  <div className="flex-1">
+                    <p className="text-white text-sm font-semibold">정기 멤버십 가입하기</p>
+                    <p className="text-amber-200/80 text-xs mt-0.5">한 달 무제한 참여 · 매달 마지막 주 구매 가능</p>
+                  </div>
+                  <span className="text-amber-200/60 text-xs">→</span>
+                </div>
+              </a>
+
+              <p className="text-center text-gray-500 text-[11px] leading-relaxed">
+                멤버십은 매달 마지막 주에 구매할 수 있으며<br/>다음 달 한 달간 무제한으로 참여할 수 있습니다.
+              </p>
+            </div>
+          )}
 
           {/* 홈으로 */}
           <button
