@@ -18,6 +18,7 @@ function SessionReadyContent() {
   const [starRating, setStarRating] = useState(0);
   const [starSubmitted, setStarSubmitted] = useState(false);
   const [submittingRating, setSubmittingRating] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(0);
   const router = useRouter();
   const searchParams = useSearchParams();
   const date = searchParams.get('date');
@@ -118,18 +119,26 @@ function SessionReadyContent() {
     finally { setSubmittingRating(false); }
   };
 
+  const shareCards = [
+    { src: '/share-detox.png', label: '집중모드', desc: 'iOS 집중모드' },
+    { src: '/share-receipt.png', label: '뇌파 영수증', desc: 'The Flatline' },
+    { src: '/share-prescription.png', label: '처방전', desc: 'Niksen Rx' },
+    { src: '/share-ticket.png', label: '티켓', desc: 'Ticket to Nowhere' },
+  ];
+
   const shareToInstagram = async () => {
     try {
-      const res = await fetch('/share-detox.png');
+      const card = shareCards[selectedCard];
+      const res = await fetch(card.src);
       const blob = await res.blob();
-      const file = new File([blob], 'timeoffclub-detox.png', { type: 'image/png' });
+      const file = new File([blob], `timeoffclub-${card.label}.png`, { type: 'image/png' });
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: 'Time-off Club Digital Detox' });
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'timeoffclub-detox.png';
+        a.download = `timeoffclub-${card.label}.png`;
         a.click();
         URL.revokeObjectURL(url);
       }
@@ -154,16 +163,43 @@ function SessionReadyContent() {
       <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
         <div className="max-w-sm mx-auto px-6 py-12 space-y-8 animate-fade-in">
 
-          {/* 디톡스 완료 + 공유 */}
+          {/* 디톡스 완료 + 카드 선택 공유 */}
           <div className="text-center space-y-4">
             <div className="text-5xl">✨</div>
             <h1 className="text-2xl font-light text-amber-100 leading-relaxed">
               오늘도 <span className="font-medium">디지털 디톡스</span> 완료!
             </h1>
             <p className="text-gray-400 text-sm">
-              온전히 나에게 집중한 시간,<br/>인스타 스토리로 공유해보세요.
+              마음에 드는 카드를 골라<br/>인스타 스토리로 공유해보세요.
             </p>
-            <img src="/share-detox.png" alt="Digital Detox" className="w-56 mx-auto rounded-2xl shadow-lg shadow-black/50" />
+
+            {/* 카드 미리보기 */}
+            <div className="pt-2">
+              <img
+                src={shareCards[selectedCard].src}
+                alt={shareCards[selectedCard].label}
+                className="w-52 mx-auto rounded-2xl shadow-lg shadow-black/50 transition-all"
+              />
+            </div>
+
+            {/* 카드 선택 썸네일 */}
+            <div className="flex justify-center gap-2 pt-1">
+              {shareCards.map((card, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setSelectedCard(idx)}
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                    selectedCard === idx
+                      ? 'border-purple-500 scale-105 shadow-lg shadow-purple-900/30'
+                      : 'border-gray-700 opacity-50 hover:opacity-80'
+                  }`}
+                >
+                  <img src={card.src} alt={card.label} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+            <p className="text-gray-500 text-xs">{shareCards[selectedCard].desc}</p>
+
             <button
               onClick={shareToInstagram}
               className="w-full py-3.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-xl font-medium transition active:scale-95 shadow-lg"
