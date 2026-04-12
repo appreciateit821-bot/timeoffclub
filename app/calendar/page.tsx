@@ -87,10 +87,17 @@ export default function CalendarPage() {
       const res = await fetch('/api/noshow');
       if (res.ok) {
         const data = await res.json();
-        if (data.noShows && data.noShows.length > 0) {
+        if (data.noShows && data.noShows.length > 0 && !data.dismissed) {
           setNoShowWarning(data);
         }
       }
+    } catch (e) {}
+  };
+
+  const dismissNoShow = async () => {
+    setNoShowDismissed(true);
+    try {
+      await fetch('/api/noshow', { method: 'PUT' });
     } catch (e) {}
   };
 
@@ -218,7 +225,7 @@ export default function CalendarPage() {
                 </p>
               </div>
               <button
-                onClick={() => setNoShowDismissed(true)}
+                onClick={dismissNoShow}
                 className="p-1.5 hover:bg-red-800/40 rounded text-red-300 hover:text-red-200 transition shrink-0"
               >
                 ✕

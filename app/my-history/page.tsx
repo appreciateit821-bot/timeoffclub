@@ -22,20 +22,22 @@ export default function MyHistoryPage() {
   const [badges, setBadges] = useState<any[]>([]);
   const [spotStats, setSpotStats] = useState<any[]>([]);
   const [availableBadges, setAvailableBadges] = useState<any>({});
+  const [noShowHistory, setNoShowHistory] = useState<{ noShows: any[]; totalNoShows: number }>({ noShows: [], totalNoShows: 0 });
   const router = useRouter();
 
   useEffect(() => { fetchData(); }, []);
 
   const fetchData = async () => {
     try {
-      const [resRes, meRes, momRes, badgeRes] = await Promise.all([
-        fetch('/api/reservations'), fetch('/api/auth/me'), fetch('/api/moments'), fetch('/api/badges')
+      const [resRes, meRes, momRes, badgeRes, noShowRes] = await Promise.all([
+        fetch('/api/reservations'), fetch('/api/auth/me'), fetch('/api/moments'), fetch('/api/badges'), fetch('/api/noshow')
       ]);
       if (!resRes.ok || !meRes.ok) { router.push('/login'); return; }
       const resData = await resRes.json();
       const meData = await meRes.json();
       const momData = momRes.ok ? await momRes.json() : { moments: [] };
       const badgeData = badgeRes.ok ? await badgeRes.json() : { badges: [], spotStats: [], availableBadges: {} };
+      const noShowData = noShowRes.ok ? await noShowRes.json() : { noShows: [], totalNoShows: 0 };
       setReservations(resData.reservations);
       setNoShowCount(resData.noShowCount || 0);
       setAttendedCount(resData.attendedCount || 0);
@@ -44,6 +46,7 @@ export default function MyHistoryPage() {
       setBadges(badgeData.badges);
       setSpotStats(badgeData.spotStats);
       setAvailableBadges(badgeData.availableBadges);
+      setNoShowHistory(noShowData);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -390,9 +393,24 @@ export default function MyHistoryPage() {
               </div>
             )}
 
-            {noShowCount > 0 && (
-              <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-3">
-                <p className="text-red-300 text-xs">⚠️ 노쇼 {noShowCount}회 — 참석이 어려우면 미리 취소해주세요</p>
+            {/* 노쇼 기록 */}
+            {noShowHistory.noShows.length > 0 && (
+              <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 space-y-2">
+                <p className="text-red-200 text-sm font-medium">⚠️ 불참(노쇼) 기록</p>
+                <div className="space-y-1.5">
+                  {noShowHistory.noShows.map((ns: any, idx: number) => {
+                    const [, month, day] = ns.date.split('-');
+                    const spotName = ns.spot.split('_')[1] || ns.spot;
+                    return (
+                      <p key={idx} className="text-red-300/80 text-xs">
+                        · {parseInt(month)}/{parseInt(day)}일 {spotName} 세션 불참
+                      </p>
+                    );
+                  })}
+                </div>
+                <p className="text-red-300/60 text-xs pt-1 border-t border-red-800/30">
+                  누적 {noShowHistory.totalNoShows}회. 3회 누적 시 멤버십이 정지됩니다. 참석이 어려우면 미리 취소해주세요.
+                </p>
               </div>
             )}
           </>

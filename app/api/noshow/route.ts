@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDB } from '@/lib/db';
 import { getSession } from '@/lib/auth';
 import { getSessionEndTime, AVAILABLE_DAYS } from '@/lib/constants';
+import { cookies } from 'next/headers';
 
 export const runtime = 'edge';
 
@@ -9,7 +10,7 @@ export const runtime = 'edge';
 export async function GET() {
   const db = getDB();
   const session = await getSession();
-  if (!session || !db) return NextResponse.json({ noShows: [] });
+  if (!session || !db) return NextResponse.json({ noShows: [], totalNoShows: 0, dismissed: false });
 
   // 1. 세션 종료된 미체크 예약을 자동 노쇼 처리
   const now = new Date();
@@ -20,21 +21,17 @@ export async function GET() {
   ).bind(now.toISOString().split('T')[0]).all();
 
   for (const r of unchecked as any[]) {
-    // 해당 날짜의 세션 종료 시간 확인
     const d = new Date(r.date + 'T00:00:00Z');
     const dayOfWeek = d.getUTCDay();
-    // 수요일(3) 또는 일요일(0)이 아니면 스킵
     if (dayOfWeek !== AVAILABLE_DAYS.WEDNESDAY && dayOfWeek !== AVAILABLE_DAYS.SUNDAY) continue;
 
     const endTime = getSessionEndTime(r.date);
-    if (now.getTime() < endTime.getTime()) continue; // 아직 세션 끝 안 남
+    if (now.getTime() < endTime.getTime()) continue;
 
-    // 미체크 → 노쇼 처리
     await db.prepare(
       `UPDATE reservations SET check_in_status = 'no_show', checked_at = ?, checked_by = 'auto' WHERE id = ?`
     ).bind(now.toISOString(), r.id).run();
 
-    // 노쇼 경고 기록
     const noShowCount = (await db.prepare(
       `SELECT COUNT(*) as count FROM reservations WHERE user_name = ? AND check_in_status = 'no_show'`
     ).bind(r.user_name).first() as any)?.count || 0;
@@ -59,13 +56,36 @@ export async function GET() {
     `SELECT COUNT(*) as count FROM reservations WHERE user_name = ? AND check_in_status = 'no_show'`
   ).bind(session.name).first() as any)?.count || 0;
 
+  // 4. 캘린더 배너 닫기 여부 확인 (쿠키)
+  const cookieStore = await cookies();
+  const dismissedCookie = cookieStore.get('noshow_dismissed');
+  // 쿠키에 저장된 날짜 이후 새 노쇼가 없으면 dismissed
+  let dismissed = false;
+  if (dismissedCookie && recentNoShows.length > 0) {
+    const latestNoShow = (recentNoShows as any[])[0].date;
+    dismissed = dismissedCookie.value >= latestNoShow;
+  }
+
   return NextResponse.json({
     noShows: recentNoShows,
-    totalNoShows
+    totalNoShows,
+    dismissed
   });
 }
 
-// PUT: 노쇼 경고 확인 (닫기)
+// PUT: 노쇼 경고 캘린더 배너 닫기
 export async function PUT() {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: '로그인 필요' }, { status: 401 });
+
+  const cookieStore = await cookies();
+  const today = new Date().toISOString().split('T')[0];
+  cookieStore.set('noshow_dismissed', today, {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 90 // 90일
+  });
+
   return NextResponse.json({ success: true });
 }
