@@ -16,6 +16,8 @@ export default function CalendarPage() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [bannerNotification, setBannerNotification] = useState<any>(null);
   const [urgentNotifications, setUrgentNotifications] = useState<any[]>([]);
+  const [noShowWarning, setNoShowWarning] = useState<{ noShows: any[]; totalNoShows: number } | null>(null);
+  const [noShowDismissed, setNoShowDismissed] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -24,6 +26,7 @@ export default function CalendarPage() {
     fetchNotifications();
     fetchBannerNotification();
     fetchUrgentNotifications();
+    fetchNoShowWarning();
     
     // 매분 배너 상태 업데이트
     const interval = setInterval(fetchBannerNotification, 60000); // 1분마다
@@ -77,6 +80,18 @@ export default function CalendarPage() {
     } catch (error) {
       console.error('Failed to dismiss urgent notifications:', error);
     }
+  };
+
+  const fetchNoShowWarning = async () => {
+    try {
+      const res = await fetch('/api/noshow');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.noShows && data.noShows.length > 0) {
+          setNoShowWarning(data);
+        }
+      }
+    } catch (e) {}
   };
 
   const fetchUser = async () => {
@@ -182,6 +197,36 @@ export default function CalendarPage() {
           </div>
         </div>
       </header>
+
+      {/* 노쇼 경고 배너 */}
+      {noShowWarning && !noShowDismissed && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <div className="bg-red-900/30 border border-red-700/40 rounded-xl p-4 mb-2">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 space-y-1.5">
+                {noShowWarning.noShows.map((ns: any, idx: number) => {
+                  const [, month, day] = ns.date.split('-');
+                  const spotName = ns.spot.split('_')[1] || ns.spot;
+                  return (
+                    <p key={idx} className="text-red-200 text-sm">
+                      ⚠️ {parseInt(month)}/{parseInt(day)}일 {spotName} 세션에 불참(노쇼) 처리되셨습니다.
+                    </p>
+                  );
+                })}
+                <p className="text-red-300/80 text-xs mt-1">
+                  현재 누적 {noShowWarning.totalNoShows}회. 3회 누적 시 멤버십이 정지됩니다.
+                </p>
+              </div>
+              <button
+                onClick={() => setNoShowDismissed(true)}
+                className="p-1.5 hover:bg-red-800/40 rounded text-red-300 hover:text-red-200 transition shrink-0"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 동적 세션 배너 */}
       {bannerNotification && (
