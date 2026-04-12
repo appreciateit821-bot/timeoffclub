@@ -184,7 +184,7 @@ function SessionReadyContent() {
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
                   key={n}
-                  onClick={() => !starSubmitted && submitStarRating(n)}
+                  onClick={() => !starSubmitted && setStarRating(n)}
                   disabled={starSubmitted || submittingRating}
                   className={`text-4xl transition-transform ${!starSubmitted ? 'hover:scale-110 active:scale-95' : ''} ${
                     n <= starRating ? 'grayscale-0' : 'grayscale opacity-40'
@@ -195,7 +195,31 @@ function SessionReadyContent() {
                 </button>
               ))}
             </div>
-            {starSubmitted && (
+
+            {/* 2점 이하 피드백 요청 */}
+            {!starSubmitted && starRating > 0 && starRating <= 2 && (
+              <div className="bg-orange-900/20 border border-orange-700/30 rounded-xl p-3">
+                <p className="text-orange-200 text-xs leading-relaxed">
+                  아쉬운 경험이 있으셨군요. 😔<br/>
+                  저장 후 <strong>"스몰토크/사색 피드백 남기기"</strong>에서<br/>
+                  무엇이 불편했는지 남겨주시면 큰 도움이 돼요.
+                </p>
+              </div>
+            )}
+
+            {!starSubmitted ? (
+              <button
+                onClick={() => submitStarRating(starRating)}
+                disabled={starRating === 0 || submittingRating}
+                className={`w-full py-3 rounded-xl font-medium transition active:scale-95 ${
+                  starRating === 0
+                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                    : 'bg-amber-600 hover:bg-amber-700 text-white'
+                }`}
+              >
+                {submittingRating ? '저장 중...' : '별점 저장하기'}
+              </button>
+            ) : (
               <p className="text-emerald-300 text-sm">별점이 저장되었어요 💛</p>
             )}
           </div>
