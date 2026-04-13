@@ -472,9 +472,6 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-base">{spotInfo.name.split('_')[1] || spotInfo.name}</span>
-                    {!visitedSpots.has(spotInfo.id) && visitedSpots.size > 0 && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">NEW</span>
-                    )}
                   </div>
                   <div className="text-right">
                     {isClosed ? (
@@ -501,6 +498,12 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     )}
                   </div>
                 </div>
+
+                {!visitedSpots.has(spotInfo.id) && visitedSpots.size > 0 && !isClosed && (
+                  <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-violet-700/40 text-violet-100' : 'bg-violet-900/30 text-violet-300/90'} border border-violet-700/20`}>
+                    아직 가보지 않은 스팟이에요. 새로운 공간에서 색다른 타임오프를 경험해보세요!
+                  </div>
+                )}
 
                 <div className={`text-sm space-y-1.5 ${isSelected ? 'text-amber-50' : 'text-gray-300'}`}>
                   <p className="flex items-start gap-2"><span className="text-xs mt-0.5">📍</span><span>{spotInfo.address}</span></p>
