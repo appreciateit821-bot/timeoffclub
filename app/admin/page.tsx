@@ -491,6 +491,21 @@ export default function AdminPage() {
     }
   };
 
+  const updateCheckinStatus = async (reservationId: number, newStatus: string) => {
+    try {
+      const res = await fetch('/api/admin/checkin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reservationId, status: newStatus })
+      });
+      if (res.ok) {
+        fetchCheckin(checkinDate || undefined);
+      }
+    } catch (error) {
+      console.error('Failed to update checkin:', error);
+    }
+  };
+
   // 날짜별, 스팟별로 그룹화
   const groupedReservations = reservations.reduce((acc, res) => {
     const key = `${res.date}_${res.spot}`;
@@ -1127,8 +1142,9 @@ export default function AdminPage() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">스팟</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">멤버</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">상태</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">변경</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">체크 시간</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">체크한 운영자</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">체크한 사람</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-700">
@@ -1145,6 +1161,30 @@ export default function AdminPage() {
                           }`}>
                             {r.check_in_status === 'attended' ? '✅ 출석' : r.check_in_status === 'no_show' ? '❌ 노쇼' : '⏳ 미체크'}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          <div className="flex gap-1.5">
+                            <button
+                              onClick={() => updateCheckinStatus(r.id, r.check_in_status === 'attended' ? 'unchecked' : 'attended')}
+                              className={`px-2.5 py-1 rounded text-xs font-medium transition ${
+                                r.check_in_status === 'attended'
+                                  ? 'bg-green-600 text-white'
+                                  : 'bg-gray-700 text-gray-400 hover:bg-green-900/50 hover:text-green-300'
+                              }`}
+                            >
+                              출석
+                            </button>
+                            <button
+                              onClick={() => updateCheckinStatus(r.id, r.check_in_status === 'no_show' ? 'unchecked' : 'no_show')}
+                              className={`px-2.5 py-1 rounded text-xs font-medium transition ${
+                                r.check_in_status === 'no_show'
+                                  ? 'bg-red-600 text-white'
+                                  : 'bg-gray-700 text-gray-400 hover:bg-red-900/50 hover:text-red-300'
+                              }`}
+                            >
+                              노쇼
+                            </button>
+                          </div>
                         </td>
                         <td className="px-6 py-4 text-sm text-gray-400">
                           {r.checked_at ? formatKST(r.checked_at) : '-'}
