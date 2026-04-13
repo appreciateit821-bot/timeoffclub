@@ -491,7 +491,9 @@ export default function AdminPage() {
     }
   };
 
-  const updateCheckinStatus = async (reservationId: number, newStatus: string) => {
+  const updateCheckinStatus = async (reservationId: number, newStatus: string, userName: string) => {
+    const statusLabel = newStatus === 'attended' ? '출석' : newStatus === 'no_show' ? '노쇼' : '미체크';
+    if (!confirm(`${userName}님을 "${statusLabel}"(으)로 변경하시겠습니까?`)) return;
     try {
       const res = await fetch('/api/admin/checkin', {
         method: 'PATCH',
@@ -1165,7 +1167,7 @@ export default function AdminPage() {
                         <td className="px-6 py-4 text-sm">
                           <div className="flex gap-1.5">
                             <button
-                              onClick={() => updateCheckinStatus(r.id, r.check_in_status === 'attended' ? 'unchecked' : 'attended')}
+                              onClick={() => updateCheckinStatus(r.id, r.check_in_status === 'attended' ? 'unchecked' : 'attended', r.user_name)}
                               className={`px-2.5 py-1 rounded text-xs font-medium transition ${
                                 r.check_in_status === 'attended'
                                   ? 'bg-green-600 text-white'
@@ -1175,7 +1177,7 @@ export default function AdminPage() {
                               출석
                             </button>
                             <button
-                              onClick={() => updateCheckinStatus(r.id, r.check_in_status === 'no_show' ? 'unchecked' : 'no_show')}
+                              onClick={() => updateCheckinStatus(r.id, r.check_in_status === 'no_show' ? 'unchecked' : 'no_show', r.user_name)}
                               className={`px-2.5 py-1 rounded text-xs font-medium transition ${
                                 r.check_in_status === 'no_show'
                                   ? 'bg-red-600 text-white'
