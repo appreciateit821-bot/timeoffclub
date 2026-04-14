@@ -518,9 +518,9 @@ export default function AdminPage() {
         users: []
       };
     }
-    acc[key].users.push({ name: res.display_id || res.user_name, mode: res.mode || 'smalltalk' });
+    acc[key].users.push({ name: res.display_id || res.user_name, mode: res.mode || 'smalltalk', isTrial: res.is_trial || false });
     return acc;
-  }, {} as Record<string, { date: string; spot: string; users: { name: string; mode: string }[] }>);
+  }, {} as Record<string, { date: string; spot: string; users: { name: string; mode: string; isTrial: boolean }[] }>);
 
   const groupedArray = Object.values(groupedReservations).sort((a: any, b: any) => {
     return b.date.localeCompare(a.date);
@@ -749,6 +749,9 @@ export default function AdminPage() {
                         }`}
                       >
                         {user.name}
+                        {user.isTrial && (
+                          <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-600/30 text-amber-200 border border-amber-600/40">🎫 체험권</span>
+                        )}
                         <span className="ml-1 text-xs opacity-60">
                           {user.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
                         </span>
