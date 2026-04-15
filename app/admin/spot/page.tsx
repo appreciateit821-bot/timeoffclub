@@ -8,6 +8,7 @@ export default function SpotOperatorPage() {
   const [reservations, setReservations] = useState<any[]>([]);
   const [logs, setLogs] = useState<any[]>([]);
   const [checkinList, setCheckinList] = useState<any[]>([]);
+  const [pendingAutoNoShows, setPendingAutoNoShows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'checkin' | 'reservations' | 'logs' | 'notices' | 'requests'>('checkin');
   const [notices, setNotices] = useState<any[]>([]);
@@ -61,7 +62,11 @@ export default function SpotOperatorPage() {
   const fetchCheckin = async () => {
     try {
       const res = await fetch(`/api/admin/spot/checkin?date=${checkinDate}`);
-      if (res.ok) setCheckinList((await res.json()).reservations);
+      if (res.ok) {
+        const data = await res.json();
+        setCheckinList(data.reservations);
+        setPendingAutoNoShows(data.pendingAutoNoShows || []);
+      }
     } catch (e) { console.error(e); }
   };
 
@@ -71,6 +76,17 @@ export default function SpotOperatorPage() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reservationId, status })
+      });
+      if (res.ok) fetchCheckin();
+    } catch (e) { console.error(e); }
+  };
+
+  const handleConfirmAutoNoShow = async (reservationId: number) => {
+    try {
+      const res = await fetch('/api/admin/spot/checkin', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reservationId, action: 'confirm_auto_noshow' })
       });
       if (res.ok) fetchCheckin();
     } catch (e) { console.error(e); }
@@ -255,6 +271,51 @@ export default function SpotOperatorPage() {
         {activeTab === 'checkin' && (
           <div className="space-y-4">
 
+        {/* 전체 자동 노쇼 확인 필요 (날짜 무관) */}
+        {pendingAutoNoShows.length > 0 && (
+          <div className="bg-orange-900/20 border border-orange-600/40 rounded-xl p-4 space-y-3">
+            <div>
+              <div className="text-orange-300 font-bold text-sm">⚠️ 자동 노쇼 확인 필요 {pendingAutoNoShows.length}건</div>
+              <div className="text-orange-400/80 text-[11px] mt-1">세션 종료 후 미체크된 멤버가 자동으로 노쇼 처리됐어요. 맞는지 확인해주세요. (3일간 미확인 시 자동 확정)</div>
+            </div>
+            <div className="space-y-2">
+              {pendingAutoNoShows.map(r => {
+                const d = new Date(r.date + 'T00:00:00+09:00');
+                const dow = d.getDay() === 3 ? '수' : d.getDay() === 0 ? '일' : '';
+                const time = d.getDay() === 3 ? '20:00' : d.getDay() === 0 ? '15:00' : '';
+                return (
+                  <div key={`pending-${r.id}`} className="bg-gray-800/80 rounded-lg border border-orange-700/30 overflow-hidden">
+                    <div className="p-3">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <span className="text-amber-200 font-bold text-xs bg-amber-900/40 px-2 py-0.5 rounded">📅 {r.date.slice(5)} ({dow}) {time}</span>
+                        <span className="text-white font-mono font-bold text-sm">{r.display_id}</span>
+                        {r.is_trial && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-900/50 text-orange-300">🎫 체험권</span>}
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'}`}>
+                          {r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
+                        </span>
+                      </div>
+                      {r.memo && <p className="text-gray-400 text-xs italic">💭 "{r.memo}"</p>}
+                    </div>
+                    <div className="flex border-t border-orange-700/40">
+                      <button
+                        onClick={() => { if (confirm(`${r.date} ${r.display_id} 멤버를 노쇼로 확정하시겠어요?`)) handleConfirmAutoNoShow(r.id); }}
+                        className="flex-1 py-2.5 text-center font-bold text-xs transition active:scale-95 bg-red-600/80 text-white hover:bg-red-600">
+                        ❌ 노쇼 맞아요
+                      </button>
+                      <div className="w-px bg-orange-700/40" />
+                      <button
+                        onClick={() => { if (confirm(`${r.date} ${r.display_id} 멤버를 출석으로 변경하시겠어요? (노쇼 경고 취소)`)) handleCheckin(r.id, 'attended'); }}
+                        className="flex-1 py-2.5 text-center font-bold text-xs transition active:scale-95 bg-green-600/80 text-white hover:bg-green-600">
+                        ✅ 출석으로 변경
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* 한 달 세션 요약 */}
         <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-700/30 mb-4">
           <div className="mb-3 flex items-center justify-between">
@@ -417,15 +478,18 @@ export default function SpotOperatorPage() {
             <div className="text-xs text-gray-500 text-center">총 {checkinList.length}명 예약</div>
 
             <div className="space-y-3">
-              {checkinList.map((r) => (
+              {checkinList.filter(r => !(r.check_in_status === 'no_show' && r.checked_by === 'auto')).map((r) => {
+                const isAutoNoShow = false;
+                return (
                 <div key={r.id}
                   className={`bg-gray-800 rounded-xl overflow-hidden border ${
+                    isAutoNoShow ? 'border-orange-500/60' :
                     r.check_in_status === 'attended' ? 'border-green-600/50' :
                     r.check_in_status === 'no_show' ? 'border-red-600/50' : 'border-gray-700'
                   }`}>
                   {/* 참가자 정보 */}
                   <div className="p-4">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span className="text-white font-mono font-bold text-base">{r.display_id}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         r.is_trial ? 'bg-orange-900/50 text-orange-300' : 'bg-gray-700 text-gray-400'
@@ -433,36 +497,61 @@ export default function SpotOperatorPage() {
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
                       }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
+                      {isAutoNoShow && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-orange-600/30 text-orange-200 border border-orange-500/50">🤖 자동 노쇼</span>
+                      )}
                     </div>
                     {r.memo && <p className="text-gray-400 text-sm italic mt-1">💭 "{r.memo}"</p>}
                     {r.checked_at && (
-                      <p className="text-[11px] text-gray-500 mt-1">{formatKST(r.checked_at)} 체크</p>
+                      <p className="text-[11px] text-gray-500 mt-1">{formatKST(r.checked_at)} {isAutoNoShow ? '자동 처리' : '체크'}</p>
                     )}
                   </div>
-                  {/* 체크인 버튼 — 크고 확실하게 */}
-                  <div className="flex border-t border-gray-700">
-                    <button
-                      onClick={() => handleCheckin(r.id, r.check_in_status === 'attended' ? 'unchecked' : 'attended')}
-                      className={`flex-1 py-4 text-center font-bold text-base transition active:scale-95 ${
-                        r.check_in_status === 'attended'
-                          ? 'bg-green-600 text-white'
-                          : 'bg-gray-800 text-gray-400 hover:bg-green-900/30 hover:text-green-300'
-                      }`}>
-                      ✅ 출석
-                    </button>
-                    <div className="w-px bg-gray-700" />
-                    <button
-                      onClick={() => handleCheckin(r.id, r.check_in_status === 'no_show' ? 'unchecked' : 'no_show')}
-                      className={`flex-1 py-4 text-center font-bold text-base transition active:scale-95 ${
-                        r.check_in_status === 'no_show'
-                          ? 'bg-red-600 text-white'
-                          : 'bg-gray-800 text-gray-400 hover:bg-red-900/30 hover:text-red-300'
-                      }`}>
-                      ❌ 노쇼
-                    </button>
-                  </div>
+
+                  {isAutoNoShow ? (
+                    <>
+                      <div className="px-4 py-3 bg-orange-950/40 border-t border-orange-700/40 text-orange-200 text-xs text-center">
+                        이 멤버 노쇼 처리 맞나요?
+                      </div>
+                      <div className="flex border-t border-orange-700/40">
+                        <button
+                          onClick={() => { if (confirm('이 멤버를 노쇼로 확정하시겠어요?')) handleConfirmAutoNoShow(r.id); }}
+                          className="flex-1 py-4 text-center font-bold text-base transition active:scale-95 bg-red-600/80 text-white hover:bg-red-600">
+                          ❌ 노쇼 맞아요
+                        </button>
+                        <div className="w-px bg-orange-700/40" />
+                        <button
+                          onClick={() => { if (confirm('이 멤버를 출석으로 변경하시겠어요? (노쇼 경고 취소)')) handleCheckin(r.id, 'attended'); }}
+                          className="flex-1 py-4 text-center font-bold text-base transition active:scale-95 bg-green-600/80 text-white hover:bg-green-600">
+                          ✅ 출석으로 변경
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex border-t border-gray-700">
+                      <button
+                        onClick={() => handleCheckin(r.id, r.check_in_status === 'attended' ? 'unchecked' : 'attended')}
+                        className={`flex-1 py-4 text-center font-bold text-base transition active:scale-95 ${
+                          r.check_in_status === 'attended'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-gray-800 text-gray-400 hover:bg-green-900/30 hover:text-green-300'
+                        }`}>
+                        ✅ 출석
+                      </button>
+                      <div className="w-px bg-gray-700" />
+                      <button
+                        onClick={() => handleCheckin(r.id, r.check_in_status === 'no_show' ? 'unchecked' : 'no_show')}
+                        className={`flex-1 py-4 text-center font-bold text-base transition active:scale-95 ${
+                          r.check_in_status === 'no_show'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-gray-800 text-gray-400 hover:bg-red-900/30 hover:text-red-300'
+                        }`}>
+                        ❌ 노쇼
+                      </button>
+                    </div>
+                  )}
                 </div>
-              ))}
+                );
+              })}
               {checkinList.length === 0 && (
                 <div className="text-center py-12 text-gray-400">해당 날짜에 예약이 없습니다.</div>
               )}

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDB } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { getSessionEndTime, AVAILABLE_DAYS } from '@/lib/constants';
+import { processAutoNoShow } from '@/lib/noshow';
 import { cookies } from 'next/headers';
 
 export const runtime = 'edge';
@@ -12,38 +12,10 @@ export async function GET() {
   const session = await getSession();
   if (!session || !db) return NextResponse.json({ noShows: [], totalNoShows: 0, dismissed: false });
 
-  // 1. 세션 종료된 미체크 예약을 자동 노쇼 처리
+  await processAutoNoShow(db);
+
   const now = new Date();
-  const { results: unchecked } = await db.prepare(
-    `SELECT id, user_name, date, spot FROM reservations
-     WHERE check_in_status = 'unchecked' AND date < ?
-     ORDER BY date DESC`
-  ).bind(now.toISOString().split('T')[0]).all();
-
-  for (const r of unchecked as any[]) {
-    const d = new Date(r.date + 'T00:00:00Z');
-    const dayOfWeek = d.getUTCDay();
-    if (dayOfWeek !== AVAILABLE_DAYS.WEDNESDAY && dayOfWeek !== AVAILABLE_DAYS.SUNDAY) continue;
-
-    const endTime = getSessionEndTime(r.date);
-    if (now.getTime() < endTime.getTime()) continue;
-
-    await db.prepare(
-      `UPDATE reservations SET check_in_status = 'no_show', checked_at = ?, checked_by = 'auto' WHERE id = ?`
-    ).bind(now.toISOString(), r.id).run();
-
-    const noShowCount = (await db.prepare(
-      `SELECT COUNT(*) as count FROM reservations WHERE user_name = ? AND check_in_status = 'no_show'`
-    ).bind(r.user_name).first() as any)?.count || 0;
-
-    const warningLevel = noShowCount >= 3 ? 3 : noShowCount >= 2 ? 2 : 1;
-    const message = `노쇼 ${noShowCount}회${noShowCount >= 3 ? ': 멤버십 정지 대상' : noShowCount >= 2 ? ': 갱신 안내 필요' : ': 경고'}`;
-    await db.prepare(
-      'INSERT INTO noshow_warnings (user_name, warning_level, message) VALUES (?, ?, ?)'
-    ).bind(r.user_name, warningLevel, message).run();
-  }
-
-  // 2. 현재 사용자의 최근 노쇼 기록 반환 (최근 30일)
+  // 현재 사용자의 최근 노쇼 기록 반환 (최근 30일)
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   const { results: recentNoShows } = await db.prepare(
     `SELECT date, spot FROM reservations
