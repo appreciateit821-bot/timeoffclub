@@ -10,11 +10,13 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [loginMode, setLoginMode] = useState<'member' | 'admin'>('member');
+  const [newUserPrompt, setNewUserPrompt] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setNewUserPrompt(false);
     setLoading(true);
 
     try {
@@ -35,10 +37,9 @@ export default function LoginPage() {
         return;
       }
 
-      // 첫 가입자 → 온보딩 페이지로 이동 (입력한 이름/연락처 URL 파라미터로 전달)
+      // 첫 가입자 → 확인 프롬프트 표시 (자동 이동 X)
       if (data.isNewUser) {
-        const params = new URLSearchParams({ name, phoneLast4 });
-        router.push(`/onboarding?${params.toString()}`);
+        setNewUserPrompt(true);
         return;
       }
 
@@ -49,6 +50,11 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const goToOnboarding = () => {
+    const params = new URLSearchParams({ name, phoneLast4 });
+    router.push(`/onboarding?${params.toString()}`);
   };
 
   return (
@@ -185,6 +191,37 @@ export default function LoginPage() {
             {error && (
               <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm">
                 {error}
+              </div>
+            )}
+
+            {newUserPrompt && (
+              <div className="bg-amber-900/20 border border-amber-600/40 rounded-xl p-5 space-y-4">
+                <div className="text-center">
+                  <div className="text-3xl mb-2">👋</div>
+                  <p className="text-amber-100 font-semibold text-base mb-1">처음 오셨나요?</p>
+                  <p className="text-amber-200/80 text-xs leading-relaxed">
+                    입력하신 이름과 뒷 4자리가 DB에 없어요.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={goToOnboarding}
+                    className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-lg transition active:scale-95">
+                    처음이에요, 가입할게요 →
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setNewUserPrompt(false); setError(''); }}
+                    className="w-full py-3 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded-lg transition">
+                    이미 멤버예요 — 다시 확인할게요
+                  </button>
+                </div>
+                <div className="text-[11px] text-amber-300/70 leading-relaxed text-center pt-2 border-t border-amber-800/30">
+                  💡 기존 멤버이신데 로그인이 안 되면<br/>
+                  <strong>연락처 뒷 4자리</strong>(번호 마지막 숫자 4개)를 정확히 입력했는지 확인해주세요.<br/>
+                  그래도 안 되면 카카오톡 <span className="text-amber-200">well__moment</span>로 연락주세요.
+                </div>
               </div>
             )}
 

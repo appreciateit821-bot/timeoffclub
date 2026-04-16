@@ -129,6 +129,12 @@ function OnboardingContent() {
             안전한 커뮤니티를 위해 신뢰할 수 있는 정보를 확인합니다.<br/>
             응답 내용은 운영진만 확인하며 외부로 공개되지 않습니다 💜
           </p>
+          <button
+            onClick={() => router.push('/login')}
+            className="text-[11px] text-gray-500 underline hover:text-gray-400 mt-3"
+          >
+            ← 로그인 페이지로 돌아가기
+          </button>
         </div>
 
         {/* 기본 정보 */}
