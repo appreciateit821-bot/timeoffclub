@@ -61,31 +61,47 @@ export async function DELETE(request: NextRequest) {
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'ID 필요' }, { status: 400 });
 
-  // 삭제 대상 확인
-  const member = await db.prepare('SELECT id, name FROM members WHERE id = ?').bind(id).first() as any;
-  if (!member) return NextResponse.json({ error: '멤버를 찾을 수 없습니다.' }, { status: 404 });
-
-  const name = member.name as string;
-
-  // 관련 데이터 정리 (cascade delete 수동 처리)
+  const steps: string[] = [];
   try {
-    await db.prepare('DELETE FROM reservations WHERE user_name = ?').bind(name).run();
-    await db.prepare('DELETE FROM reservation_logs WHERE user_name = ?').bind(name).run();
-    await db.prepare('DELETE FROM waitlist WHERE user_name = ?').bind(name).run();
-    await db.prepare('DELETE FROM noshow_warnings WHERE user_name = ?').bind(name).run();
-    await db.prepare('DELETE FROM feedbacks WHERE user_name = ?').bind(name).run();
-    await db.prepare('DELETE FROM session_moments WHERE user_name = ?').bind(name).run();
-    await db.prepare('DELETE FROM users WHERE name = ?').bind(name).run();
+    steps.push('SELECT target');
+    const member = await db.prepare('SELECT id, name FROM members WHERE id = ?').bind(id).first() as any;
+    if (!member) return NextResponse.json({ error: '멤버를 찾을 수 없습니다.' }, { status: 404 });
+
+    const name = member.name as string;
+
+    const cascadeTables: Array<{ table: string; col: string }> = [
+      { table: 'reservations', col: 'user_name' },
+      { table: 'reservation_logs', col: 'user_name' },
+      { table: 'waitlist', col: 'user_name' },
+      { table: 'noshow_warnings', col: 'user_name' },
+      { table: 'feedbacks', col: 'user_name' },
+      { table: 'session_moments', col: 'user_name' },
+      { table: 'users', col: 'name' },
+    ];
+
+    for (const { table, col } of cascadeTables) {
+      steps.push(`cascade:${table}`);
+      try {
+        await db.prepare(`DELETE FROM ${table} WHERE ${col} = ?`).bind(name).run();
+      } catch (e: any) {
+        steps.push(`cascade:${table}:err:${e?.message ?? e}`);
+      }
+    }
+
+    steps.push('DELETE members');
+    const result = await db.prepare('DELETE FROM members WHERE id = ?').bind(id).run() as any;
+    const changes = result?.meta?.changes ?? result?.changes ?? 0;
+
+    if (changes === 0) {
+      return NextResponse.json({ error: '삭제 실패 — 해당 멤버가 존재하지 않습니다.', steps }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, deletedName: name, changes });
   } catch (e: any) {
-    console.error('Cascade cleanup failed (non-fatal):', e?.message);
+    return NextResponse.json({
+      error: `서버 오류: ${e?.message ?? String(e)}`,
+      lastStep: steps[steps.length - 1] || 'init',
+      steps,
+    }, { status: 500 });
   }
-
-  const result = await db.prepare('DELETE FROM members WHERE id = ?').bind(id).run() as any;
-  const changes = result?.meta?.changes ?? result?.changes ?? 0;
-
-  if (changes === 0) {
-    return NextResponse.json({ error: '삭제 실패 — 해당 멤버가 존재하지 않습니다.' }, { status: 404 });
-  }
-
-  return NextResponse.json({ success: true, deletedName: name, changes });
 }
