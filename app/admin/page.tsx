@@ -226,10 +226,16 @@ export default function AdminPage() {
         method: 'DELETE'
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (res.ok) {
         fetchMembers(memberSearch);
+      } else {
+        alert(`삭제 실패: ${data.error || res.statusText || '알 수 없는 오류'} (${res.status})`);
+        console.error('Delete failed:', res.status, data);
       }
     } catch (error) {
+      alert('네트워크 오류: ' + String(error));
       console.error('Failed to delete member:', error);
     }
   };
