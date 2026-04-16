@@ -61,6 +61,31 @@ export async function DELETE(request: NextRequest) {
   const id = searchParams.get('id');
   if (!id) return NextResponse.json({ error: 'ID 필요' }, { status: 400 });
 
-  await db.prepare('DELETE FROM members WHERE id = ?').bind(id).run();
-  return NextResponse.json({ success: true });
+  // 삭제 대상 확인
+  const member = await db.prepare('SELECT id, name FROM members WHERE id = ?').bind(id).first() as any;
+  if (!member) return NextResponse.json({ error: '멤버를 찾을 수 없습니다.' }, { status: 404 });
+
+  const name = member.name as string;
+
+  // 관련 데이터 정리 (cascade delete 수동 처리)
+  try {
+    await db.prepare('DELETE FROM reservations WHERE user_name = ?').bind(name).run();
+    await db.prepare('DELETE FROM reservation_logs WHERE user_name = ?').bind(name).run();
+    await db.prepare('DELETE FROM waitlist WHERE user_name = ?').bind(name).run();
+    await db.prepare('DELETE FROM noshow_warnings WHERE user_name = ?').bind(name).run();
+    await db.prepare('DELETE FROM feedbacks WHERE user_name = ?').bind(name).run();
+    await db.prepare('DELETE FROM session_moments WHERE user_name = ?').bind(name).run();
+    await db.prepare('DELETE FROM users WHERE name = ?').bind(name).run();
+  } catch (e: any) {
+    console.error('Cascade cleanup failed (non-fatal):', e?.message);
+  }
+
+  const result = await db.prepare('DELETE FROM members WHERE id = ?').bind(id).run() as any;
+  const changes = result?.meta?.changes ?? result?.changes ?? 0;
+
+  if (changes === 0) {
+    return NextResponse.json({ error: '삭제 실패 — 해당 멤버가 존재하지 않습니다.' }, { status: 404 });
+  }
+
+  return NextResponse.json({ success: true, deletedName: name, changes });
 }
