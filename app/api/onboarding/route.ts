@@ -75,11 +75,22 @@ export async function POST(request: NextRequest) {
 
   let approvalStatus: 'approved' | 'pending' = 'pending';
   let verifyNote = '';
+
   if (verify.ok && verify.matched) {
     approvalStatus = 'approved';
   } else if (verify.ok) {
-    verifyNote = `verify: nameMatch=${verify.nameMatch}, phoneMatch=${verify.phoneMatch}, buyerName=${verify.buyer.name}`;
+    // 일치하지 않으면 저장하지 않고 에러 반환 → 사용자에게 재확인 요청
+    const reasons: string[] = [];
+    if (!verify.nameMatch) reasons.push(`주문자 이름이 일치하지 않아요 (주문자: ${verify.buyer.name || '확인 불가'})`);
+    if (!verify.phoneMatch) reasons.push('연락처 뒷 4자리가 주문 정보와 일치하지 않아요');
+    if (!verify.productMatch) reasons.push(`해당 주문번호는 멤버십 상품이 아닙니다${verify.buyer.productName ? ` (주문 상품: ${verify.buyer.productName})` : ''}`);
+    return NextResponse.json({
+      error: '주문번호 검증 실패 — ' + reasons.join(' / '),
+      hint: '멤버십 결제가 맞는지 확인하거나, 스마트스토어 마이페이지에서 주문번호를 다시 확인 후 재시도해주세요.',
+      reasons,
+    }, { status: 400 });
   } else {
+    // API 호출 자체가 실패한 경우 (네트워크/서버 이슈) → 일시적 문제일 수 있으니 pending으로 저장
     verifyNote = `verify_error: ${verify.error}`;
   }
 

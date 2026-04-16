@@ -4,6 +4,8 @@ export type NaverOrderBuyer = {
   name: string;
   phone?: string;
   phoneLast4?: string;
+  productId?: string;
+  productName?: string;
 };
 
 export type NaverVerifyResult =
@@ -15,10 +17,16 @@ function getEnv() {
     const { env } = getRequestContext();
     const url = (env as any).NAVER_PROXY_URL as string | undefined;
     const secret = (env as any).NAVER_PROXY_SECRET as string | undefined;
-    return { url, secret };
+    const productIds = ((env as any).NAVER_MEMBERSHIP_PRODUCT_IDS as string | undefined) ?? '';
+    return { url, secret, productIds };
   } catch {
-    return { url: undefined, secret: undefined };
+    return { url: undefined, secret: undefined, productIds: '' };
   }
+}
+
+function getMembershipProductIds(): string[] {
+  const { productIds } = getEnv();
+  return productIds.split(',').map(s => s.trim()).filter(Boolean);
 }
 
 function last4(phone: string): string {
@@ -55,10 +63,21 @@ function extractBuyer(productOrderData: any): NaverOrderBuyer {
     order?.order?.ordererTel ??
     order?.ordererTel ??
     '';
+  const productId: string | undefined =
+    order?.productOrder?.productId ??
+    order?.productOrder?.originProductNo ??
+    order?.productId ??
+    undefined;
+  const productName: string | undefined =
+    order?.productOrder?.productName ??
+    order?.productName ??
+    undefined;
   return {
     name: buyerName,
     phone: buyerPhone,
     phoneLast4: buyerPhone ? last4(buyerPhone) : undefined,
+    productId: productId ? String(productId) : undefined,
+    productName,
   };
 }
 
@@ -95,20 +114,26 @@ export async function fetchNaverOrder(orderIdOrProductOrderId: string): Promise<
   return { ok: false, error: directRes.error, status: directRes.status };
 }
 
-// 주문번호 + 입력 이름/뒷4자리 일치 검증
+// 주문번호 + 입력 이름/뒷4자리 일치 검증 + 멤버십 상품 여부 검증
 export async function verifyNaverOrder(orderId: string, name: string, phoneLast4: string) {
   const result = await fetchNaverOrder(orderId);
   if (!result.ok) return result;
 
+  const membershipIds = getMembershipProductIds();
   const nameMatch = result.buyer.name?.trim() === name.trim();
   const phoneMatch = result.buyer.phoneLast4 === phoneLast4;
+  const productMatch =
+    membershipIds.length === 0
+      ? true
+      : !!result.buyer.productId && membershipIds.includes(result.buyer.productId);
 
   return {
     ok: true as const,
     buyer: result.buyer,
     nameMatch,
     phoneMatch,
-    matched: nameMatch && phoneMatch,
+    productMatch,
+    matched: nameMatch && phoneMatch && productMatch,
     raw: result.raw,
   };
 }

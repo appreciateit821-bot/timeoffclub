@@ -12,14 +12,18 @@ command = "npm run build && npx @cloudflare/next-on-pages"
 pages_build_output_dir = ".vercel/output/static"
 
 # 네이버 커머스 프록시 URL (공개 값 — secret은 대시보드에 별도 등록)
+# NAVER_MEMBERSHIP_PRODUCT_IDS: 멤버십 상품 ID 콤마 구분 (예: "13132932761,XXXXXXXX")
 [vars]
 NAVER_PROXY_URL = "https://timeoff-naver-proxy.fly.dev"
+NAVER_MEMBERSHIP_PRODUCT_IDS = "13132932761"
 
 [env.production.vars]
 NAVER_PROXY_URL = "https://timeoff-naver-proxy.fly.dev"
+NAVER_MEMBERSHIP_PRODUCT_IDS = "13132932761"
 
 [env.preview.vars]
 NAVER_PROXY_URL = "https://timeoff-naver-proxy.fly.dev"
+NAVER_MEMBERSHIP_PRODUCT_IDS = "13132932761"
 
 # D1 데이터베이스 바인딩 (로컬 dev용)
 [[d1_databases]]

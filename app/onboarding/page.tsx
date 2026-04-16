@@ -78,7 +78,8 @@ function OnboardingContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || '제출 중 오류가 발생했습니다.');
+        const full = [data.error, data.hint].filter(Boolean).join('\n\n');
+        setError(full || '제출 중 오류가 발생했습니다.');
         return;
       }
       setDoneStatus(data.status);
@@ -273,7 +274,7 @@ function OnboardingContent() {
         </Section>
 
         {error && (
-          <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-3 mb-4 text-sm text-red-300">
+          <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-4 mb-4 text-sm text-red-300 whitespace-pre-line leading-relaxed">
             {error}
           </div>
         )}
