@@ -35,6 +35,13 @@ export default function LoginPage() {
         return;
       }
 
+      // 첫 가입자 → 온보딩 페이지로 이동 (입력한 이름/연락처 URL 파라미터로 전달)
+      if (data.isNewUser) {
+        const params = new URLSearchParams({ name, phoneLast4 });
+        router.push(`/onboarding?${params.toString()}`);
+        return;
+      }
+
       router.push(data.redirectUrl);
       router.refresh();
     } catch (err) {

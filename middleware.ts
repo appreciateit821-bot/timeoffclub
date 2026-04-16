@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 로그인하지 않은 상태에서 보호된 페이지 접근 시
-  if (!userCookie && pathname !== '/login' && pathname !== '/') {
+  if (!userCookie && pathname !== '/login' && pathname !== '/' && pathname !== '/onboarding') {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 

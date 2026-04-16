@@ -9,7 +9,9 @@ export default function AdminPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices' | 'reports' | 'requests' | 'calendar'>('reservations');
+  const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices' | 'reports' | 'requests' | 'calendar' | 'pending'>('reservations');
+  const [pendingMembers, setPendingMembers] = useState<any[]>([]);
+  const [pendingMembersLoading, setPendingMembersLoading] = useState(false);
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberPhone, setNewMemberPhone] = useState('');
   const [newMemberMonths, setNewMemberMonths] = useState('');
@@ -96,6 +98,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchData();
+    fetchPendingMembers();
   }, []);
 
   const fetchData = async () => {
@@ -300,6 +303,35 @@ export default function AdminPage() {
       const res = await fetch('/api/admin/feedbacks');
       if (res.ok) { const data = await res.json(); setFeedbackData(data); }
     } catch (e) { console.error(e); }
+  };
+
+  const fetchPendingMembers = async () => {
+    setPendingMembersLoading(true);
+    try {
+      const res = await fetch('/api/admin/pending-members');
+      if (res.ok) { const data = await res.json(); setPendingMembers(data.pendingMembers || []); }
+    } catch (e) { console.error(e); }
+    finally { setPendingMembersLoading(false); }
+  };
+
+  const handlePendingAction = async (memberId: number, action: 'approve' | 'reject', name: string) => {
+    const confirmMsg = action === 'approve'
+      ? `${name} 멤버의 가입을 승인하시겠어요?`
+      : `${name} 멤버의 가입을 거절하시겠어요? (사유는 선택 입력)`;
+    if (!confirm(confirmMsg)) return;
+    const reason = action === 'reject' ? (prompt('거절 사유 (선택, 비워도 됨):') || '') : undefined;
+    try {
+      const res = await fetch('/api/admin/pending-members', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId, action, reason }),
+      });
+      if (res.ok) fetchPendingMembers();
+      else {
+        const err = await res.json();
+        alert(err.error || '처리 실패');
+      }
+    } catch (e) { alert('네트워크 오류'); }
   };
 
   const fetchNotices = async () => {
@@ -601,6 +633,19 @@ export default function AdminPage() {
               }`}
             >
               멤버 관리
+            </button>
+            <button
+              onClick={() => { setActiveTab('pending'); fetchPendingMembers(); }}
+              className={`relative px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
+                activeTab === 'pending'
+                  ? 'text-amber-400 border-amber-400'
+                  : 'text-gray-400 border-transparent hover:text-gray-300'
+              }`}
+            >
+              📬 가입 대기
+              {pendingMembers.length > 0 && activeTab !== 'pending' && (
+                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] rounded-full px-1.5 py-0.5 min-w-[18px]">{pendingMembers.length}</span>
+              )}
             </button>
             <button
               onClick={() => { setActiveTab('checkin'); fetchCheckin(checkinDate || undefined); }}
@@ -1080,6 +1125,92 @@ export default function AdminPage() {
                   등록된 멤버가 없습니다.
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'pending' && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-white">가입 대기 멤버 {pendingMembers.length}건</h2>
+              <button onClick={fetchPendingMembers} className="text-xs text-amber-400 hover:text-amber-300">🔄 새로고침</button>
+            </div>
+
+            {pendingMembersLoading && <div className="text-gray-400 text-sm">불러오는 중...</div>}
+
+            {!pendingMembersLoading && pendingMembers.length === 0 && (
+              <div className="text-center py-12 text-gray-400">가입 대기 중인 신청이 없습니다.</div>
+            )}
+
+            <div className="space-y-4">
+              {pendingMembers.map((m: any) => {
+                let reasonsList: string[] = [];
+                try { reasonsList = JSON.parse(m.reasons || '[]'); } catch {}
+                return (
+                  <div key={m.id} className="bg-gray-800 rounded-xl border border-amber-700/30 overflow-hidden">
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-3 flex-wrap">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-white font-bold text-base">{m.name}</span>
+                            <span className="text-amber-300 font-mono text-sm">({m.phone_last4})</span>
+                            <span className="text-[10px] px-2 py-0.5 bg-amber-600/20 border border-amber-600/40 text-amber-300 rounded-full">대기</span>
+                          </div>
+                          <div className="text-xs text-gray-400 space-y-0.5">
+                            <div>📞 {m.phone || '-'}</div>
+                            <div>✉️ {m.email || '-'}</div>
+                            <div>👤 {m.age_gender || '-'} · {m.occupation || '-'}</div>
+                            <div className="text-amber-300 font-mono mt-1">🛒 주문번호: {m.smartstore_order_id || '-'}</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {m.self_intro && (
+                        <div className="bg-gray-900/50 rounded-lg p-3">
+                          <div className="text-[11px] text-gray-500 mb-1">자기 소개</div>
+                          <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">{m.self_intro}</p>
+                        </div>
+                      )}
+
+                      {reasonsList.length > 0 && (
+                        <div>
+                          <div className="text-[11px] text-gray-500 mb-1">선택 이유</div>
+                          <div className="flex flex-wrap gap-1">
+                            {reasonsList.map((r, i) => (
+                              <span key={i} className="text-[11px] px-2 py-1 bg-amber-900/30 text-amber-200 rounded-full">{r}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {m.expectation && (
+                        <div className="bg-gray-900/50 rounded-lg p-3">
+                          <div className="text-[11px] text-gray-500 mb-1">기대하는 형태</div>
+                          <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">{m.expectation}</p>
+                        </div>
+                      )}
+
+                      {m.onboarded_at && (
+                        <p className="text-[10px] text-gray-500">신청 시각: {new Date(m.onboarded_at).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}</p>
+                      )}
+                    </div>
+
+                    <div className="flex border-t border-gray-700">
+                      <button
+                        onClick={() => handlePendingAction(m.id, 'approve', m.name)}
+                        className="flex-1 py-3 bg-green-600/80 hover:bg-green-600 text-white font-bold text-sm transition active:scale-95">
+                        ✅ 승인
+                      </button>
+                      <div className="w-px bg-gray-700" />
+                      <button
+                        onClick={() => handlePendingAction(m.id, 'reject', m.name)}
+                        className="flex-1 py-3 bg-red-600/80 hover:bg-red-600 text-white font-bold text-sm transition active:scale-95">
+                        ❌ 거절
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

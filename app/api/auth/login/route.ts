@@ -51,7 +51,22 @@ export async function POST(request: NextRequest) {
     if (!phoneLast4) return NextResponse.json({ error: '연락처 뒷 4자리 또는 체험권 코드를 입력해주세요.' }, { status: 400 });
 
     const member = await db.prepare('SELECT * FROM members WHERE name = ? AND phone_last4 = ?').bind(name, phoneLast4).first() as any;
-    if (!member) return NextResponse.json({ error: '등록되지 않은 멤버입니다. 관리자 (카카오톡 well__moment)로 연락 부탁드립니다 🦊' }, { status: 403 });
+    if (!member) {
+      // 매칭 없음 → 첫 가입 안내
+      return NextResponse.json({
+        isNewUser: true,
+        message: '처음 이용하시나요? 간단한 가입 폼을 작성해주세요.',
+        redirectUrl: '/onboarding'
+      }, { status: 200 });
+    }
+
+    // 승인 대기
+    if (member.approval_status === 'pending') {
+      return NextResponse.json({
+        error: '가입 신청이 승인 대기 중입니다. 운영진 확인 후 안내드릴게요 🦊',
+        status: 'pending'
+      }, { status: 403 });
+    }
 
     // 활성 상태 체크
     if (!member.is_active) {
