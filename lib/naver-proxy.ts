@@ -10,7 +10,7 @@ export type NaverOrderBuyer = {
 
 export type NaverVerifyResult =
   | { ok: true; buyer: NaverOrderBuyer; raw?: any }
-  | { ok: false; error: string; status?: number };
+  | { ok: false; error: string; status?: number; kind: 'order_invalid' | 'transient' };
 
 function getEnv() {
   try {
@@ -36,21 +36,22 @@ function last4(phone: string): string {
 async function proxyRequest(
   path: string,
   init: RequestInit = {},
-): Promise<{ ok: true; data: any } | { ok: false; status: number; error: string }> {
+): Promise<{ ok: true; data: any } | { ok: false; status: number; error: string; kind: 'order_invalid' | 'transient' }> {
   const { url, secret } = getEnv();
-  if (!url || !secret) return { ok: false, status: 0, error: 'proxy_env_missing' };
+  if (!url || !secret) return { ok: false, status: 0, error: 'proxy_env_missing', kind: 'transient' };
   try {
     const res = await fetch(`${url}${path}`, {
       ...init,
       headers: { 'X-Proxy-Secret': secret, 'Content-Type': 'application/json', ...(init.headers ?? {}) },
     });
     if (!res.ok) {
-      return { ok: false, status: res.status, error: `naver_api_${res.status}` };
+      const kind = res.status >= 400 && res.status < 500 ? 'order_invalid' : 'transient';
+      return { ok: false, status: res.status, error: `naver_api_${res.status}`, kind };
     }
     const data = await res.json();
     return { ok: true, data };
   } catch (e: any) {
-    return { ok: false, status: 0, error: e?.message ?? 'fetch_failed' };
+    return { ok: false, status: 0, error: e?.message ?? 'fetch_failed', kind: 'transient' };
   }
 }
 
@@ -95,12 +96,12 @@ export async function fetchNaverOrder(orderIdOrProductOrderId: string): Promise<
     body: JSON.stringify({ productOrderIds }),
   });
   if (!queryRes.ok) {
-    return { ok: false, error: `product-orders/query failed: ${queryRes.error}`, status: queryRes.status };
+    return { ok: false, error: `product-orders/query failed: ${queryRes.error}`, status: queryRes.status, kind: queryRes.kind };
   }
 
   const entries: any[] = Array.isArray(queryRes.data?.data) ? queryRes.data.data : [];
   if (!entries.length) {
-    return { ok: false, error: 'no_product_order_entries' };
+    return { ok: false, error: 'no_product_order_entries', kind: 'order_invalid' };
   }
 
   return { ok: true, buyer: extractBuyer(entries[0]), raw: queryRes.data };

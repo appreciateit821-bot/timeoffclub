@@ -89,8 +89,14 @@ export async function POST(request: NextRequest) {
       hint: '멤버십 결제가 맞는지 확인하거나, 스마트스토어 마이페이지에서 주문번호를 다시 확인 후 재시도해주세요.',
       reasons,
     }, { status: 400 });
+  } else if (verify.kind === 'order_invalid') {
+    // 네이버가 주문번호를 찾지 못함 (존재하지 않거나 권한 없음) → 저장 없이 거부
+    return NextResponse.json({
+      error: '존재하지 않는 주문번호입니다. 스마트스토어 마이페이지에서 주문번호를 다시 확인해주세요.',
+      hint: '네이버 스마트스토어에서 멤버십 결제가 완료된 주문번호를 입력해주세요.',
+    }, { status: 400 });
   } else {
-    // API 호출 자체가 실패한 경우 (네트워크/서버 이슈) → 일시적 문제일 수 있으니 pending으로 저장
+    // 일시적 네트워크/서버 오류 → pending으로 저장 후 수동 검토
     verifyNote = `verify_error: ${verify.error}`;
   }
 
