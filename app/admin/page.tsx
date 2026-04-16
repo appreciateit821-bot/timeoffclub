@@ -229,7 +229,8 @@ export default function AdminPage() {
       const data = await res.json().catch(() => ({}));
 
       if (res.ok) {
-        fetchMembers(memberSearch);
+        await fetchMembers(memberSearch);
+        alert(`${data.deletedName || '멤버'}님을 삭제했습니다.`);
       } else {
         alert(`삭제 실패: ${data.error || res.statusText || '알 수 없는 오류'} (${res.status})`);
         console.error('Delete failed:', res.status, data);
