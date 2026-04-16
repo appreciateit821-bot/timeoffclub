@@ -70,6 +70,7 @@ export async function DELETE(request: NextRequest) {
     const name = member.name as string;
 
     const cascadeTables: Array<{ table: string; col: string }> = [
+      { table: 'urgent_notifications', col: 'member_name' },
       { table: 'reservations', col: 'user_name' },
       { table: 'reservation_logs', col: 'user_name' },
       { table: 'waitlist', col: 'user_name' },
