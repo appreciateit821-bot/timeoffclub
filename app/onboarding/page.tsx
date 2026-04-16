@@ -144,7 +144,7 @@ function OnboardingContent() {
               className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500" />
           </Field>
           <Field label="연락처" hint="타임오프클럽 공지 문자를 받을 번호. 전체 번호를 입력해주세요.">
-            <input value={phone} onChange={e => setPhone(e.target.value)} placeholder={last4Hint ? `뒷4자리: ${last4Hint}` : '010-1234-5678'}
+            <input value={phone} onChange={e => setPhone(e.target.value)}
               inputMode="tel"
               className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500" />
           </Field>
