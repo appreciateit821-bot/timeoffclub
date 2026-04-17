@@ -234,7 +234,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* 멤버십 가입 — 버튼으로 격상 */}
+          {/* 멤버십 가입 & 갱신 */}
           <div className="mt-5 pt-5 border-t border-gray-700 space-y-3">
             <p className="text-gray-400 text-xs text-center">아직 멤버가 아니신가요?</p>
             <a
@@ -245,6 +245,13 @@ export default function LoginPage() {
             >
               🛒 멤버십 가입하기
             </a>
+            <button
+              type="button"
+              onClick={() => router.push('/renew')}
+              className="block w-full py-3 bg-gray-700 hover:bg-gray-600 text-amber-200 rounded-xl text-sm font-medium text-center transition active:scale-95"
+            >
+              🔄 이미 멤버예요 · 다음 달 멤버십 갱신
+            </button>
           </div>
         </div>
 

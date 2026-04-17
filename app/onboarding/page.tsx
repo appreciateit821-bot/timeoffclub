@@ -63,6 +63,10 @@ function OnboardingContent() {
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
+
+    const phoneFormatted = phone.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3');
+    if (!confirm(`입력하신 연락처가 ${phoneFormatted} 맞으신가요?\n\n멤버십 공지 문자를 받으실 번호입니다.`)) return;
+
     setError('');
     setSubmitting(true);
     try {
