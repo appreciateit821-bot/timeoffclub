@@ -323,14 +323,12 @@ export default function AdminPage() {
     finally { setSpotsLoading(false); }
   };
 
-  const handleSpotToggle = async (spotId: string, currentActive: number) => {
-    const action = currentActive ? '비활성화' : '활성화';
-    if (!confirm(`${spotId}를 ${action}하시겠어요?`)) return;
+  const handleSpotInactiveFrom = async (spotId: string, inactiveFrom: string | null) => {
     try {
       const res = await fetch('/api/admin/spots', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ spotId, isActive: !currentActive }),
+        body: JSON.stringify({ spotId, inactiveFrom }),
       });
       if (res.ok) fetchSpots();
     } catch (e) { console.error(e); }
@@ -930,34 +928,48 @@ export default function AdminPage() {
         {activeTab === 'spots' && (
           <div className="space-y-5">
             <h2 className="text-xl font-semibold text-white">🏠 스팟 관리</h2>
-            <p className="text-xs text-gray-400">스팟을 OFF하면 멤버 캘린더에서 해당 스팟이 보이지 않습니다.</p>
+            <p className="text-xs text-gray-400">비활성 시작월을 설정하면 해당 월부터 멤버 캘린더에서 스팟이 사라집니다.</p>
             {spotsLoading ? (
               <div className="text-center py-8 text-gray-400">로딩 중...</div>
             ) : (
               <div className="space-y-3">
-                {spotsList.map((sp: any) => (
-                  <div key={sp.spot_id} className={`flex items-center justify-between p-4 rounded-xl border ${
-                    sp.is_spot_active ? 'bg-gray-800/60 border-gray-700' : 'bg-gray-800/30 border-gray-700 opacity-60'
-                  }`}>
-                    <div>
-                      <p className="text-sm font-medium text-white">{sp.spot_id}</p>
-                      <span className={`text-xs px-2 py-0.5 rounded ${
-                        sp.is_spot_active ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'
-                      }`}>
-                        {sp.is_spot_active ? 'ON — 운영 중' : 'OFF — 비활성'}
-                      </span>
+                {spotsList.map((sp: any) => {
+                  const isCurrentlyInactive = sp.inactive_from && sp.inactive_from <= new Date().toISOString().slice(0, 7);
+                  return (
+                    <div key={sp.spot_id} className={`p-4 rounded-xl border ${
+                      isCurrentlyInactive ? 'bg-gray-800/30 border-gray-700 opacity-60' : 'bg-gray-800/60 border-gray-700'
+                    }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium text-white">{sp.spot_id}</p>
+                        {sp.inactive_from ? (
+                          <span className="text-xs px-2 py-0.5 rounded bg-red-900/50 text-red-300">
+                            {sp.inactive_from.replace('-', '년 ')}월부터 OFF
+                          </span>
+                        ) : (
+                          <span className="text-xs px-2 py-0.5 rounded bg-green-900/50 text-green-300">ON — 운영 중</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="month"
+                          defaultValue={sp.inactive_from || ''}
+                          className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-xs"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val) handleSpotInactiveFrom(sp.spot_id, val);
+                          }}
+                        />
+                        {sp.inactive_from && (
+                          <button
+                            onClick={() => handleSpotInactiveFrom(sp.spot_id, null)}
+                            className="px-3 py-1.5 bg-green-700 hover:bg-green-600 text-white rounded-lg text-xs transition">
+                            해제 (ON)
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    <button
-                      onClick={() => handleSpotToggle(sp.spot_id, sp.is_spot_active)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-                        sp.is_spot_active
-                          ? 'bg-red-700 hover:bg-red-600 text-white'
-                          : 'bg-green-700 hover:bg-green-600 text-white'
-                      }`}>
-                      {sp.is_spot_active ? 'OFF' : 'ON'}
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

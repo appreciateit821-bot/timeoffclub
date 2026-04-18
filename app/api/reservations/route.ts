@@ -50,9 +50,10 @@ export async function POST(request: NextRequest) {
     if (!date || !spot) return NextResponse.json({ error: '날짜와 스팟을 선택해주세요.' }, { status: 400 });
     if (isBookingClosed(date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 예약할 수 없습니다.' }, { status: 400 });
 
-    // 비활성 스팟 체크
-    const spotOp = await db.prepare('SELECT is_spot_active FROM spot_operators WHERE spot_id = ?').bind(spot).first() as any;
-    if (spotOp && spotOp.is_spot_active === 0) {
+    // 비활성 스팟 체크 (즉시 OFF 또는 월 기반 OFF)
+    const reservationMonth = date.slice(0, 7);
+    const spotOp = await db.prepare('SELECT is_spot_active, inactive_from FROM spot_operators WHERE spot_id = ?').bind(spot).first() as any;
+    if (spotOp && (spotOp.is_spot_active === 0 || (spotOp.inactive_from && spotOp.inactive_from <= reservationMonth))) {
       return NextResponse.json({ error: '현재 운영하지 않는 스팟입니다.' }, { status: 400 });
     }
 
@@ -60,7 +61,6 @@ export async function POST(request: NextRequest) {
     const now = new Date();
     const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000 + now.getTimezoneOffset() * 60 * 1000);
     const currentMonth = `${kstNow.getFullYear()}-${String(kstNow.getMonth() + 1).padStart(2, '0')}`;
-    const reservationMonth = date.slice(0, 7);
     if (reservationMonth > currentMonth) {
       const [ry, rm] = reservationMonth.split('-').map(Number);
       const firstDay = new Date(Date.UTC(ry, rm - 1, 1));
