@@ -60,6 +60,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   const [topicLoading, setTopicLoading] = useState(false);
   const [waitlistStatus, setWaitlistStatus] = useState<{ [key: string]: number }>({});
   const [closedSpots, setClosedSpots] = useState<Set<string>>(new Set());
+  const [inactiveSpots, setInactiveSpots] = useState<Set<string>>(new Set());
   const [spotNotices, setSpotNotices] = useState<{ [spot: string]: string }>({});
   const [visitedSpots, setVisitedSpots] = useState<Set<string>>(new Set());
 
@@ -154,13 +155,13 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
   // 스팟 순서 랜덤화
   const shuffledSpots = useMemo(() => {
-    const spots = [...SPOT_DETAILS];
+    const spots = [...SPOT_DETAILS].filter(s => !inactiveSpots.has(s.id));
     for (let i = spots.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [spots[i], spots[j]] = [spots[j], spots[i]];
     }
     return spots;
-  }, [date]);
+  }, [date, inactiveSpots]);
 
   useEffect(() => {
     if (date) {
@@ -181,10 +182,6 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       if (res.ok) {
         const data = await res.json();
         const closed = new Set<string>();
-        // 비활성 스팟 추가
-        for (const s of (data.inactiveSpots || [])) {
-          closed.add(s);
-        }
         for (const c of (data.closed || [])) {
           if (c.date === date) {
             if (!c.spot) { SPOTS.forEach(s => closed.add(s)); } // 전체 닫기
@@ -192,6 +189,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           }
         }
         setClosedSpots(closed);
+        // 비활성 스팟은 별도 — 아예 렌더링에서 제외
+        setInactiveSpots(new Set(data.inactiveSpots || []));
       }
     } catch (e) { console.error(e); }
   };
