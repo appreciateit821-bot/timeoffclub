@@ -344,18 +344,18 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
   if (showSuccess && successInfo) {
     return (
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-300 shadow-lg text-center space-y-5 animate-fade-in">
+      <div className="bg-gray-800/80 backdrop-blur rounded-xl p-6 border border-amber-800/30 shadow-lg text-center space-y-5 animate-fade-in">
         <div className="text-5xl">✨</div>
-        <h2 className="text-xl font-bold text-amber-800">예약이 완료되었습니다!</h2>
-        <div className="bg-gray-100 rounded-lg p-4 space-y-2">
-          <div className="text-amber-700 font-medium">{successInfo.date}</div>
-          <div className="text-gray-800 text-lg font-semibold">{successInfo.spot}</div>
+        <h2 className="text-xl font-bold text-amber-100">예약이 완료되었습니다!</h2>
+        <div className="bg-gray-700/50 rounded-lg p-4 space-y-2">
+          <div className="text-amber-200 font-medium">{successInfo.date}</div>
+          <div className="text-white text-lg font-semibold">{successInfo.spot}</div>
           <div className={`inline-block text-xs px-2 py-1 rounded ${
-            successInfo.mode === 'reflection' ? 'bg-violet-50 text-violet-600' : 'bg-blue-50 text-blue-600'
+            successInfo.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
           }`}>{successInfo.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</div>
         </div>
         {successInfo.warning && (
-          <div className="bg-orange-900/30 border border-orange-700/30 rounded-lg p-3 text-sm text-orange-700">
+          <div className="bg-orange-900/30 border border-orange-700/30 rounded-lg p-3 text-sm text-orange-200">
             ⚠️ {successInfo.warning} 다른 스팟으로 변경을 고려해보세요.
           </div>
         )}
@@ -377,10 +377,10 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
             <div className="bg-gradient-to-b from-blue-900/30 to-blue-900/10 border border-blue-600/30 rounded-xl p-5 space-y-3">
               <div className="text-center">
                 <p className="text-blue-100 font-semibold">📵 잊지 않게 알림 받기</p>
-                <p className="text-blue-600/70 text-xs mt-1">세션 5시간 전에 알림이 울려요. 놓치지 마세요!</p>
+                <p className="text-blue-300/70 text-xs mt-1">세션 5시간 전에 알림이 울려요. 놓치지 마세요!</p>
               </div>
               <a href={icsUrl}
-                className="block w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm text-center transition active:scale-95 font-medium border border-gray-200">
+                className="block w-full py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-sm text-center transition active:scale-95 font-medium border border-gray-600">
                 🍎 아이폰 알림 등록
               </a>
               <a href={googleUrl} target="_blank" rel="noopener noreferrer"
@@ -392,13 +392,13 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           );
         })()}
 
-        <div className="text-sm text-gray-500 space-y-1">
+        <div className="text-sm text-gray-400 space-y-1">
           <p>📍 현장에서 1인 1음료 주문을 부탁드려요</p>
           <p>📵 입장 시 스마트폰을 보관합니다</p>
           <p>⏰ 변경/취소는 2시간 전까지 가능해요</p>
         </div>
         <button onClick={() => setShowSuccess(false)}
-          className="w-full py-3 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-lg font-medium transition active:scale-95">
+          className="w-full py-3 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg font-medium transition active:scale-95">
           확인
         </button>
       </div>
@@ -406,9 +406,9 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-300 shadow-lg space-y-5">
-      <h2 className="text-xl font-bold text-amber-800">스팟 선택</h2>
-      <p className="text-xs text-gray-500">{date}</p>
+    <div className="bg-gray-800/80 backdrop-blur rounded-xl p-4 sm:p-6 border border-amber-800/30 shadow-lg space-y-5">
+      <h2 className="text-xl font-bold text-amber-100">스팟 선택</h2>
+      <p className="text-xs text-gray-400">{date}</p>
 
       {/* 다음 달 예약 D-7 안내 */}
       {(() => {
@@ -423,9 +423,9 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           if (now.getTime() < bookingOpens.getTime()) {
             const opensStr = bookingOpens.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
             return (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
-                <p className="text-amber-700 text-sm font-medium">📅 {dateMonth.replace('-', '년 ')}월 예약 안내</p>
-                <p className="text-amber-600/80 text-xs mt-1">{opensStr}부터 예약 가능합니다</p>
+              <div className="bg-amber-900/20 border border-amber-700/30 rounded-lg p-3 text-center">
+                <p className="text-amber-200 text-sm font-medium">📅 {dateMonth.replace('-', '년 ')}월 예약 안내</p>
+                <p className="text-amber-300/80 text-xs mt-1">{opensStr}부터 예약 가능합니다</p>
               </div>
             );
           }
@@ -485,8 +485,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 isSelected
                   ? 'bg-amber-600 text-white border-2 border-amber-500'
                   : isFull
-                  ? 'bg-gray-100 text-gray-500 cursor-not-allowed border border-gray-200'
-                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 hover:border-amber-500/50'
+                  ? 'bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-600'
+                  : 'bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 hover:border-amber-500/50'
               }`}
             >
               <div className="space-y-2">
@@ -496,37 +496,36 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                   </div>
                   <div className="text-right">
                     <span className={`text-sm font-medium px-2 py-1 rounded ${
-                      isFull ? 'bg-red-50 text-red-600'
-                      : isSelected ? 'bg-amber-700 text-amber-800'
-                      : 'bg-gray-100 text-gray-600'
+                      isFull ? 'bg-red-900/50 text-red-300'
+                      : isSelected ? 'bg-amber-700 text-amber-100'
+                      : 'bg-gray-600 text-gray-300'
                     }`}>
                       {count}/{getCapForSpot(spotInfo.id)}명
                     </span>
-
                     {!isFull && count >= getCapForSpot(spotInfo.id) * 0.8 && (
-                      <div className="text-[10px] text-orange-500 mt-0.5">🔥 마감 임박</div>
+                      <div className="text-[10px] text-orange-400 mt-0.5">🔥 마감 임박</div>
                     )}
                     {/* 프라이빗 세션 라벨 비활성화
                     count >= 0 && count <= 2 && !isFull && (
-                      <div className="text-[10px] text-emerald-600 mt-0.5">🌿 프라이빗 세션</div>
+                      <div className="text-[10px] text-emerald-300 mt-0.5">🌿 프라이빗 세션</div>
                     )
                     */}
                     {count === 3 && !isFull && (
-                      <div className="text-[10px] text-blue-600 mt-0.5">✨ 소규모</div>
+                      <div className="text-[10px] text-blue-300 mt-0.5">✨ 소규모</div>
                     )}
                   </div>
                 </div>
 
                 {!visitedSpots.has(spotInfo.id) && visitedSpots.size > 0 && (
-                  <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-violet-700/40 text-violet-100' : 'bg-violet-50 text-violet-600'} border border-violet-200`}>
+                  <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-violet-700/40 text-violet-100' : 'bg-violet-900/30 text-violet-300/90'} border border-violet-700/20`}>
                     아직 가보지 않은 스팟이에요. 새로운 공간에서 색다른 타임오프를 경험해보세요!
                   </div>
                 )}
 
-                <div className={`text-sm space-y-1.5 ${isSelected ? 'text-amber-50' : 'text-gray-600'}`}>
+                <div className={`text-sm space-y-1.5 ${isSelected ? 'text-amber-50' : 'text-gray-300'}`}>
                   <p className="flex items-start gap-2"><span className="text-xs mt-0.5">📍</span><span>{spotInfo.address}</span></p>
                   <p className="flex items-start gap-2"><span className="text-xs mt-0.5">🎫</span><span>{spotInfo.discount}</span></p>
-                  <p className={`flex items-start gap-2 ${isSelected ? 'text-amber-800' : 'text-gray-500'}`}>
+                  <p className={`flex items-start gap-2 ${isSelected ? 'text-amber-100' : 'text-gray-400'}`}>
                     <span className="text-xs mt-0.5">✨</span><span className="text-xs leading-relaxed">{spotInfo.features}</span>
                   </p>
                 </div>
@@ -541,7 +540,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                   // "일요일" 키워드가 포함된 안내는 일요일에만 표시
                   if (notice.includes('일요일') && selectedDay !== 0) return null;
                   return (
-                    <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-amber-700/50 text-amber-800' : 'bg-amber-50 text-amber-600/80'} border border-amber-200`}>
+                    <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-amber-700/50 text-amber-100' : 'bg-amber-900/30 text-amber-300/80'} border border-amber-700/20`}>
                       ℹ️ {notice}
                     </div>
                   );
@@ -559,14 +558,14 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                   if (hasTopic) {
                     // 이미 주제가 있는 경우
                     return (
-                      <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? "bg-blue-700/50 text-blue-100" : "bg-blue-50 text-blue-600"} border border-blue-200`}>
+                      <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? "bg-blue-700/50 text-blue-100" : "bg-blue-900/30 text-blue-300/80"} border border-blue-700/30`}>
                         💬 "{hasTopic}" 주제로 함께 이야기 나누고 싶어요
                       </div>
                     );
                   } else if (hasLonelyMember) {
                     // 혼자 대기 중인 멤버가 있는 경우
                     return (
-                      <div className={`w-full text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 text-purple-600 border border-purple-200`}>
+                      <div className={`w-full text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-900/30 to-pink-900/30 text-purple-300 border border-purple-700/30`}>
                         💭 특별한 대화를 나눌 누군가를 기다리고 있어요
                       </div>
                     );
@@ -581,7 +580,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                           // 모달 열 때 추천 주제 로드 (캐시됨)
                           loadTopicSuggestions();
                         }}
-                        className={`w-full text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-900/30 to-blue-900/30 text-emerald-600 border border-emerald-700/30 hover:bg-emerald-800/40 transition`}
+                        className={`w-full text-xs px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-emerald-900/30 to-blue-900/30 text-emerald-300 border border-emerald-700/30 hover:bg-emerald-800/40 transition`}
                       >
                         ✨ 첫 번째로 예약하고, 나누고 싶은 대화를 열어보세요
                       </button>
@@ -593,15 +592,15 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 {/* 모드별 인원 */}
                 {count > 0 && stats && (
                   <div className="flex gap-2 mt-1.5">
-                    <span className="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded">💬 스몰토크 {stats.smalltalk}명</span>
-                    <span className="text-[10px] px-1.5 py-0.5 bg-violet-50 text-violet-600 rounded">🧘 사색 {stats.reflection}명</span>
+                    <span className="text-[10px] px-1.5 py-0.5 bg-blue-900/40 text-blue-300 rounded">💬 스몰토크 {stats.smalltalk}명</span>
+                    <span className="text-[10px] px-1.5 py-0.5 bg-violet-900/40 text-violet-300 rounded">🧘 사색 {stats.reflection}명</span>
                   </div>
                 )}
 
                 <div className="flex items-center gap-3 mt-2">
                   <a href={spotInfo.mapUrl} target="_blank" rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className={`flex items-center gap-1 text-xs underline ${isSelected ? 'text-amber-700' : 'text-blue-400'}`}>
+                    className={`flex items-center gap-1 text-xs underline ${isSelected ? 'text-amber-200' : 'text-blue-400'}`}>
                     🗺️ 지도
                   </a>
                   {isFull && !waitlistStatus[spotInfo.id] && (
@@ -622,11 +621,11 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       {selectedSpot && (
         <div className="space-y-4 animate-fade-in">
           <div>
-            <div className="text-xs text-gray-500 mb-2">참여 방식 <span className="text-red-400">*</span></div>
+            <div className="text-xs text-gray-400 mb-2">참여 방식 <span className="text-red-400">*</span></div>
             <div className="flex gap-2">
               <button type="button" onClick={() => setSelectedMode('smalltalk')}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition active:scale-95 border-2 ${
-                  selectedMode === 'smalltalk' ? 'bg-blue-600 text-white border-blue-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200 border-transparent'
+                  selectedMode === 'smalltalk' ? 'bg-blue-600 text-white border-blue-500' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 border-transparent'
                 }`}>💬 스몰토크</button>
               <button type="button" onClick={() => {
                 // 대화 주제가 있을 때 사색 선택 시 확인
@@ -639,24 +638,24 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 }
               }}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition active:scale-95 border-2 ${
-                  selectedMode === 'reflection' ? 'bg-violet-600 text-white border-violet-500' : 'bg-gray-100 text-gray-500 hover:bg-gray-200 border-transparent'
+                  selectedMode === 'reflection' ? 'bg-violet-600 text-white border-violet-500' : 'bg-gray-700 text-gray-400 hover:bg-gray-600 border-transparent'
                 }`}>🧘 사색</button>
             </div>
-            {!selectedMode && <p className="text-[10px] text-amber-600 mt-1">스몰토크 또는 사색을 선택해주세요</p>}
+            {!selectedMode && <p className="text-[10px] text-amber-300 mt-1">스몰토크 또는 사색을 선택해주세요</p>}
           </div>
 
           {/* 사색 활동 선택 */}
           {selectedMode === 'reflection' && (
             <div>
-              <div className="text-xs text-gray-500 mb-2">🧘 오늘의 사색 활동 <span className="text-gray-500">(선택)</span></div>
+              <div className="text-xs text-gray-400 mb-2">🧘 오늘의 사색 활동 <span className="text-gray-500">(선택)</span></div>
               <div className="grid grid-cols-2 gap-2">
                 {REFLECTION_ACTIVITIES.map(a => (
                   <button key={a.id} type="button"
                     onClick={() => setReflectionActivity(reflectionActivity === a.id ? '' : a.id)}
                     className={`p-2.5 rounded-lg text-left transition text-sm ${
                       reflectionActivity === a.id
-                        ? 'bg-violet-50 border-2 border-violet-500 text-violet-700'
-                        : 'bg-gray-100 border border-gray-200 text-gray-600 hover:border-violet-500/30'
+                        ? 'bg-violet-600/30 border-2 border-violet-500 text-violet-100'
+                        : 'bg-gray-700/60 border border-gray-600 text-gray-300 hover:border-violet-500/30'
                     }`}>
                     <span className="text-base">{a.emoji}</span>
                     <span className="ml-1.5">{a.label}</span>
@@ -664,8 +663,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 ))}
               </div>
               {reflectionActivity && (
-                <div className="mt-2 p-3 bg-violet-50 border border-violet-200 rounded-lg">
-                  <p className="text-xs text-violet-600">
+                <div className="mt-2 p-3 bg-violet-900/20 border border-violet-700/30 rounded-lg">
+                  <p className="text-xs text-violet-300">
                     📋 {REFLECTION_ACTIVITIES.find(a => a.id === reflectionActivity)?.guide}
                   </p>
                 </div>
@@ -674,12 +673,12 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
           )}
 
           <div>
-            <div className="text-xs text-gray-500 mb-2">
+            <div className="text-xs text-gray-400 mb-2">
               {selectedMode === 'reflection' ? '💭 메모 (선택)' : selectedMode === 'smalltalk' ? '💭 오늘 나누고 싶은 대화 (선택)' : '💭 참여 방식을 먼저 선택해주세요'}
             </div>
             <input
               type="text" value={memo} onChange={(e) => setMemo(e.target.value)}
-              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              className="w-full px-3 py-2.5 bg-gray-700/80 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               placeholder={selectedMode === 'smalltalk' ? `예: ${smalltalkPlaceholder}` : reflectionActivity ? `${REFLECTION_ACTIVITIES.find(a => a.id === reflectionActivity)?.label}에 대한 메모...` : '사색 키워드나 메모'}
               maxLength={100}
             />
@@ -689,10 +688,10 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
       {/* 안내 문구 */}
       {selectedSpot && (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-2">
-          <p className="text-sm text-amber-700 font-medium">📋 예약 안내</p>
+        <div className="p-4 bg-amber-900/15 border border-amber-700/20 rounded-lg space-y-2">
+          <p className="text-sm text-amber-200 font-medium">📋 예약 안내</p>
           {isTrial ? (
-            <ul className="text-xs text-amber-700/80 space-y-1.5">
+            <ul className="text-xs text-amber-200/80 space-y-1.5">
               <li>• 체험권은 <strong>1회만 예약</strong> 가능합니다</li>
               <li>• 예약 후 <strong>노쇼 시에도 체험권이 소진</strong>됩니다</li>
               <li>• 예약 변경·취소는 <strong>세션 2시간 전까지</strong> 가능해요</li>
@@ -700,7 +699,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
               <li>• 입장 시 <strong>스마트폰 보관함</strong>에 스마트폰을 맡겨주세요 📵</li>
             </ul>
           ) : (
-            <ul className="text-xs text-amber-700/80 space-y-1.5">
+            <ul className="text-xs text-amber-200/80 space-y-1.5">
               <li>• 원하는 일정과 스팟에 <strong>횟수 제한 없이</strong> 참여 가능해요</li>
               <li>• 예약 신청·변경·취소는 <strong>세션 2시간 전까지</strong> 가능해요</li>
               <li>• 노쇼 시 <strong>패널티가 부과</strong>됩니다. 참석이 어려우면 꼭 취소해주세요 🙏</li>
@@ -712,7 +711,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       )}
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">{error}</div>
+        <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm">{error}</div>
       )}
 
       <button
@@ -726,12 +725,12 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       {/* 대화 주제 입력 모달 */}
       {showTopicModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-sm p-6 w-full max-w-md max-h-[80vh] overflow-y-auto border border-gray-300">
+          <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto border border-gray-600">
 
             <div className="space-y-4">
               <div className="text-center">
-                <h3 className="text-xl font-bold text-amber-800 mb-2">어떤 이야기를 해보고 싶나요?</h3>
-                <p className="text-sm text-gray-600">같은 이야기를 나누고 싶은 멤버들이 이 주제를 보고 모일 수 있어요</p>
+                <h3 className="text-xl font-bold text-amber-100 mb-2">어떤 이야기를 해보고 싶나요?</h3>
+                <p className="text-sm text-gray-300">같은 이야기를 나누고 싶은 멤버들이 이 주제를 보고 모일 수 있어요</p>
               </div>
               
               {/* 카테고리 탭 */}
@@ -751,7 +750,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                       className={`px-3 py-1.5 rounded-full transition ${
                         selectedCategory === category
                           ? 'bg-amber-600 text-white'
-                          : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                       }`}
                     >
                       {category}
@@ -766,7 +765,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     className={`px-3 py-1.5 rounded-full transition ${
                       selectedCategory === '직접 작성'
                         ? 'bg-amber-600 text-white'
-                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                     }`}
                   >
                     직접 작성하기
@@ -782,8 +781,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                         onClick={() => setCustomTopic(topic)}
                         className={`w-full text-left p-3 rounded-lg text-sm transition ${
                           customTopic === topic
-                            ? 'bg-amber-700/50 text-amber-800 border border-amber-600'
-                            : 'bg-gray-200 text-gray-600 hover:bg-gray-300 border border-gray-200'
+                            ? 'bg-amber-700/50 text-amber-100 border border-amber-600'
+                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600'
                         }`}
                       >
                         {topic}
@@ -801,9 +800,9 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                       onChange={(e) => setCustomTopic(e.target.value)}
                       placeholder="나누고 싶은 주제를 입력하세요 (최대 30자)"
                       maxLength={30}
-                      className="w-full p-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-amber-500"
+                      className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-amber-500"
                     />
-                    <div className="text-xs text-gray-500 mt-1 text-right">
+                    <div className="text-xs text-gray-400 mt-1 text-right">
                       {customTopic.length}/30
                     </div>
                   </div>
@@ -819,7 +818,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     setSelectedCategory('');
                     setCustomTopic('');
                   }}
-                  className="flex-1 py-3 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-500 transition"
+                  className="flex-1 py-3 bg-gray-600 text-gray-300 rounded-lg hover:bg-gray-500 transition"
                 >
                   취소
                 </button>
