@@ -256,8 +256,8 @@ export default function SpotOperatorPage() {
   };
   const actionColor = (action: string) => {
     if (action === 'CREATE') return 'bg-green-50 text-green-600';
-    if (action === 'CANCEL') return 'bg-red-900/50 text-red-600';
-    return 'bg-yellow-900/50 text-yellow-300';
+    if (action === 'CANCEL') return 'bg-red-50 text-red-600';
+    return 'bg-yellow-50 text-yellow-700';
   };
 
   if (loading) {
@@ -282,7 +282,7 @@ export default function SpotOperatorPage() {
             {(['checkin', 'sessions', 'reservations', 'logs', 'notices', 'requests'] as const).map(tab => (
               <button key={tab} onClick={() => { setActiveTab(tab); if (tab === 'sessions') fetchSessions(); if (tab === 'requests') fetchSpotRequests(); }}
                 className={`px-2.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition border-b-2 whitespace-nowrap ${
-                  activeTab === tab ? 'text-amber-400 border-amber-400' : 'text-gray-500 border-transparent hover:text-gray-300'
+                  activeTab === tab ? 'text-amber-600 border-amber-600' : 'text-gray-500 border-transparent hover:text-gray-700'
                 }`}>
                 {tab === 'checkin' ? '✅ 체크' : tab === 'sessions' ? '📅 일정' : tab === 'reservations' ? '📋 예약' : tab === 'logs' ? '📝 로그' : tab === 'notices' ? '📢 공지' : '📮 요청'}
               </button>
@@ -302,7 +302,7 @@ export default function SpotOperatorPage() {
           <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-3">
             <div>
               <div className="text-orange-600 font-bold text-sm">⚠️ 자동 노쇼 확인 필요 {pendingAutoNoShows.length}건</div>
-              <div className="text-orange-400/80 text-[11px] mt-1">세션 종료 후 미체크된 멤버가 자동으로 노쇼 처리됐어요. 맞는지 확인해주세요. (3일간 미확인 시 자동 확정)</div>
+              <div className="text-orange-600 text-[11px] mt-1">세션 종료 후 미체크된 멤버가 자동으로 노쇼 처리됐어요. 맞는지 확인해주세요. (3일간 미확인 시 자동 확정)</div>
             </div>
             <div className="space-y-2">
               {pendingAutoNoShows.map(r => {
@@ -316,7 +316,7 @@ export default function SpotOperatorPage() {
                         <span className="text-amber-700 font-bold text-xs bg-amber-900/40 px-2 py-0.5 rounded">📅 {r.date.slice(5)} ({dow}) {time}</span>
                         <span className="text-gray-800 font-mono font-bold text-sm">{r.display_id}</span>
                         {r.is_trial && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-600">🎫 체험권</span>}
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'}`}>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${r.mode === 'reflection' ? 'bg-violet-50 text-violet-600' : 'bg-blue-50 text-blue-600'}`}>
                           {r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
                         </span>
                       </div>
@@ -343,7 +343,7 @@ export default function SpotOperatorPage() {
         )}
 
         {/* 한 달 세션 요약 */}
-        <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-200 mb-4">
+        <div className="bg-gradient-to-r from-amber-50 to-white rounded-xl p-4 border border-amber-200 mb-4">
           <div className="mb-3 flex items-center justify-between">
             <div>
               <div className="text-gray-800 font-bold">{spotName.split('_')[1] || spotName}</div>
@@ -358,21 +358,21 @@ export default function SpotOperatorPage() {
               return (
                 <div key={s.date}
                   className={`rounded-xl p-3 transition ${
-                    s.isToday ? 'bg-emerald-900/20 border border-emerald-600/40' :
+                    s.isToday ? 'bg-emerald-50 border border-emerald-300' :
                     checkinDate === s.date ? 'bg-amber-50 border border-amber-200' : 'bg-white border border-gray-200 shadow-sm'
                   }`}>
                   <div className="flex items-center justify-between" onClick={() => setCheckinDate(s.date)}>
                     <div className="flex items-center gap-3">
                       <div className="text-center min-w-[48px]">
-                        {s.isToday && <div className="text-[9px] text-emerald-400 font-bold">오늘</div>}
-                        <div className={`text-[10px] ${s.isToday ? 'text-emerald-600' : 'text-gray-400'}`}>{s.day}</div>
+                        {s.isToday && <div className="text-[9px] text-emerald-600 font-bold">오늘</div>}
+                        <div className={`text-[10px] ${s.isToday ? 'text-emerald-600' : 'text-gray-500'}`}>{s.day}</div>
                         <div className={`text-sm font-bold ${s.isToday ? 'text-emerald-700' : 'text-gray-800'}`}>{s.date.slice(5)}</div>
                         <div className="text-[10px] text-gray-500">{s.time}</div>
                       </div>
                       <div>
                         {cap?.capacity === 0 ? (
                           <div className="flex items-center gap-2">
-                            <span className="text-red-400 font-bold text-sm">🚫 세션 닫힘</span>
+                            <span className="text-red-600 font-bold text-sm">🚫 세션 닫힘</span>
                           </div>
                         ) : (
                         <div className="flex items-center gap-2">
@@ -383,8 +383,8 @@ export default function SpotOperatorPage() {
                         )}
                         {cap?.capacity !== 0 && data && data.total > 0 && (
                           <div className="flex gap-2 mt-0.5">
-                            <span className="text-[10px] text-blue-300">💬 {data.smalltalk}</span>
-                            <span className="text-[10px] text-violet-300">🧘 {data.reflection}</span>
+                            <span className="text-[10px] text-blue-600">💬 {data.smalltalk}</span>
+                            <span className="text-[10px] text-violet-600">🧘 {data.reflection}</span>
                           </div>
                         )}
                       </div>
@@ -403,7 +403,7 @@ export default function SpotOperatorPage() {
                         {[2, 4, 6, 8, 10].map(n => (
                           <button key={n} onClick={() => setEditingCapValue(String(n))}
                             className={`flex-1 py-2 rounded-lg text-sm font-bold transition active:scale-95 ${
-                              editingCapValue === String(n) ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-400'
+                              editingCapValue === String(n) ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'
                             }`}>{n}</button>
                         ))}
                       </div>
@@ -431,7 +431,7 @@ export default function SpotOperatorPage() {
                 <p className="text-xs text-gray-500 mt-0.5">{checkinDate} {(() => { const d = new Date(checkinDate + 'T00:00:00+09:00'); return d.getDay() === 3 ? '수요일 20:00' : d.getDay() === 0 ? '일요일 15:00' : ''; })()}</p>
               </div>
               <input type="date" value={checkinDate} onChange={(e) => setCheckinDate(e.target.value)}
-                className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-800 text-sm" />
+                className="px-3 py-1.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm" />
             </div>
 
             {/* 오늘 세션 요약 */}
@@ -444,23 +444,23 @@ export default function SpotOperatorPage() {
                 
                 {/* 모드별 통계 */}
                 <div className="flex gap-3">
-                  <div className="flex-1 bg-blue-900/30 rounded-lg p-2.5 text-center border border-blue-800/30">
-                    <div className="text-blue-300 text-lg font-bold">{checkinList.filter(r => r.mode !== 'reflection').length}</div>
-                    <div className="text-blue-400 text-[10px]">💬 스몰토크</div>
+                  <div className="flex-1 bg-blue-50 rounded-lg p-2.5 text-center border border-blue-200">
+                    <div className="text-blue-600 text-lg font-bold">{checkinList.filter(r => r.mode !== 'reflection').length}</div>
+                    <div className="text-blue-600 text-[10px]">💬 스몰토크</div>
                   </div>
-                  <div className="flex-1 bg-violet-900/30 rounded-lg p-2.5 text-center border border-violet-800/30">
-                    <div className="text-violet-300 text-lg font-bold">{checkinList.filter(r => r.mode === 'reflection').length}</div>
-                    <div className="text-violet-400 text-[10px]">🧘 사색</div>
+                  <div className="flex-1 bg-violet-50 rounded-lg p-2.5 text-center border border-violet-200">
+                    <div className="text-violet-600 text-lg font-bold">{checkinList.filter(r => r.mode === 'reflection').length}</div>
+                    <div className="text-violet-600 text-[10px]">🧘 사색</div>
                   </div>
                 </div>
                 
                 {/* 멤버 유형별 통계 */}
                 <div className="flex gap-3">
-                  <div className="flex-1 bg-orange-900/30 rounded-lg p-2.5 text-center border border-orange-800/30">
+                  <div className="flex-1 bg-orange-50 rounded-lg p-2.5 text-center border border-orange-200">
                     <div className="text-orange-600 text-lg font-bold">{checkinList.filter(r => r.is_trial).length}</div>
-                    <div className="text-orange-400 text-[10px]">🎫 체험권</div>
+                    <div className="text-orange-600 text-[10px]">🎫 체험권</div>
                   </div>
-                  <div className="flex-1 bg-gray-100 rounded-lg p-2.5 text-center border border-gray-200/30">
+                  <div className="flex-1 bg-gray-50 rounded-lg p-2.5 text-center border border-gray-200">
                     <div className="text-gray-600 text-lg font-bold">{checkinList.filter(r => !r.is_trial).length}</div>
                     <div className="text-gray-500 text-[10px]">👤 멤버</div>
                   </div>
@@ -475,8 +475,8 @@ export default function SpotOperatorPage() {
             </div>
 
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-green-900/30 border border-green-700/50 rounded-lg p-3 text-center">
-                <div className="text-xl font-bold text-green-400">{attendedCount}</div>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                <div className="text-xl font-bold text-green-600">{attendedCount}</div>
                 <div className="text-xs text-green-600">출석</div>
                 <div className="flex justify-center gap-2 mt-1">
                   <span className="text-[9px] text-orange-600">🎫{checkinList.filter(r => r.check_in_status === 'attended' && r.is_trial).length}</span>
@@ -484,7 +484,7 @@ export default function SpotOperatorPage() {
                 </div>
               </div>
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-                <div className="text-xl font-bold text-red-400">{noShowCount}</div>
+                <div className="text-xl font-bold text-red-600">{noShowCount}</div>
                 <div className="text-xs text-red-600">노쇼</div>
                 <div className="flex justify-center gap-2 mt-1">
                   <span className="text-[9px] text-orange-600">🎫{checkinList.filter(r => r.check_in_status === 'no_show' && r.is_trial).length}</span>
@@ -518,10 +518,11 @@ export default function SpotOperatorPage() {
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <span className="text-gray-800 font-mono font-bold text-base">{r.display_id}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        r.is_trial ? 'bg-orange-100 text-orange-600' : 'bg-gray-200 text-gray-400'
+                        r.is_trial ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-gray-600'
                       }`}>{r.is_trial ? '🎫 체험권' : '멤버'}</span>
+
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
+                        r.mode === 'reflection' ? 'bg-violet-50 text-violet-600' : 'bg-blue-50 text-blue-600'
                       }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
                       {isAutoNoShow && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-orange-600/30 text-orange-700 border border-orange-500/50">🤖 자동 노쇼</span>
@@ -602,8 +603,8 @@ export default function SpotOperatorPage() {
                 <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                   <div className="flex gap-4 text-sm text-gray-600 mb-1">
                     <span>열린 세션: <strong className="text-amber-600">{sessionData.openCount?.total}회</strong></span>
-                    <span>수요일 <strong className="text-blue-300">{sessionData.openCount?.wed}</strong></span>
-                    <span>일요일 <strong className="text-purple-300">{sessionData.openCount?.sun}</strong></span>
+                    <span>수요일 <strong className="text-blue-600">{sessionData.openCount?.wed}</strong></span>
+                    <span>일요일 <strong className="text-purple-600">{sessionData.openCount?.sun}</strong></span>
                   </div>
                   <p className="text-[11px] text-gray-500">최소 수요일 1회 + 일요일 1회 유지 필요</p>
                 </div>
@@ -611,7 +612,7 @@ export default function SpotOperatorPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {/* 수요일 */}
                   <div>
-                    <h3 className="text-sm font-medium text-blue-300 mb-2">수요일 (20:00)</h3>
+                    <h3 className="text-sm font-medium text-blue-600 mb-2">수요일 (20:00)</h3>
                     <div className="space-y-2">
                       {(sessionData.sessions || []).filter((s: any) => s.day === 'wed').map((s: any) => (
                         <div key={s.date} className={`flex items-center justify-between p-3 rounded-lg border ${
@@ -619,7 +620,7 @@ export default function SpotOperatorPage() {
                         }`}>
                           <div>
                             <span className="text-sm text-gray-800 font-mono">{s.date.slice(5)}</span>
-                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.isClosed ? 'bg-red-900/50 text-red-600' : 'bg-green-50 text-green-600'}`}>
+                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.isClosed ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
                               {s.isClosed ? '닫힘' : '열림'}
                             </span>
                             {s.reservationCount > 0 && (
@@ -647,7 +648,7 @@ export default function SpotOperatorPage() {
 
                   {/* 일요일 */}
                   <div>
-                    <h3 className="text-sm font-medium text-purple-300 mb-2">일요일 (15:00)</h3>
+                    <h3 className="text-sm font-medium text-purple-600 mb-2">일요일 (15:00)</h3>
                     <div className="space-y-2">
                       {(sessionData.sessions || []).filter((s: any) => s.day === 'sun').map((s: any) => (
                         <div key={s.date} className={`flex items-center justify-between p-3 rounded-lg border ${
@@ -655,7 +656,7 @@ export default function SpotOperatorPage() {
                         }`}>
                           <div>
                             <span className="text-sm text-gray-800 font-mono">{s.date.slice(5)}</span>
-                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.isClosed ? 'bg-red-900/50 text-red-600' : 'bg-green-50 text-green-600'}`}>
+                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.isClosed ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
                               {s.isClosed ? '닫힘' : '열림'}
                             </span>
                             {s.reservationCount > 0 && (
@@ -708,7 +709,7 @@ export default function SpotOperatorPage() {
                     </div>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                       r.check_in_status === 'attended' ? 'bg-green-50 text-green-600' :
-                      r.check_in_status === 'no_show' ? 'bg-red-900/50 text-red-600' :
+                      r.check_in_status === 'no_show' ? 'bg-red-50 text-red-600' :
                       'bg-gray-200 text-gray-400'
                     }`}>{r.check_in_status === 'attended' ? '출석' : r.check_in_status === 'no_show' ? '노쇼' : '예약'}</span>
                   </div>
@@ -779,7 +780,7 @@ export default function SpotOperatorPage() {
               <div>
                 <label className="block text-sm text-gray-600 mb-1.5">카테고리</label>
                 <select value={reqCategory} onChange={(e) => setReqCategory(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm">
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm">
                   <option value="general">일반 건의</option>
                   <option value="space">공간/시설 관련</option>
                   <option value="supply">비품/물품 요청</option>
@@ -792,7 +793,7 @@ export default function SpotOperatorPage() {
               <div>
                 <label className="block text-sm text-gray-600 mb-1.5">내용</label>
                 <textarea value={reqContent} onChange={(e) => setReqContent(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[120px] resize-y"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[120px] resize-y"
                   placeholder="웰모먼트에 전달하고 싶은 내용을 작성해주세요..." maxLength={1000} />
               </div>
 
@@ -810,7 +811,7 @@ export default function SpotOperatorPage() {
                   {spotRequests.map((r: any) => (
                     <div key={r.id} className="bg-white/80 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-600 border border-emerald-700/30">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
                           {{ general: '일반', space: '공간/시설', supply: '비품', schedule: '일정', issue: '문제', etc: '기타' }[r.category as string] || r.category}
                         </span>
                         <span className="text-xs text-gray-600 ml-auto">{r.created_at?.slice(0, 10)}</span>

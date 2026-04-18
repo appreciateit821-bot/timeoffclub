@@ -292,9 +292,9 @@ export default function FeedbackPage() {
                             {s.memo && <div className="text-gray-500 text-xs mt-1 italic">"{s.memo}"</div>}
                           </div>
                           {hasLog ? (
-                            <span className="px-2 py-1 bg-violet-900/50 text-violet-300 rounded text-xs">작성완료</span>
+                            <span className="px-2 py-1 bg-violet-50 text-violet-600 rounded text-xs">작성완료</span>
                           ) : (
-                            <span className="px-2 py-1 bg-violet-900/50 text-violet-300 rounded text-xs">회고 남기기</span>
+                            <span className="px-2 py-1 bg-violet-50 text-violet-600 rounded text-xs">회고 남기기</span>
                           )}
                         </div>
                       </button>
@@ -313,7 +313,7 @@ export default function FeedbackPage() {
                             <span className="text-gray-800 text-sm font-medium">{l.date}</span>
                             <span className="text-gray-500 text-xs">{l.spot}</span>
                           </div>
-                          {l.activity && <p className="text-violet-300 text-xs mb-1">🧘 {l.activity}</p>}
+                          {l.activity && <p className="text-violet-600 text-xs mb-1">🧘 {l.activity}</p>}
                           {l.feeling && <p className="text-gray-600 text-sm">💭 {l.feeling}</p>}
                           {l.insight && <p className="text-amber-700/80 text-sm mt-1">💡 {l.insight}</p>}
                           {l.next_time && <p className="text-gray-500 text-xs mt-1">다음에는: {l.next_time}</p>}
@@ -332,23 +332,23 @@ export default function FeedbackPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">💭 오늘 사색은 어땠나요?</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">💭 오늘 사색은 어땠나요?</label>
                   <textarea value={refFeeling} onChange={(e) => setRefFeeling(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 min-h-[80px] resize-y"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 min-h-[80px] resize-y"
                     placeholder="편안했다, 집중이 잘 됐다, 생각이 많았다..." />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">💡 떠오른 생각이나 깨달음</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">💡 떠오른 생각이나 깨달음</label>
                   <textarea value={refInsight} onChange={(e) => setRefInsight(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 min-h-[80px] resize-y"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 min-h-[80px] resize-y"
                     placeholder="사색 중 떠오른 생각, 결론, 아이디어..." />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">🔄 다음 사색 때 하고 싶은 것</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">🔄 다음 사색 때 하고 싶은 것</label>
                   <input type="text" value={refNextTime} onChange={(e) => setRefNextTime(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
                     placeholder="다음에는 편지 써봐야지, 드로잉 해봐야지..." />
                 </div>
 
@@ -381,11 +381,11 @@ export default function FeedbackPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-600 mb-1.5">카테고리</label>
+                <label className="block text-sm text-gray-700 mb-1.5">카테고리</label>
                 <select
                   value={reqCategory}
                   onChange={(e) => setReqCategory(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm"
                 >
                   <option value="general">일반 건의</option>
                   <option value="space">공간 관련</option>
@@ -396,11 +396,11 @@ export default function FeedbackPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-600 mb-1.5">관련 스팟 (선택)</label>
+                <label className="block text-sm text-gray-700 mb-1.5">관련 스팟 (선택)</label>
                 <select
                   value={reqSpot}
                   onChange={(e) => setReqSpot(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm"
                 >
                   <option value="">전체 / 해당없음</option>
                   {SPOTS.map(s => <option key={s} value={s}>{s}</option>)}
@@ -408,11 +408,11 @@ export default function FeedbackPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-600 mb-1.5">내용</label>
+                <label className="block text-sm text-gray-700 mb-1.5">내용</label>
                 <textarea
                   value={reqContent}
                   onChange={(e) => setReqContent(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[120px] resize-y"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[120px] resize-y"
                   placeholder="운영자에게 전달하고 싶은 내용을 자유롭게 작성해주세요..."
                   maxLength={1000}
                 />
@@ -435,7 +435,7 @@ export default function FeedbackPage() {
                   {myRequests.map((r: any) => (
                     <div key={r.id} className="bg-white/80 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-600 border border-emerald-700/30">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
                           {{ general: '일반', space: '공간', program: '프로그램', service: '서비스', etc: '기타' }[r.category as string] || r.category}
                         </span>
                         {r.spot && <span className="text-xs text-gray-500">{r.spot}</span>}
@@ -473,7 +473,7 @@ export default function FeedbackPage() {
                     const session = sessions.find(ss => ss.date === d && ss.spot === s.join('_'));
                     setMomentSession(session || null);
                   }}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm"
                 >
                   <option value="">세션 선택</option>
                   {sessions.filter(s => !s.hasFeedback).map(s => (
@@ -507,7 +507,7 @@ export default function FeedbackPage() {
         {/* 세션 선택 */}
         {!selectedSession && (
           <div className="space-y-4">
-            <p className="text-gray-600 text-sm">참석한 세션에 대해 피드백을 남겨주세요.</p>
+            <p className="text-gray-700 text-sm">참석한 세션에 대해 피드백��� 남겨주세요.</p>
             {sessions.length === 0 ? (
               <div className="text-center py-12 text-gray-500">참석 확인된 세션이 없습니다.</div>
             ) : (
@@ -530,7 +530,7 @@ export default function FeedbackPage() {
                     {s.hasFeedback ? (
                       <span className="px-2 py-1 bg-green-50 text-green-600 rounded text-xs">제출완료</span>
                     ) : (
-                      <span className="px-2 py-1 bg-amber-900/50 text-amber-600 rounded text-xs">피드백 남기기</span>
+                      <span className="px-2 py-1 bg-amber-50 text-amber-700 rounded text-xs">피드백 남기기</span>
                     )}
                   </div>
                 </button>
@@ -549,7 +549,7 @@ export default function FeedbackPage() {
 
             {/* 만족도 */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-3">전반적인 만족도</label>
+              <label className="block text-sm font-medium text-gray-700 mb-3">전반적인 만족도</label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button
@@ -557,7 +557,7 @@ export default function FeedbackPage() {
                     type="button"
                     onClick={() => setServiceRating(n)}
                     className={`flex-1 py-3 rounded-lg text-lg transition ${
-                      n <= serviceRating ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-400'
+                      n <= serviceRating ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-500'
                     }`}
                   >
                     {n <= serviceRating ? '★' : '☆'}
@@ -568,20 +568,20 @@ export default function FeedbackPage() {
 
             {/* 서비스 개선 */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 서비스 운영 개선에 대한 의견
               </label>
               <textarea
                 value={serviceFeedback}
                 onChange={(e) => setServiceFeedback(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[100px] resize-y"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[100px] resize-y"
                 placeholder="공간, 시간, 운영 방식 등에 대한 의견을 자유롭게 남겨주세요"
               />
             </div>
 
             {/* 불편사항 (민감) */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 🔒 불편했던 점 <span className="text-gray-500">(선택사항, 관리자만 확인)</span>
               </label>
               <textarea
@@ -595,11 +595,11 @@ export default function FeedbackPage() {
 
             {/* 기타 */}
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-2">기타 의견</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">기타 의견</label>
               <textarea
                 value={generalComment}
                 onChange={(e) => setGeneralComment(e.target.value)}
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[80px] resize-y"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[80px] resize-y"
                 placeholder="자유롭게 남겨주세요 :)"
               />
             </div>

@@ -205,7 +205,7 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
   const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200">
+    <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-300">
       <div className="flex justify-between items-center mb-6">
         <button
           onClick={previousMonth}
@@ -245,7 +245,7 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
           수요일(20:00), 일요일(15:00)만 선택 가능합니다.
         </p>
         {selectedDates.length > 0 && (
-          <p className="text-sm text-amber-400 mt-2 font-medium">
+          <p className="text-sm text-amber-600 mt-2 font-medium">
             📅 {selectedDates[0]} 선택됨
           </p>
         )}

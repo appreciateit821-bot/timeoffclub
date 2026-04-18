@@ -69,17 +69,17 @@ export default function RenewPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-4 space-y-4">
+        <div className="bg-white rounded-xl border border-gray-300 shadow-sm p-5 mb-4 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">성함</label>
             <input value={name} onChange={e => setName(e.target.value)}
-              className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-800 text-sm focus:outline-none focus:border-amber-500" />
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm focus:outline-none focus:border-amber-500" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">연락처 뒷 4자리</label>
             <input value={phoneLast4} onChange={e => setPhoneLast4(e.target.value.replace(/\D/g, '').slice(0, 4))}
               inputMode="numeric" maxLength={4}
-              className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-800 text-sm focus:outline-none focus:border-amber-500" />
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm focus:outline-none focus:border-amber-500" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">새 주문번호</label>
@@ -100,14 +100,14 @@ export default function RenewPage() {
           className={`w-full py-4 rounded-xl font-bold text-base transition ${
             canSubmit && !submitting
               ? 'bg-amber-600 hover:bg-amber-500 text-white active:scale-95'
-              : 'bg-gray-100 text-gray-500 cursor-not-allowed'
+              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}>
           {submitting ? '확인 중...' : '멤버십 갱신하기'}
         </button>
 
         <div className="text-center mt-4 space-y-2">
           <button onClick={() => router.push('/login')}
-            className="text-[11px] text-gray-500 underline hover:text-gray-400">
+            className="text-[11px] text-gray-500 underline hover:text-gray-600">
             ← 로그인 페이지로 돌아가기
           </button>
           <p className="text-[11px] text-gray-500">문의: 카카오톡 well__moment</p>

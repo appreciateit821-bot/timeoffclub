@@ -251,7 +251,7 @@ function SessionReadyContent() {
                 disabled={starRating === 0 || submittingRating}
                 className={`w-full py-3 rounded-xl font-medium transition active:scale-95 ${
                   starRating === 0
-                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     : 'bg-amber-600 hover:bg-amber-700 text-white'
                 }`}
               >
@@ -414,14 +414,14 @@ function SessionReadyContent() {
           <div className="text-amber-600 text-sm">{date}</div>
           <div className="text-gray-800 text-xl font-bold mt-1">{spot}</div>
           <div className="flex justify-center gap-4 mt-3">
-            <span className="text-sm text-blue-300">💬 스몰토크 {smalltalkCount}명</span>
-            <span className="text-sm text-violet-300">🧘 사색 {reflectionCount}명</span>
+            <span className="text-sm text-blue-600">💬 스몰토크 {smalltalkCount}명</span>
+            <span className="text-sm text-violet-600">🧘 사색 {reflectionCount}명</span>
           </div>
         </div>
 
         {/* 오늘의 참가자 */}
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-600">오늘의 참가자</h3>
+          <h3 className="text-sm font-medium text-gray-700">오늘의 참가자</h3>
           {participants.map((p, idx) => {
             const isMe = reservation && p.user_name === reservation.user_name;
             return (
@@ -430,7 +430,7 @@ function SessionReadyContent() {
                   <span className="text-gray-800 text-sm font-medium">{isMe ? '나' : `멤버 ${idx + 1}`}</span>
                   <span className="text-xs">{energyEmoji(p.energy || 'normal')}</span>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                    p.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
+                    p.mode === 'reflection' ? 'bg-violet-50 text-violet-600' : 'bg-blue-50 text-blue-600'
                   }`}>{modeLabel(p.mode || 'smalltalk')}</span>
                 </div>
                 {p.memo && (
@@ -444,17 +444,17 @@ function SessionReadyContent() {
         {/* 모드별 카드 */}
         {myMode === 'reflection' ? (
           <div className="bg-violet-50 border border-violet-200 rounded-xl p-5 text-center">
-            <div className="text-xs text-violet-400 mb-2">🧘 오늘의 사색 카드</div>
+            <div className="text-xs text-violet-600 mb-2">🧘 오늘의 사색 카드</div>
             <div className="text-3xl mb-2">{currentReflectionCard.emoji}</div>
-            <p className="text-violet-100 text-lg font-medium">{currentReflectionCard.title}</p>
+            <p className="text-violet-700 text-lg font-medium">{currentReflectionCard.title}</p>
             <p className="text-violet-700/70 text-sm mt-2 leading-relaxed">{currentReflectionCard.desc}</p>
-            <button onClick={pickReflectionCard} className="mt-3 text-xs text-violet-300/70 hover:text-violet-700 underline transition">
+            <button onClick={pickReflectionCard} className="mt-3 text-xs text-violet-500 hover:text-violet-700 underline transition">
               다른 카드 뽑기
             </button>
           </div>
         ) : (
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center">
-            <div className="text-xs text-amber-400 mb-2">🗨️ 오늘의 대화 카드</div>
+            <div className="text-xs text-amber-600 mb-2">🗨️ 오늘의 대화 카드</div>
             <p className="text-amber-800 text-lg font-medium leading-relaxed">"{randomQuestion}"</p>
             <button onClick={fetchRandomQuestion} className="mt-3 text-xs text-amber-600/70 hover:text-amber-700 underline transition">
               다른 질문 뽑기
@@ -506,15 +506,15 @@ function SessionReadyContent() {
                   {!isCheck ? (
                     <>
                       <div className="text-4xl mb-3">{slides[ruleSlide].emoji}</div>
-                      <p className={`text-xs font-medium mb-4 ${isReflectionMode ? 'text-violet-400' : 'text-blue-400'}`}>{slides[ruleSlide].label}</p>
-                      <p className="text-gray-100 text-lg leading-loose whitespace-pre-line font-medium">
+                      <p className={`text-xs font-medium mb-4 ${isReflectionMode ? 'text-violet-600' : 'text-blue-600'}`}>{slides[ruleSlide].label}</p>
+                      <p className="text-gray-700 text-lg leading-loose whitespace-pre-line font-medium">
                         {slides[ruleSlide].text}
                       </p>
                     </>
                   ) : (
                     <>
                       <div className="text-4xl mb-4">{isReflectionMode ? '💬' : '🗣️'}</div>
-                      <p className="text-gray-100 text-lg font-medium mb-6">
+                      <p className="text-gray-700 text-lg font-medium mb-6">
                         {isReflectionMode ? '사색' : '스몰토크'} 약속을<br/>확인하셨나요?
                       </p>
                       <button
@@ -523,7 +523,7 @@ function SessionReadyContent() {
                         }}
                         className={`px-8 py-3.5 rounded-xl font-medium text-base transition active:scale-95 ${
                           rulesChecked[modeKey]
-                            ? `${isReflectionMode ? 'bg-violet-600/20 text-violet-300 border border-violet-600/30' : 'bg-blue-600/20 text-blue-300 border border-blue-600/30'}`
+                            ? `${isReflectionMode ? 'bg-violet-50 text-violet-600 border border-violet-200' : 'bg-blue-50 text-blue-600 border border-blue-200'}`
                             : `${isReflectionMode ? 'bg-violet-600 text-white' : 'bg-blue-600 text-white'}`
                         }`}
                       >
@@ -536,7 +536,7 @@ function SessionReadyContent() {
                 {/* 인디케이터 */}
                 <div className="flex justify-center gap-1.5 mb-4">
                   {Array.from({ length: totalSlides }).map((_, i) => (
-                    <div key={i} className={`h-1.5 rounded-full transition-all ${i === ruleSlide ? `w-6 ${isReflectionMode ? 'bg-violet-400' : 'bg-blue-400'}` : 'w-1.5 bg-gray-600'}`} />
+                    <div key={i} className={`h-1.5 rounded-full transition-all ${i === ruleSlide ? `w-6 ${isReflectionMode ? 'bg-violet-400' : 'bg-blue-400'}` : 'w-1.5 bg-gray-300'}`} />
                   ))}
                 </div>
 

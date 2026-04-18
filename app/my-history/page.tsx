@@ -255,11 +255,11 @@ export default function MyHistoryPage() {
         <div className="flex gap-2">
           <button onClick={() => setActiveView('dashboard')}
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
-              activeView === 'dashboard' ? 'bg-amber-600 text-white' : 'bg-white text-gray-400'
+              activeView === 'dashboard' ? 'bg-amber-600 text-white' : 'bg-white text-gray-500'
             }`}>📊 대시보드</button>
           <button onClick={() => setActiveView('history')}
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
-              activeView === 'history' ? 'bg-amber-600 text-white' : 'bg-white text-gray-400'
+              activeView === 'history' ? 'bg-amber-600 text-white' : 'bg-white text-gray-500'
             }`}>📋 기록</button>
         </div>
       </div>
@@ -361,7 +361,7 @@ export default function MyHistoryPage() {
             {/* 다가오는 세션 */}
             {upcoming.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-3">📅 다가오는 세션</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-3">📅 다가오는 세션</h3>
                 <div className="space-y-2">
                   {upcoming.map(r => (
                     <div key={r.id} className="bg-white/80 rounded-lg p-3 flex justify-between items-center">
@@ -370,7 +370,7 @@ export default function MyHistoryPage() {
                         <div className="text-gray-500 text-xs">{r.spot.split('_')[1] || r.spot}</div>
                       </div>
                       <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                        r.mode === 'reflection' ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                        r.mode === 'reflection' ? 'bg-violet-50 text-violet-600 border border-violet-200' : 'bg-blue-50 text-blue-600 border border-blue-200'
                       }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
                     </div>
                   ))}
@@ -381,7 +381,7 @@ export default function MyHistoryPage() {
             {/* 멤버들의 한마디 */}
             {moments.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-600 mb-3">✨ 멤버들의 한마디</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-3">✨ 멤버들의 한마디</h3>
                 <div className="space-y-2">
                   {moments.slice(0, 5).map((m: any, idx: number) => (
                     <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200/30">
@@ -430,7 +430,7 @@ export default function MyHistoryPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
-                          r.mode === 'reflection' ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                          r.mode === 'reflection' ? 'bg-violet-50 text-violet-600 border border-violet-200' : 'bg-blue-50 text-blue-600 border border-blue-200'
                         }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
                         <button onClick={() => { setReportSession(r); setShowReport(true); }}
                           className="text-[10px] text-gray-500 hover:text-red-400">🚨</button>
@@ -458,15 +458,15 @@ export default function MyHistoryPage() {
               <p className="text-gray-500 text-xs">이 내용은 웰모먼트만 확인하며, 신고자 정보는 비공개입니다.</p>
               {reportSession && <div className="text-xs text-gray-500">{reportSession.date} · {reportSession.spot}</div>}
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">어떤 상황이었나요?</label>
+                <label className="text-xs text-gray-700 mb-1 block">어떤 상황이었나요?</label>
                 <textarea value={reportDesc} onChange={(e) => setReportDesc(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm min-h-[80px] resize-y placeholder-gray-400"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm min-h-[80px] resize-y placeholder-gray-400"
                   placeholder="불편했던 상황을 설명해주세요" />
               </div>
               <div>
-                <label className="text-xs text-gray-600 mb-1 block">해당 참가자 특징 (선택)</label>
+                <label className="text-xs text-gray-700 mb-1 block">해당 참가자 특징 (선택)</label>
                 <input type="text" value={reportPerson} onChange={(e) => setReportPerson(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm placeholder-gray-400"
+                  className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm placeholder-gray-400"
                   placeholder="예: 안경 쓴 분, 창가에 앉은 분 등" />
               </div>
               {reportSuccess && <p className="text-green-600 text-sm">{reportSuccess}</p>}

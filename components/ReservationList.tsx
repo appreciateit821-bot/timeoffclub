@@ -115,7 +115,7 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
   const sortedReservations = [...reservations].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 shadow-lg">
+    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-300 shadow-lg">
       <h2 className="text-xl font-bold text-amber-800 mb-4">내 예약</h2>
 
       {sortedReservations.length === 0 ? (
@@ -181,13 +181,13 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                           <span className="text-lg font-semibold text-gray-800">{reservation.date}</span>
                           {closed && (
-                            <span className="px-2 py-0.5 bg-red-900/50 text-red-600 rounded text-[10px] font-medium">마감</span>
+                            <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-[10px] font-medium">마감</span>
                           )}
                         </div>
                         <div className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3.5 py-1.5 rounded-full mb-2 ${
                           reservation.mode === 'reflection'
-                            ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
-                            : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                            ? 'bg-violet-50 text-violet-600 border border-violet-200'
+                            : 'bg-blue-50 text-blue-600 border border-blue-200'
                         }`}>
                           {reservation.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
                         </div>
@@ -198,8 +198,8 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                           return (
                             <div className="flex gap-2 mt-1">
                               <span className="text-[10px] text-gray-500">총 {s.total}명</span>
-                              <span className="text-[10px] text-blue-400">💬 {s.smalltalk}</span>
-                              <span className="text-[10px] text-violet-400">🧘 {s.reflection}</span>
+                              <span className="text-[10px] text-blue-600">💬 {s.smalltalk}</span>
+                              <span className="text-[10px] text-violet-600">🧘 {s.reflection}</span>
                             </div>
                           );
                         })()}

@@ -156,7 +156,7 @@ export default function GuidePage() {
 
         {/* 카테고리 토글 */}
         {GUIDE_CATEGORIES.map((cat, idx) => (
-          <div key={idx} className="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden">
+          <div key={idx} className="bg-white border border-gray-300 shadow-sm rounded-xl overflow-hidden">
             <button
               onClick={() => setOpenCategory(openCategory === idx ? null : idx)}
               className="w-full px-4 py-4 flex items-center justify-between text-left active:bg-gray-100 transition"
@@ -177,7 +177,7 @@ export default function GuidePage() {
               <div className="px-4 pb-4 space-y-2">
                 {cat.questions.map((q, qIdx) => (
                   <div key={qIdx} className="flex items-start gap-2 py-2 px-3 bg-gray-100 rounded-lg">
-                    <span className="text-amber-400 text-sm mt-0.5">•</span>
+                    <span className="text-amber-600 text-sm mt-0.5">•</span>
                     <span className="text-gray-700 text-sm">{q}</span>
                   </div>
                 ))}
@@ -190,10 +190,10 @@ export default function GuidePage() {
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mt-6">
           <h3 className="text-amber-600 font-medium text-sm mb-3">💡 스몰토크 팁</h3>
           <ul className="space-y-2 text-gray-600 text-sm">
-            <li className="flex items-start gap-2"><span className="text-amber-400">•</span>정답은 없어요. 떠오르는 대로 말해보세요.</li>
-            <li className="flex items-start gap-2"><span className="text-amber-400">•</span>침묵이 흘러도 괜찮아요. 그것도 대화의 일부입니다.</li>
-            <li className="flex items-start gap-2"><span className="text-amber-400">•</span>상대의 이야기에 "왜?"보다 "어떤 느낌이었어요?"가 좋아요.</li>
-            <li className="flex items-start gap-2"><span className="text-amber-400">•</span>나이, 직업, 배경은 물어보지 않아요.</li>
+            <li className="flex items-start gap-2"><span className="text-amber-600">•</span>정답은 없어요. 떠오르는 대로 말해보세요.</li>
+            <li className="flex items-start gap-2"><span className="text-amber-600">•</span>침묵이 흘러도 괜찮아요. 그것도 대화의 일부입니다.</li>
+            <li className="flex items-start gap-2"><span className="text-amber-600">•</span>상대의 이야기에 "왜?"보다 "어떤 느낌이었어요?"가 좋아요.</li>
+            <li className="flex items-start gap-2"><span className="text-amber-600">•</span>나이, 직업, 배경은 물어보지 않아요.</li>
           </ul>
         </div>
       </main>

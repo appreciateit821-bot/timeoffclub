@@ -62,7 +62,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0] px-4 py-6 sm:py-12">
       <div className="w-full max-w-lg">
-        <div className="bg-white backdrop-blur rounded-2xl shadow-sm p-5 sm:p-8 border border-gray-200">
+        <div className="bg-white backdrop-blur rounded-2xl shadow-sm p-5 sm:p-8 border border-gray-300">
           <div className="text-center mb-6">
             {/* 5. 히어로 배지 */}
             <div className="inline-block px-4 py-1.5 bg-amber-50 border border-amber-200 rounded-full mb-3">
@@ -79,21 +79,21 @@ export default function LoginPage() {
                 <span className="text-amber-600 flex-shrink-0 text-lg">📵</span>
                 <div>
                   <p className="font-semibold text-amber-800">Digital OFF</p>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">2시간만 세상과 연결을 끊어보세요.<br/>대신 당신과 연결돼요.</p>
+                  <p className="text-xs text-gray-700 mt-1 leading-relaxed">2시간만 세상과 연결을 끊어보세요.<br/>대신 당신과 연결돼요.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-amber-600 flex-shrink-0 text-lg">🎯</span>
                 <div>
                   <p className="font-semibold text-amber-800">Outcome OFF</p>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">이름 대신 이야기, 스펙 대신 감정.<br/>여기선 당신이 누군지 안 물어요.</p>
+                  <p className="text-xs text-gray-700 mt-1 leading-relaxed">이름 대신 이야기, 스펙 대신 감정.<br/>여기선 당신이 누군지 안 물어요.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-amber-600 flex-shrink-0 text-lg">💭</span>
                 <div>
                   <p className="font-semibold text-amber-800">Resume OFF</p>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">누군가와 나누든, 나와 마주하든.<br/>오늘의 휴식은 당신이 고르세요.</p>
+                  <p className="text-xs text-gray-700 mt-1 leading-relaxed">누군가와 나누든, 나와 마주하든.<br/>오늘의 휴식은 당신이 고르세요.</p>
                 </div>
               </div>
             </div>
@@ -102,7 +102,7 @@ export default function LoginPage() {
           {/* 루틴 안내 */}
           <div className="mb-8 text-center">
             <p className="text-amber-700/80 text-sm font-medium">매주 수요일 저녁 8시, 일요일 오후 3시</p>
-            <p className="text-gray-500 text-xs mt-1">일주일에 한 번 운동하듯, 나를 위한 정기적인 OFF를 루틴으로 만들어보세요</p>
+            <p className="text-gray-700 text-xs mt-1">일주일에 한 번 운동하듯, 나를 위한 정기적인 OFF를 루틴으로 만들어보세요</p>
           </div>
 
           {/* 로그인 모드 선택 */}
@@ -135,7 +135,7 @@ export default function LoginPage() {
             {loginMode === 'member' ? (
               <>
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-600 mb-2">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                     이름
                   </label>
                   <input
@@ -143,13 +143,13 @@ export default function LoginPage() {
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                     placeholder="이름을 입력하세요"
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="phoneLast4" className="block text-sm font-medium text-gray-600 mb-2">
+                  <label htmlFor="phoneLast4" className="block text-sm font-medium text-gray-700 mb-2">
                     본인 확인 코드
                   </label>
                   <input
@@ -165,7 +165,7 @@ export default function LoginPage() {
                         setPhoneLast4(val.replace(/\D/g, '').slice(0, 4));
                       }
                     }}
-                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                     placeholder="연락처 뒷4자리 또는 체험권 코드"
                     maxLength={8}
                     required
@@ -175,7 +175,7 @@ export default function LoginPage() {
               </>
             ) : (
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-600 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                   비밀번호
                 </label>
                 <input
@@ -183,7 +183,7 @@ export default function LoginPage() {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                   placeholder="운영자 비밀번호를 입력하세요"
                   required
                 />
@@ -246,7 +246,7 @@ export default function LoginPage() {
 
           {/* 멤버십 가입 */}
           <div className="mt-5 pt-5 border-t border-gray-200 space-y-3">
-            <p className="text-gray-500 text-xs text-center">아직 멤버가 아니신가요?</p>
+            <p className="text-gray-700 text-xs text-center">아직 멤버가 아니신가요?</p>
             <a
               href="https://smartstore.naver.com/wellmoment"
               target="_blank"
@@ -264,7 +264,7 @@ export default function LoginPage() {
           <a href="https://www.instagram.com/well__moment" target="_blank" rel="noopener noreferrer"
             className="text-gray-500 hover:text-amber-600 transition">📸 인스타그램</a>
         </div>
-        <p className="text-center text-xs text-gray-400 mt-3">© 2026 타임오프클럽 by 웰모먼트</p>
+        <p className="text-center text-xs text-gray-500 mt-3">© 2026 타임오프클럽 by 웰모먼트</p>
       </div>
     </div>
   );
