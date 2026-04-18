@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [phoneLast4, setPhoneLast4] = useState('');
   const [error, setError] = useState('');
+  const [renewUrl, setRenewUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [loginMode, setLoginMode] = useState<'member' | 'admin'>('member');
   const [newUserPrompt, setNewUserPrompt] = useState(false);
@@ -34,6 +35,7 @@ export default function LoginPage() {
 
       if (!res.ok) {
         setError(data.error || '로그인에 실패했습니다.');
+        if (data.renewUrl) setRenewUrl(data.renewUrl);
         return;
       }
 
@@ -58,40 +60,40 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-900/20 via-gray-900 to-gray-900 px-4 py-6 sm:py-12">
+    <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0] px-4 py-6 sm:py-12">
       <div className="w-full max-w-lg">
-        <div className="bg-gray-800/80 backdrop-blur rounded-2xl shadow-2xl p-5 sm:p-8 border border-amber-700/30">
+        <div className="bg-white backdrop-blur rounded-2xl shadow-sm p-5 sm:p-8 border border-gray-200">
           <div className="text-center mb-6">
             {/* 5. 히어로 배지 */}
-            <div className="inline-block px-4 py-1.5 bg-amber-900/30 border border-amber-700/30 rounded-full mb-3">
-              <p className="text-xs text-amber-300">🌿 누적 <strong className="text-amber-200">85명</strong>이 타임오프를 경험했습니다</p>
+            <div className="inline-block px-4 py-1.5 bg-amber-50 border border-amber-200 rounded-full mb-3">
+              <p className="text-xs text-amber-700">🌿 누적 <strong className="text-amber-800">85명</strong>이 타임오프를 경험했습니다</p>
             </div>
-            <h1 className="text-3xl font-bold text-amber-100 mb-2">타임오프클럽</h1>
-            <p className="text-base sm:text-lg text-amber-200/90 font-medium mb-3 leading-relaxed">목적 없는 즐거움,<br/>다정한 디지털 로그아웃<br className="sm:hidden" /> 스몰토크를 제안합니다</p>
+            <h1 className="text-3xl font-bold text-amber-800 mb-2">타임오프클럽</h1>
+            <p className="text-base sm:text-lg text-amber-700/90 font-medium mb-3 leading-relaxed">목적 없는 즐거움,<br/>다정한 디지털 로그아웃<br className="sm:hidden" /> 스몰토크를 제안합니다</p>
           </div>
 
           {/* 클럽 규칙 */}
-          <div className="mb-6 p-4 sm:p-5 bg-gray-700/40 rounded-xl border border-gray-600/50">
+          <div className="mb-6 p-4 sm:p-5 bg-gray-50 rounded-xl border border-gray-200">
             <div className="space-y-4 text-sm">
               <div className="flex items-start gap-3">
-                <span className="text-amber-400 flex-shrink-0 text-lg">📵</span>
+                <span className="text-amber-600 flex-shrink-0 text-lg">📵</span>
                 <div>
-                  <p className="font-semibold text-amber-100">Digital OFF</p>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">2시간만 세상과 연결을 끊어보세요.<br/>대신 당신과 연결돼요.</p>
+                  <p className="font-semibold text-amber-800">Digital OFF</p>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">2시간만 세상과 연결을 끊어보세요.<br/>대신 당신과 연결돼요.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-amber-400 flex-shrink-0 text-lg">🎯</span>
+                <span className="text-amber-600 flex-shrink-0 text-lg">🎯</span>
                 <div>
-                  <p className="font-semibold text-amber-100">Outcome OFF</p>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">이름 대신 이야기, 스펙 대신 감정.<br/>여기선 당신이 누군지 안 물어요.</p>
+                  <p className="font-semibold text-amber-800">Outcome OFF</p>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">이름 대신 이야기, 스펙 대신 감정.<br/>여기선 당신이 누군지 안 물어요.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="text-amber-400 flex-shrink-0 text-lg">💭</span>
+                <span className="text-amber-600 flex-shrink-0 text-lg">💭</span>
                 <div>
-                  <p className="font-semibold text-amber-100">Resume OFF</p>
-                  <p className="text-xs text-gray-400 mt-1 leading-relaxed">누군가와 나누든, 나와 마주하든.<br/>오늘의 휴식은 당신이 고르세요.</p>
+                  <p className="font-semibold text-amber-800">Resume OFF</p>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">누군가와 나누든, 나와 마주하든.<br/>오늘의 휴식은 당신이 고르세요.</p>
                 </div>
               </div>
             </div>
@@ -99,19 +101,19 @@ export default function LoginPage() {
 
           {/* 루틴 안내 */}
           <div className="mb-8 text-center">
-            <p className="text-amber-200/80 text-sm font-medium">매주 수요일 저녁 8시, 일요일 오후 3시</p>
-            <p className="text-gray-400 text-xs mt-1">일주일에 한 번 운동하듯, 나를 위한 정기적인 OFF를 루틴으로 만들어보세요</p>
+            <p className="text-amber-700/80 text-sm font-medium">매주 수요일 저녁 8시, 일요일 오후 3시</p>
+            <p className="text-gray-500 text-xs mt-1">일주일에 한 번 운동하듯, 나를 위한 정기적인 OFF를 루틴으로 만들어보세요</p>
           </div>
 
           {/* 로그인 모드 선택 */}
-          <div className="flex mb-6 bg-gray-700/50 rounded-lg p-1">
+          <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
             <button
               type="button"
               onClick={() => { setLoginMode('member'); setError(''); }}
               className={`flex-1 py-2.5 text-sm font-medium rounded-md transition ${
                 loginMode === 'member'
                   ? 'bg-amber-600 text-white shadow'
-                  : 'text-gray-400 hover:text-gray-200'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               멤버
@@ -122,7 +124,7 @@ export default function LoginPage() {
               className={`flex-1 py-2.5 text-sm font-medium rounded-md transition ${
                 loginMode === 'admin'
                   ? 'bg-amber-600 text-white shadow'
-                  : 'text-gray-400 hover:text-gray-200'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               운영자
@@ -133,7 +135,7 @@ export default function LoginPage() {
             {loginMode === 'member' ? (
               <>
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-600 mb-2">
                     이름
                   </label>
                   <input
@@ -141,13 +143,13 @@ export default function LoginPage() {
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                     placeholder="이름을 입력하세요"
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="phoneLast4" className="block text-sm font-medium text-gray-300 mb-2">
+                  <label htmlFor="phoneLast4" className="block text-sm font-medium text-gray-600 mb-2">
                     본인 확인 코드
                   </label>
                   <input
@@ -163,7 +165,7 @@ export default function LoginPage() {
                         setPhoneLast4(val.replace(/\D/g, '').slice(0, 4));
                       }
                     }}
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                    className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                     placeholder="연락처 뒷4자리 또는 체험권 코드"
                     maxLength={8}
                     required
@@ -173,7 +175,7 @@ export default function LoginPage() {
               </>
             ) : (
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-600 mb-2">
                   비밀번호
                 </label>
                 <input
@@ -181,7 +183,7 @@ export default function LoginPage() {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition"
                   placeholder="운영자 비밀번호를 입력하세요"
                   required
                 />
@@ -189,17 +191,25 @@ export default function LoginPage() {
             )}
 
             {error && (
-              <div className="bg-red-900/50 border border-red-700 text-red-200 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
+                {renewUrl && (
+                  <button
+                    type="button"
+                    onClick={() => router.push(renewUrl)}
+                    className="mt-3 w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-medium transition">
+                    멤버십 갱신하기
+                  </button>
+                )}
               </div>
             )}
 
             {newUserPrompt && (
-              <div className="bg-amber-900/20 border border-amber-600/40 rounded-xl p-5 space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 space-y-4">
                 <div className="text-center">
                   <div className="text-3xl mb-2">👋</div>
-                  <p className="text-amber-100 font-semibold text-base mb-1">처음 오셨나요?</p>
-                  <p className="text-amber-200/80 text-xs leading-relaxed">
+                  <p className="text-amber-800 font-semibold text-base mb-1">처음 오셨나요?</p>
+                  <p className="text-amber-700/80 text-xs leading-relaxed">
                     입력하신 이름과 뒷 4자리가 DB에 없어요.
                   </p>
                 </div>
@@ -213,14 +223,14 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => { setNewUserPrompt(false); setError(''); }}
-                    className="w-full py-3 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded-lg transition">
+                    className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-lg transition">
                     이미 멤버예요 — 다시 확인할게요
                   </button>
                 </div>
-                <div className="text-[11px] text-amber-300/70 leading-relaxed text-center pt-2 border-t border-amber-800/30">
+                <div className="text-[11px] text-amber-600/70 leading-relaxed text-center pt-2 border-t border-amber-200">
                   💡 기존 멤버이신데 로그인이 안 되면<br/>
                   <strong>연락처 뒷 4자리</strong>(번호 마지막 숫자 4개)를 정확히 입력했는지 확인해주세요.<br/>
-                  그래도 안 되면 카카오톡 <span className="text-amber-200">well__moment</span>로 연락주세요.
+                  그래도 안 되면 카카오톡 <span className="text-amber-700">well__moment</span>로 연락주세요.
                 </div>
               </div>
             )}
@@ -234,9 +244,9 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* 멤버십 가입 & 갱신 */}
-          <div className="mt-5 pt-5 border-t border-gray-700 space-y-3">
-            <p className="text-gray-400 text-xs text-center">아직 멤버가 아니신가요?</p>
+          {/* 멤버십 가입 */}
+          <div className="mt-5 pt-5 border-t border-gray-200 space-y-3">
+            <p className="text-gray-500 text-xs text-center">아직 멤버가 아니신가요?</p>
             <a
               href="https://smartstore.naver.com/wellmoment"
               target="_blank"
@@ -245,13 +255,6 @@ export default function LoginPage() {
             >
               🛒 멤버십 가입하기
             </a>
-            <button
-              type="button"
-              onClick={() => router.push('/renew')}
-              className="block w-full py-3 bg-gray-700 hover:bg-gray-600 text-amber-200 rounded-xl text-sm font-medium text-center transition active:scale-95"
-            >
-              🔄 이미 멤버예요 · 다음 달 멤버십 갱신
-            </button>
           </div>
         </div>
 
@@ -259,9 +262,9 @@ export default function LoginPage() {
         <div className="mt-6 flex justify-center gap-6 text-sm">
           <span className="text-gray-500">💬 카카오톡 well__moment</span>
           <a href="https://www.instagram.com/well__moment" target="_blank" rel="noopener noreferrer"
-            className="text-gray-500 hover:text-amber-400 transition">📸 인스타그램</a>
+            className="text-gray-500 hover:text-amber-600 transition">📸 인스타그램</a>
         </div>
-        <p className="text-center text-xs text-gray-600 mt-3">© 2026 타임오프클럽 by 웰모먼트</p>
+        <p className="text-center text-xs text-gray-400 mt-3">© 2026 타임오프클럽 by 웰모먼트</p>
       </div>
     </div>
   );

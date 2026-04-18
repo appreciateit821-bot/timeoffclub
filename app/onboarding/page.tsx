@@ -101,7 +101,7 @@ function OnboardingContent() {
     return (
       <Centered>
         <div className="text-5xl mb-4">🎉</div>
-        <h1 className="text-xl font-bold text-amber-100 mb-3">가입 완료!</h1>
+        <h1 className="text-xl font-bold text-amber-800 mb-3">가입 완료!</h1>
         <p className="text-gray-300 text-sm">잠시 후 예약 페이지로 이동합니다...</p>
       </Centered>
     );
@@ -111,26 +111,26 @@ function OnboardingContent() {
     return (
       <Centered>
         <div className="text-5xl mb-4">📮</div>
-        <h1 className="text-xl font-bold text-amber-100 mb-3">가입 신청이 접수됐어요</h1>
+        <h1 className="text-xl font-bold text-amber-800 mb-3">가입 신청이 접수됐어요</h1>
         <p className="text-gray-300 text-sm leading-relaxed mb-6">
           운영진이 주문번호와 정보를 확인한 후 승인 안내드립니다.<br />
           보통 1~2영업일 이내 연락드려요.
         </p>
         <p className="text-gray-500 text-xs">
-          궁금한 점은 카카오톡 <span className="text-amber-300">well__moment</span>로 문의해주세요.
+          궁금한 점은 카카오톡 <span className="text-amber-600">well__moment</span>로 문의해주세요.
         </p>
       </Centered>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-900/20 via-gray-900 to-gray-900 px-4 py-6 sm:py-10">
+    <div className="min-h-screen bg-[#FFF8F0] px-4 py-6 sm:py-10">
       <div className="max-w-2xl mx-auto">
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-amber-100 mb-2">타임오프클럽 가입 신청</h1>
+          <h1 className="text-2xl font-bold text-amber-800 mb-2">타임오프클럽 가입 신청</h1>
           <p className="text-xs text-gray-400 leading-relaxed">
-            타임오프 클럽은 <strong className="text-amber-200">익명</strong>으로 운영되지만,<br className="sm:hidden"/>
+            타임오프 클럽은 <strong className="text-amber-700">익명</strong>으로 운영되지만,<br className="sm:hidden"/>
             안전한 커뮤니티를 위해 신뢰할 수 있는 정보를 확인합니다.<br/>
             응답 내용은 운영진만 확인하며 외부로 공개되지 않습니다 💜
           </p>
@@ -146,34 +146,34 @@ function OnboardingContent() {
         <Section title="1. 기본 정보" badge="필수">
           <Field label="성함">
             <input value={name} onChange={e => setName(e.target.value)}
-              className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500" />
+              className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm focus:outline-none focus:border-amber-500" />
           </Field>
           <Field label="연락처" hint="타임오프클럽 공지 문자를 받을 번호. 전체 번호를 입력해주세요.">
             <input value={phone} onChange={e => setPhone(e.target.value)}
               inputMode="tel"
-              className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500" />
+              className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm focus:outline-none focus:border-amber-500" />
           </Field>
           <Field label="이메일">
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="example@email.com"
-              className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500" />
+              className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm focus:outline-none focus:border-amber-500" />
           </Field>
           <Field label="연령대 / 성별">
             <div className="grid grid-cols-3 gap-2">
               {AGE_GENDER_OPTIONS.map(opt => (
                 <button key={opt} type="button" onClick={() => setAgeGender(opt)}
                   className={`py-2 rounded-lg text-xs font-medium transition border ${
-                    ageGender === opt ? 'bg-amber-600 border-amber-500 text-white' : 'bg-gray-800 border-gray-700 text-gray-300'
+                    ageGender === opt ? 'bg-amber-600 border-amber-500 text-white' : 'bg-white border-gray-300 text-gray-600'
                   }`}>{opt}</button>
               ))}
             </div>
           </Field>
           <Field label="하시는 일">
             <input value={occupation} onChange={e => setOccupation(e.target.value)}
-              className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500" />
+              className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm focus:outline-none focus:border-amber-500" />
           </Field>
           <Field label="본인에 대해 소개해주세요" hint="성과와 효능감을 증명하지 않아도 되는 공간입니다. 편하게 있는 그대로 💜">
             <textarea value={selfIntro} onChange={e => setSelfIntro(e.target.value)} rows={5}
-              className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500 resize-none" />
+              className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm focus:outline-none focus:border-amber-500 resize-none" />
           </Field>
         </Section>
 
@@ -183,7 +183,7 @@ function OnboardingContent() {
             <div className="space-y-2">
               {REASONS.map(r => (
                 <label key={r.key} className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition ${
-                  reasons.includes(r.key) ? 'bg-amber-900/20 border-amber-600/50' : 'bg-gray-800 border-gray-700'
+                  reasons.includes(r.key) ? 'bg-amber-50 border-amber-300' : 'bg-white border-gray-300'
                 }`}>
                   <input type="checkbox" checked={reasons.includes(r.key)} onChange={() => toggleReason(r.key)}
                     className="mt-0.5 w-4 h-4 accent-amber-500" />
@@ -191,12 +191,12 @@ function OnboardingContent() {
                 </label>
               ))}
               <input value={reasonOther} onChange={e => setReasonOther(e.target.value)} placeholder="기타 (직접 입력)"
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs focus:outline-none focus:border-amber-500" />
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-xs focus:outline-none focus:border-amber-500" />
             </div>
           </Field>
           <Field label="기대하는 모임 혹은 휴식의 형태는?" hint="아이디어를 제안해 주셔도 좋습니다 :-)">
             <textarea value={expectation} onChange={e => setExpectation(e.target.value)} rows={4}
-              className="w-full px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:outline-none focus:border-amber-500 resize-none" />
+              className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm focus:outline-none focus:border-amber-500 resize-none" />
           </Field>
         </Section>
 
@@ -205,10 +205,10 @@ function OnboardingContent() {
           <p className="text-xs text-gray-400 mb-3">아래 4가지 오프 매너를 읽고 준수에 동의해주세요.</p>
           <div className="space-y-2 mb-4">
             {OFF_MANNER_RULES.map(r => (
-              <div key={r.key} className="flex items-start gap-3 p-3 bg-gray-800/60 rounded-lg border border-gray-700">
+              <div key={r.key} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                 <span className="text-lg">{r.icon}</span>
                 <div>
-                  <p className="text-sm font-semibold text-amber-200">{r.key}</p>
+                  <p className="text-sm font-semibold text-amber-700">{r.key}</p>
                   <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{r.desc}</p>
                 </div>
               </div>
@@ -220,11 +220,11 @@ function OnboardingContent() {
 
         {/* 운영 정책 */}
         <Section title="4. 운영 정책 및 서비스 이용 안내" badge="필수">
-          <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-4 mb-4 text-xs leading-relaxed text-gray-300 max-h-64 overflow-y-auto space-y-3">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 text-xs leading-relaxed text-gray-300 max-h-64 overflow-y-auto space-y-3">
             <div>
               <p className="text-amber-200 font-semibold mb-1">1. 멤버십 및 환불 정책</p>
               <p>• <strong>참여 횟수</strong>: 한 달간 매주 수요일 저녁 8시, 일요일 오후 3시 횟수 제한 없이 자유롭게 참여 가능합니다.</p>
-              <p className="text-red-300">• <strong>⚠️ 환불 규정</strong>: 질문지 제출 이후 환불이 <strong>절대 불가</strong>합니다.</p>
+              <p className="text-red-600">• <strong>⚠️ 환불 규정</strong>: 질문지 제출 이후 환불이 <strong>절대 불가</strong>합니다.</p>
               <p>• <strong>양도 불가</strong>: 멤버십은 본인에게만 해당하며 타인에게 양도/대여할 수 없습니다.</p>
             </div>
             <div>
@@ -251,7 +251,7 @@ function OnboardingContent() {
 
         {/* 개인정보 수집 동의 */}
         <Section title="5. 개인정보 수집 및 이용 동의" badge="필수">
-          <div className="bg-gray-800/60 border border-gray-700 rounded-lg p-4 mb-4 text-xs leading-relaxed text-gray-300 max-h-56 overflow-y-auto space-y-2">
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 text-xs leading-relaxed text-gray-300 max-h-56 overflow-y-auto space-y-2">
             <p>• <strong>수집 주체</strong>: 웰모먼트 (wellmoment)</p>
             <p>• <strong>수집 항목</strong>: 성함, 연락처, 이메일, 본인 키워드 및 설문 응답 내용</p>
             <p>• <strong>이용 목적</strong>:</p>
@@ -269,16 +269,16 @@ function OnboardingContent() {
         {/* 스마트스토어 주문번호 */}
         <Section title="6. 스마트스토어 주문번호" badge="필수">
           <p className="text-xs text-gray-400 mb-3 leading-relaxed">
-            본인 확인을 위해 필요합니다. 네이버 스마트스토어 <strong className="text-amber-200">마이페이지 → 주문내역</strong>에서 확인하세요.<br/>
-            형식 예: <span className="font-mono text-amber-200">2026011234567801</span>
+            본인 확인을 위해 필요합니다. 네이버 스마트스토어 <strong className="text-amber-700">마이페이지 → 주문내역</strong>에서 확인하세요.<br/>
+            형식 예: <span className="font-mono text-amber-700">2026011234567801</span>
           </p>
           <input value={smartstoreOrderId} onChange={e => setSmartstoreOrderId(e.target.value)}
             placeholder="주문번호 입력"
-            className="w-full px-3 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white text-base font-mono focus:outline-none focus:border-amber-500" />
+            className="w-full px-3 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 text-base font-mono focus:outline-none focus:border-amber-500" />
         </Section>
 
         {error && (
-          <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-4 mb-4 text-sm text-red-300 whitespace-pre-line leading-relaxed">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 text-sm text-red-600 whitespace-pre-line leading-relaxed">
             {error}
           </div>
         )}
@@ -287,7 +287,7 @@ function OnboardingContent() {
           className={`w-full py-4 rounded-xl font-bold text-base transition ${
             canSubmit && !submitting
               ? 'bg-amber-600 hover:bg-amber-500 text-white active:scale-95'
-              : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+              : 'bg-gray-200 text-gray-400 cursor-not-allowed'
           }`}>
           {submitting ? '제출 중...' : '가입 신청하기'}
         </button>
@@ -302,10 +302,10 @@ function OnboardingContent() {
 
 function Section({ title, badge, children }: { title: string; badge?: string; children: React.ReactNode }) {
   return (
-    <div className="bg-gray-900/60 backdrop-blur rounded-xl border border-gray-800 p-5 mb-4">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-4">
       <div className="flex items-center gap-2 mb-4">
-        <h2 className="text-base font-bold text-amber-100">{title}</h2>
-        {badge && <span className="text-[10px] px-2 py-0.5 bg-amber-600/20 border border-amber-600/40 text-amber-300 rounded-full">{badge}</span>}
+        <h2 className="text-base font-bold text-amber-800">{title}</h2>
+        {badge && <span className="text-[10px] px-2 py-0.5 bg-amber-100 border border-amber-300 text-amber-300 rounded-full">{badge}</span>}
       </div>
       <div className="space-y-4">{children}</div>
     </div>
@@ -325,7 +325,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 function ConsentBox({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <label className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition ${
-      checked ? 'bg-amber-900/20 border-amber-600/50' : 'bg-gray-800 border-gray-700'
+      checked ? 'bg-amber-50 border-amber-300' : 'bg-white border-gray-300'
     }`}>
       <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)}
         className="mt-0.5 w-5 h-5 accent-amber-500" />
@@ -336,8 +336,8 @@ function ConsentBox({ checked, onChange, label }: { checked: boolean; onChange: 
 
 function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-900/20 via-gray-900 to-gray-900 px-4">
-      <div className="max-w-md text-center bg-gray-900/60 backdrop-blur rounded-2xl border border-gray-800 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0] px-4">
+      <div className="max-w-md text-center bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
         {children}
       </div>
     </div>

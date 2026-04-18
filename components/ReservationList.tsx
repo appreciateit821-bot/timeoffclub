@@ -115,11 +115,11 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
   const sortedReservations = [...reservations].sort((a, b) => b.date.localeCompare(a.date));
 
   return (
-    <div className="bg-gray-800/80 backdrop-blur rounded-xl p-6 border border-amber-800/30 shadow-lg">
-      <h2 className="text-xl font-bold text-amber-100 mb-4">내 예약</h2>
+    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 shadow-lg">
+      <h2 className="text-xl font-bold text-amber-800 mb-4">내 예약</h2>
 
       {sortedReservations.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">
+        <div className="text-center py-12 text-gray-500">
           아직 예약이 없습니다.
         </div>
       ) : (
@@ -127,21 +127,21 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
           {sortedReservations.map((reservation) => (
             <div
               key={reservation.id}
-              className="bg-gray-700 rounded-lg p-4 border border-gray-600"
+              className="bg-white rounded-lg p-4 border border-gray-200"
             >
               {editingId === reservation.id ? (
                 // 편집 모드
                 <div className="space-y-3">
                   <div>
-                    <div className="text-sm text-gray-400 mb-2">날짜</div>
-                    <div className="text-white font-medium">{reservation.date}</div>
+                    <div className="text-sm text-gray-500 mb-2">날짜</div>
+                    <div className="text-gray-800 font-medium">{reservation.date}</div>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-400 mb-2">스팟 변경</div>
+                    <div className="text-sm text-gray-500 mb-2">스팟 변경</div>
                     <select
                       value={newSpot}
                       onChange={(e) => setNewSpot(e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     >
                       {SPOTS.map(spot => (
                         <option key={spot} value={spot}>{spot}</option>
@@ -149,9 +149,9 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                     </select>
                   </div>
                   <div>
-                    <div className="text-sm text-gray-400 mb-2">메모 수정</div>
+                    <div className="text-sm text-gray-500 mb-2">메모 수정</div>
                     <input type="text" value={newMemo} onChange={(e) => setNewMemo(e.target.value)}
-                      className="w-full px-3 py-2 bg-gray-600 border border-gray-500 rounded-lg text-white text-sm placeholder-gray-400"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm placeholder-gray-400"
                       placeholder="오늘 나누고 싶은 대화..." maxLength={100} />
                   </div>
                   <div className="flex gap-2">
@@ -165,7 +165,7 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                     <button
                       onClick={handleEditCancel}
                       disabled={loading}
-                      className="flex-1 bg-gray-600 hover:bg-gray-500 text-white py-2 rounded-lg transition disabled:opacity-50"
+                      className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg transition disabled:opacity-50"
                     >
                       취소
                     </button>
@@ -179,9 +179,9 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                     <>
                       <div className="mb-3">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <span className="text-lg font-semibold text-white">{reservation.date}</span>
+                          <span className="text-lg font-semibold text-gray-800">{reservation.date}</span>
                           {closed && (
-                            <span className="px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-[10px] font-medium">마감</span>
+                            <span className="px-2 py-0.5 bg-red-900/50 text-red-600 rounded text-[10px] font-medium">마감</span>
                           )}
                         </div>
                         <div className={`inline-flex items-center gap-1.5 text-sm font-semibold px-3.5 py-1.5 rounded-full mb-2 ${
@@ -191,7 +191,7 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                         }`}>
                           {reservation.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
                         </div>
-                        <div className="text-gray-300">{reservation.spot.split('_')[1] || reservation.spot}</div>
+                        <div className="text-gray-600">{reservation.spot.split('_')[1] || reservation.spot}</div>
                         {(() => {
                           const s = spotStats[`${reservation.date}_${reservation.spot}`];
                           if (!s || s.total === 0) return null;
@@ -204,7 +204,7 @@ export default function ReservationList({ reservations, userName, onUpdate }: Re
                           );
                         })()}
                         {reservation.memo && (
-                          <p className="text-gray-400 text-xs mt-1 italic">💭 "{reservation.memo}"</p>
+                          <p className="text-gray-500 text-xs mt-1 italic">💭 "{reservation.memo}"</p>
                         )}
                       </div>
                       {/* 세션 준비 링크 (당일) */}

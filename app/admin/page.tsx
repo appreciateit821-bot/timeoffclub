@@ -589,26 +589,26 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950">
-        <div className="text-gray-400">로딩 중...</div>
+      <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0]">
+        <div className="text-gray-500">로딩 중...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-[#FFF8F0]">
       {/* Header */}
-      <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-10">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-lg sm:text-2xl font-bold text-white">슈퍼관리자</h1>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1">예약 · 로그 · 멤버 · 체크인</p>
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-800">슈퍼관리자</h1>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1">예약 · 로그 · 멤버 · 체크인</p>
             </div>
             <div className="flex gap-1.5 sm:gap-2 flex-wrap justify-end">
               <button
                 onClick={() => router.push('/calendar')}
-                className="px-3 py-1.5 sm:py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition text-xs sm:text-sm font-medium"
+                className="px-3 py-1.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-xs sm:text-sm font-medium"
               >
                 캘린더
               </button>
@@ -620,7 +620,7 @@ export default function AdminPage() {
               </button>
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 sm:py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition text-xs sm:text-sm font-medium"
+                className="px-3 py-1.5 sm:py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-xs sm:text-sm font-medium"
               >
                 로그아웃
               </button>
@@ -630,7 +630,7 @@ export default function AdminPage() {
       </header>
 
       {/* Tabs */}
-      <div className="border-b border-gray-800">
+      <div className="border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-1 sm:gap-4 overflow-x-auto scrollbar-hide">
             <button
@@ -638,7 +638,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'reservations'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               예약 현황
@@ -648,7 +648,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'logs'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               변경/취소 로그
@@ -658,7 +658,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'members'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               멤버 관리
@@ -668,7 +668,7 @@ export default function AdminPage() {
               className={`relative px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'pending'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               📬 가입 대기
@@ -681,7 +681,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'checkin'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               ✅ 체크인
@@ -691,7 +691,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'trial'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               🎫 체험권
@@ -701,7 +701,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'feedback'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               💬 피드백
@@ -711,7 +711,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'requests'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               📮 요청
@@ -721,7 +721,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'calendar'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               📅 캘린더
@@ -731,7 +731,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'spots'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               🏠 스팟
@@ -741,7 +741,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'notices'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               📢 공지
@@ -751,7 +751,7 @@ export default function AdminPage() {
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'reports'
                   ? 'text-amber-400 border-amber-400'
-                  : 'text-gray-400 border-transparent hover:text-gray-300'
+                  : 'text-gray-500 border-transparent hover:text-gray-300'
               }`}
             >
               🚨 신고
@@ -764,34 +764,34 @@ export default function AdminPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 웰모먼트 대시보드 요약 — 항상 상단에 */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <div className="bg-gradient-to-br from-amber-900/30 to-gray-800 rounded-xl p-4 border border-amber-700/30 text-center">
+          <div className="bg-gradient-to-br from-amber-900/30 to-gray-800 rounded-xl p-4 border border-amber-200 text-center">
             <div className="text-2xl font-bold text-amber-400">{reservations.length}</div>
-            <div className="text-[10px] text-gray-400 mt-1">전체 예약</div>
+            <div className="text-[10px] text-gray-500 mt-1">전체 예약</div>
           </div>
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
+          <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-200 text-center">
             <div className="text-2xl font-bold text-blue-400">{members.length}</div>
-            <div className="text-[10px] text-gray-400 mt-1">활성 멤버</div>
+            <div className="text-[10px] text-gray-500 mt-1">활성 멤버</div>
           </div>
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
+          <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-200 text-center">
             <div className="text-2xl font-bold text-red-400">{checkinData.noShowStats?.length || 0}</div>
-            <div className="text-[10px] text-gray-400 mt-1">노쇼 멤버</div>
+            <div className="text-[10px] text-gray-500 mt-1">노쇼 멤버</div>
           </div>
-          <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
+          <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-200 text-center">
             <div className="text-2xl font-bold text-orange-400">{reports.length}</div>
-            <div className="text-[10px] text-gray-400 mt-1">신고</div>
+            <div className="text-[10px] text-gray-500 mt-1">신고</div>
           </div>
         </div>
 
         {activeTab === 'reservations' && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-              <h2 className="text-xl font-semibold text-white">
+              <h2 className="text-xl font-semibold text-gray-800">
                 전체 예약 현황 ({reservations.length}건)
               </h2>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-400">스팟당 최대 인원:</span>
+                <span className="text-sm text-gray-500">스팟당 최대 인원:</span>
                 <input type="number" value={maxCapacity} onChange={(e) => setMaxCapacity(parseInt(e.target.value) || 10)}
-                  className="w-16 px-2 py-1 bg-gray-700 border border-gray-600 rounded text-white text-sm text-center" min={1} max={50} />
+                  className="w-16 px-2 py-1 bg-white border border-gray-300 rounded text-gray-800 text-sm text-center" min={1} max={50} />
                 <button onClick={handleSaveCapacity} disabled={capacitySaving}
                   className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-sm disabled:opacity-50">
                   {capacitySaving ? '...' : '저장'}
@@ -803,12 +803,12 @@ export default function AdminPage() {
               {groupedArray.map((group: any) => (
                 <div
                   key={`${group.date}_${group.spot}`}
-                  className="bg-gray-800 rounded-lg p-6 border border-gray-700"
+                  className="bg-white rounded-lg shadow-sm p-6 border border-gray-200"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-white">{group.date}</h3>
-                      <p className="text-gray-400 text-sm mt-1">{group.spot}</p>
+                      <h3 className="text-lg font-semibold text-gray-800">{group.date}</h3>
+                      <p className="text-gray-500 text-sm mt-1">{group.spot}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-blue-300 text-sm font-medium">
@@ -816,9 +816,9 @@ export default function AdminPage() {
                       </span>
                       <div className="flex items-center gap-1">
                         <button onClick={() => handleSetSessionCapacity(group.date, group.spot, Math.max(1, getSessionCap(group.date, group.spot) - 1))}
-                          className="w-6 h-6 bg-gray-700 hover:bg-gray-600 text-white rounded text-xs">-</button>
+                          className="w-6 h-6 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs">-</button>
                         <button onClick={() => handleSetSessionCapacity(group.date, group.spot, Math.min(50, getSessionCap(group.date, group.spot) + 1))}
-                          className="w-6 h-6 bg-gray-700 hover:bg-gray-600 text-white rounded text-xs">+</button>
+                          className="w-6 h-6 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs">+</button>
                       </div>
                     </div>
                   </div>
@@ -829,12 +829,12 @@ export default function AdminPage() {
                         className={`px-3 py-1 rounded-full text-sm ${
                           user.mode === 'reflection'
                             ? 'bg-indigo-900/50 text-indigo-200 border border-indigo-700/30'
-                            : 'bg-gray-700 text-gray-200'
+                            : 'bg-gray-200 text-gray-500'
                         }`}
                       >
                         {user.name}
                         {user.isTrial && (
-                          <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-600/30 text-amber-200 border border-amber-600/40">🎫 체험권</span>
+                          <span className="ml-1 text-xs px-1.5 py-0.5 rounded bg-amber-600/30 text-amber-700 border border-amber-600/40">🎫 체험권</span>
                         )}
                         <span className="ml-1 text-xs opacity-60">
                           {user.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
@@ -846,7 +846,7 @@ export default function AdminPage() {
               ))}
 
               {groupedArray.length === 0 && (
-                <div className="text-center py-12 text-gray-400">
+                <div className="text-center py-12 text-gray-500">
                   아직 예약이 없습니다.
                 </div>
               )}
@@ -856,28 +856,28 @@ export default function AdminPage() {
 
         {activeTab === 'logs' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white">
+            <h2 className="text-xl font-semibold text-gray-800">
               변경/취소 로그 (최근 1000건)
             </h2>
 
-            <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-900">
+                  <thead className="bg-gray-100">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         일시
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         사용자
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         날짜
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         스팟
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         작업
                       </th>
                     </tr>
@@ -885,25 +885,25 @@ export default function AdminPage() {
                   <tbody className="divide-y divide-gray-700">
                     {logs.map((log) => (
                       <tr key={log.id} className="hover:bg-gray-750">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           {formatKST(log.created_at)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           {log.display_id || log.user_name}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           {log.date}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-300">
+                        <td className="px-6 py-4 text-sm text-gray-600">
                           {log.spot || '-'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium ${
                               log.action === 'CREATE'
-                                ? 'bg-green-900/50 text-green-300'
+                                ? 'bg-green-50 text-green-600'
                                 : log.action === 'CANCEL'
-                                ? 'bg-red-900/50 text-red-300'
+                                ? 'bg-red-900/50 text-red-600'
                                 : 'bg-yellow-900/50 text-yellow-300'
                             }`}
                           >
@@ -917,7 +917,7 @@ export default function AdminPage() {
               </div>
 
               {logs.length === 0 && (
-                <div className="text-center py-12 text-gray-400">
+                <div className="text-center py-12 text-gray-500">
                   아직 로그가 없습니다.
                 </div>
               )}
@@ -927,20 +927,20 @@ export default function AdminPage() {
 
         {activeTab === 'spots' && (
           <div className="space-y-5">
-            <h2 className="text-xl font-semibold text-white">🏠 스팟 관리</h2>
-            <p className="text-xs text-gray-400">비활성 시작월을 설정하면 해당 월부터 멤버 캘린더에서 스팟이 사라집니다.</p>
+            <h2 className="text-xl font-semibold text-gray-800">🏠 스팟 관리</h2>
+            <p className="text-xs text-gray-500">비활성 시작월을 설정하면 해당 월부터 멤버 캘린더에서 스팟이 사라집니다.</p>
             {spotsLoading ? (
-              <div className="text-center py-8 text-gray-400">로딩 중...</div>
+              <div className="text-center py-8 text-gray-500">로딩 중...</div>
             ) : (
               <div className="space-y-3">
                 {spotsList.map((sp: any) => {
                   const isCurrentlyInactive = sp.inactive_from && sp.inactive_from <= new Date().toISOString().slice(0, 7);
                   return (
                     <div key={sp.spot_id} className={`p-4 rounded-xl border ${
-                      isCurrentlyInactive ? 'bg-gray-800/30 border-gray-700 opacity-60' : 'bg-gray-800/60 border-gray-700'
+                      isCurrentlyInactive ? 'bg-gray-50 border-gray-300 opacity-60' : 'bg-white/80 border-gray-300'
                     }`}>
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-sm font-medium text-white">{sp.spot_id}</p>
+                        <p className="text-sm font-medium text-gray-800">{sp.spot_id}</p>
                         <div className="flex gap-1">
                           {sp.active_from && (
                             <span className="text-xs px-2 py-0.5 rounded bg-blue-900/50 text-blue-300">
@@ -948,22 +948,22 @@ export default function AdminPage() {
                             </span>
                           )}
                           {sp.inactive_from && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-red-900/50 text-red-300">
+                            <span className="text-xs px-2 py-0.5 rounded bg-red-900/50 text-red-600">
                               {sp.inactive_from.replace('-', '년 ')}월부터 OFF
                             </span>
                           )}
                           {!sp.active_from && !sp.inactive_from && (
-                            <span className="text-xs px-2 py-0.5 rounded bg-green-900/50 text-green-300">ON — 운영 중</span>
+                            <span className="text-xs px-2 py-0.5 rounded bg-green-50 text-green-600">ON — 운영 중</span>
                           )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <div className="flex items-center gap-1">
-                          <span className="text-[11px] text-gray-400">시작:</span>
+                          <span className="text-[11px] text-gray-500">시작:</span>
                           <input
                             type="month"
                             defaultValue={sp.active_from || ''}
-                            className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-xs"
+                            className="px-2 py-1.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-xs"
                             onChange={(e) => {
                               const val = e.target.value;
                               handleSpotInactiveFrom(sp.spot_id, sp.inactive_from);
@@ -972,11 +972,11 @@ export default function AdminPage() {
                           />
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="text-[11px] text-gray-400">종료:</span>
+                          <span className="text-[11px] text-gray-500">종료:</span>
                           <input
                             type="month"
                             defaultValue={sp.inactive_from || ''}
-                            className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-xs"
+                            className="px-2 py-1.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-xs"
                             onChange={(e) => {
                               const val = e.target.value;
                               if (val) handleSpotInactiveFrom(sp.spot_id, val);
@@ -986,7 +986,7 @@ export default function AdminPage() {
                         {(sp.inactive_from || sp.active_from) && (
                           <button
                             onClick={() => { handleSpotInactiveFrom(sp.spot_id, null); fetch('/api/admin/spots', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ spotId: sp.spot_id, activeFrom: null }) }).then(() => fetchSpots()); }}
-                            className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-xs transition">
+                            className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-xs transition">
                             초기화
                           </button>
                         )}
@@ -1001,24 +1001,24 @@ export default function AdminPage() {
 
         {activeTab === 'members' && (
           <div className="space-y-5">
-            <h2 className="text-xl font-semibold text-white">멤버 관리</h2>
+            <h2 className="text-xl font-semibold text-gray-800">멤버 관리</h2>
 
             {/* ① 매월 운영 가이드 */}
-            <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-4">
-              <p className="text-amber-200 text-sm font-medium mb-2">📋 매월 멤버십 관리 순서</p>
-              <div className="text-xs text-gray-400 space-y-1">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <p className="text-amber-700 text-sm font-medium mb-2">📋 매월 멤버십 관리 순서</p>
+              <div className="text-xs text-gray-500 space-y-1">
                 <p>1️⃣ 스마트스토어에서 이번 달 결제 명단 → 구글시트 업로드 (신규 추가 + 기존 멤버 활성월 자동 갱신)</p>
                 <p>2️⃣ 미갱신 멤버 확인 → "만료 멤버 비활성화" 클릭</p>
               </div>
             </div>
 
             {/* ② 구글 시트 업로드 (메인 동선) */}
-            <div className="bg-gray-800 rounded-xl p-5 border border-gray-700">
-              <h3 className="text-sm font-semibold text-white mb-3">📊 구글 시트에서 멤버 가져오기</h3>
+            <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-800 mb-3">📊 구글 시트에서 멤버 가져오기</h3>
               <p className="text-xs text-gray-500 mb-3">시트에 "성함"과 "연락처" 컬럼 필요. 이미 등록된 멤버는 이번 달 활성월이 자동 추가돼요.</p>
               <div className="flex flex-col sm:flex-row gap-2">
                 <input type="text" value={sheetUrl} onChange={(e) => setSheetUrl(e.target.value)}
-                  className="flex-1 px-3 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-500"
+                  className="flex-1 px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm placeholder-gray-400"
                   placeholder="구글 스프레드시트 URL" />
                 <button onClick={handleImportSheet} disabled={sheetLoading || !sheetUrl}
                   className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-medium disabled:opacity-50 transition active:scale-95">
@@ -1027,7 +1027,7 @@ export default function AdminPage() {
               </div>
               {sheetResult && (
                 <div className={`mt-3 px-4 py-3 rounded-lg text-sm ${
-                  sheetResult.startsWith('✅') ? 'bg-green-900/50 border border-green-700 text-green-200' : 'bg-red-900/50 border border-red-700 text-red-200'
+                  sheetResult.startsWith('✅') ? 'bg-green-50 border border-green-200 text-green-700' : 'bg-red-50 border border-red-200 text-red-700'
                 }`}>{sheetResult}</div>
               )}
             </div>
@@ -1073,39 +1073,39 @@ export default function AdminPage() {
             </div>
 
             {/* ④ 개별 멤버 추가 (접이식) */}
-            <details className="bg-gray-800 rounded-xl border border-gray-700">
-              <summary className="p-4 text-sm font-medium text-gray-300 cursor-pointer hover:text-white">➕ 개별 멤버 추가</summary>
+            <details className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <summary className="p-4 text-sm font-medium text-gray-600 cursor-pointer hover:text-gray-700">➕ 개별 멤버 추가</summary>
               <div className="px-4 pb-4">
                 <form onSubmit={handleAddMember} className="space-y-3">
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <input type="text" value={newMemberName} onChange={(e) => setNewMemberName(e.target.value)}
-                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" placeholder="이름" required />
+                      className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm" placeholder="이름" required />
                     <input type="text" value={newMemberPhone} onChange={(e) => setNewMemberPhone(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" placeholder="뒷4자리" maxLength={4} required />
+                      className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm" placeholder="뒷4자리" maxLength={4} required />
                     <input type="text" value={newMemberMonths} onChange={(e) => setNewMemberMonths(e.target.value)}
-                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" placeholder="활성월 (2026-04)" />
+                      className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm" placeholder="활성월 (2026-04)" />
                     <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition active:scale-95">추가</button>
                   </div>
-                  {memberError && <p className="text-red-300 text-xs">{memberError}</p>}
-                  {memberSuccess && <p className="text-green-300 text-xs">{memberSuccess}</p>}
+                  {memberError && <p className="text-red-600 text-xs">{memberError}</p>}
+                  {memberSuccess && <p className="text-green-600 text-xs">{memberSuccess}</p>}
                 </form>
               </div>
             </details>
 
             {/* 멤버 검색 */}
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={memberSearch}
                   onChange={(e) => setMemberSearch(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearchMembers()}
-                  className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                  className="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-800"
                   placeholder="이름 또는 연락처로 검색"
                 />
                 <button
                   onClick={handleSearchMembers}
-                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition"
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition"
                 >
                   검색
                 </button>
@@ -1115,7 +1115,7 @@ export default function AdminPage() {
                       setMemberSearch('');
                       fetchMembers();
                     }}
-                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition"
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition"
                   >
                     초기화
                   </button>
@@ -1132,8 +1132,8 @@ export default function AdminPage() {
               const activeCount = (members as any[]).filter(m => m.is_active).length;
               const noNextMonth = (members as any[]).filter(m => m.is_active && m.active_months && !m.active_months.split(',').map((s:string)=>s.trim()).includes(nextMonth)).length;
               return (
-                <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700 flex flex-wrap gap-3 items-center text-xs">
-                  <span className="text-gray-400">총 <strong className="text-white">{members.length}</strong>명</span>
+                <div className="bg-white/80 rounded-lg p-3 border border-gray-200 flex flex-wrap gap-3 items-center text-xs">
+                  <span className="text-gray-500">총 <strong className="text-gray-800">{members.length}</strong>명</span>
                   <span className="text-green-400">활성 <strong>{activeCount}</strong></span>
                   <span className="text-red-400">{nextMonth} 미갱신 <strong>{noNextMonth}</strong></span>
                 </div>
@@ -1141,27 +1141,27 @@ export default function AdminPage() {
             })()}
 
             {/* 멤버 목록 */}
-            <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-900">
+                  <thead className="bg-gray-100">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         이름
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         연락처 뒷4자리
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         상태
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         활성 월
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         추가일
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         작업
                       </th>
                     </tr>
@@ -1169,24 +1169,24 @@ export default function AdminPage() {
                   <tbody className="divide-y divide-gray-700">
                     {members.map((member: any) => (
                       <tr key={member.id} className="hover:bg-gray-750">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           {member.name}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           {member.phone_last4}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium ${
                               member.is_active
-                                ? 'bg-green-900/50 text-green-300'
-                                : 'bg-red-900/50 text-red-300'
+                                ? 'bg-green-50 text-green-600'
+                                : 'bg-red-900/50 text-red-600'
                             }`}
                           >
                             {member.is_active ? '활성' : '비활성'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                           <input type="text" defaultValue={member.active_months || ''}
                             onBlur={(e) => {
                               if (e.target.value !== (member.active_months || '')) {
@@ -1197,7 +1197,7 @@ export default function AdminPage() {
                                 }).then(() => fetchMembers(memberSearch));
                               }
                             }}
-                            className="w-full px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-white"
+                            className="w-full px-2 py-1 bg-white border border-gray-300 rounded text-xs text-gray-800"
                             placeholder="2026-04,2026-05" />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
@@ -1213,7 +1213,7 @@ export default function AdminPage() {
                               onClick={() => handleToggleActive(member.id, member.is_active)}
                               className={`px-3 py-1 rounded text-xs font-medium transition ${
                                 member.is_active
-                                  ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                                  ? 'bg-yellow-600 hover:bg-yellow-700 text-gray-800'
                                   : 'bg-green-600 hover:bg-green-700 text-white'
                               }`}
                             >
@@ -1234,7 +1234,7 @@ export default function AdminPage() {
               </div>
 
               {members.length === 0 && (
-                <div className="text-center py-12 text-gray-400">
+                <div className="text-center py-12 text-gray-500">
                   등록된 멤버가 없습니다.
                 </div>
               )}
@@ -1245,14 +1245,14 @@ export default function AdminPage() {
         {activeTab === 'pending' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">가입 대기 멤버 {pendingMembers.length}건</h2>
-              <button onClick={fetchPendingMembers} className="text-xs text-amber-400 hover:text-amber-300">🔄 새로고침</button>
+              <h2 className="text-lg font-semibold text-gray-800">가입 대기 멤버 {pendingMembers.length}건</h2>
+              <button onClick={fetchPendingMembers} className="text-xs text-amber-400 hover:text-amber-600">🔄 새로고침</button>
             </div>
 
-            {pendingMembersLoading && <div className="text-gray-400 text-sm">불러오는 중...</div>}
+            {pendingMembersLoading && <div className="text-gray-500 text-sm">불러오는 중...</div>}
 
             {!pendingMembersLoading && pendingMembers.length === 0 && (
-              <div className="text-center py-12 text-gray-400">가입 대기 중인 신청이 없습니다.</div>
+              <div className="text-center py-12 text-gray-500">가입 대기 중인 신청이 없습니다.</div>
             )}
 
             <div className="space-y-4">
@@ -1260,28 +1260,28 @@ export default function AdminPage() {
                 let reasonsList: string[] = [];
                 try { reasonsList = JSON.parse(m.reasons || '[]'); } catch {}
                 return (
-                  <div key={m.id} className="bg-gray-800 rounded-xl border border-amber-700/30 overflow-hidden">
+                  <div key={m.id} className="bg-white rounded-xl shadow-sm border border-amber-200 overflow-hidden">
                     <div className="p-4 space-y-3">
                       <div className="flex items-start justify-between gap-3 flex-wrap">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-white font-bold text-base">{m.name}</span>
-                            <span className="text-amber-300 font-mono text-sm">({m.phone_last4})</span>
-                            <span className="text-[10px] px-2 py-0.5 bg-amber-600/20 border border-amber-600/40 text-amber-300 rounded-full">대기</span>
+                            <span className="text-gray-800 font-bold text-base">{m.name}</span>
+                            <span className="text-amber-600 font-mono text-sm">({m.phone_last4})</span>
+                            <span className="text-[10px] px-2 py-0.5 bg-amber-600/20 border border-amber-600/40 text-amber-600 rounded-full">대기</span>
                           </div>
-                          <div className="text-xs text-gray-400 space-y-0.5">
+                          <div className="text-xs text-gray-500 space-y-0.5">
                             <div>📞 {m.phone || '-'}</div>
                             <div>✉️ {m.email || '-'}</div>
                             <div>👤 {m.age_gender || '-'} · {m.occupation || '-'}</div>
-                            <div className="text-amber-300 font-mono mt-1">🛒 주문번호: {m.smartstore_order_id || '-'}</div>
+                            <div className="text-amber-600 font-mono mt-1">🛒 주문번호: {m.smartstore_order_id || '-'}</div>
                           </div>
                         </div>
                       </div>
 
                       {m.self_intro && (
-                        <div className="bg-gray-900/50 rounded-lg p-3">
+                        <div className="bg-gray-100 rounded-lg p-3">
                           <div className="text-[11px] text-gray-500 mb-1">자기 소개</div>
-                          <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">{m.self_intro}</p>
+                          <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">{m.self_intro}</p>
                         </div>
                       )}
 
@@ -1290,16 +1290,16 @@ export default function AdminPage() {
                           <div className="text-[11px] text-gray-500 mb-1">선택 이유</div>
                           <div className="flex flex-wrap gap-1">
                             {reasonsList.map((r, i) => (
-                              <span key={i} className="text-[11px] px-2 py-1 bg-amber-900/30 text-amber-200 rounded-full">{r}</span>
+                              <span key={i} className="text-[11px] px-2 py-1 bg-amber-50 text-amber-700 rounded-full">{r}</span>
                             ))}
                           </div>
                         </div>
                       )}
 
                       {m.expectation && (
-                        <div className="bg-gray-900/50 rounded-lg p-3">
+                        <div className="bg-gray-100 rounded-lg p-3">
                           <div className="text-[11px] text-gray-500 mb-1">기대하는 형태</div>
-                          <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap">{m.expectation}</p>
+                          <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-wrap">{m.expectation}</p>
                         </div>
                       )}
 
@@ -1308,13 +1308,13 @@ export default function AdminPage() {
                       )}
                     </div>
 
-                    <div className="flex border-t border-gray-700">
+                    <div className="flex border-t border-gray-300">
                       <button
                         onClick={() => handlePendingAction(m.id, 'approve', m.name)}
                         className="flex-1 py-3 bg-green-600/80 hover:bg-green-600 text-white font-bold text-sm transition active:scale-95">
                         ✅ 승인
                       </button>
-                      <div className="w-px bg-gray-700" />
+                      <div className="w-px bg-gray-300" />
                       <button
                         onClick={() => handlePendingAction(m.id, 'reject', m.name)}
                         className="flex-1 py-3 bg-red-600/80 hover:bg-red-600 text-white font-bold text-sm transition active:scale-95">
@@ -1331,17 +1331,17 @@ export default function AdminPage() {
         {activeTab === 'checkin' && (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h2 className="text-xl font-semibold text-white">체크인 현황</h2>
+              <h2 className="text-xl font-semibold text-gray-800">체크인 현황</h2>
               <div className="flex gap-3">
                 <input
                   type="date"
                   value={checkinDate}
                   onChange={(e) => { setCheckinDate(e.target.value); fetchCheckin(e.target.value); }}
-                  className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
                 <button
                   onClick={() => { setCheckinDate(''); fetchCheckin(); }}
-                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition text-sm"
+                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm"
                 >
                   전체 보기
                 </button>
@@ -1353,14 +1353,14 @@ export default function AdminPage() {
               {checkinData.stats.map((s: any) => (
                 <div key={s.check_in_status} className={`rounded-lg p-4 text-center border ${
                   s.check_in_status === 'attended' ? 'bg-green-900/30 border-green-700/50' :
-                  s.check_in_status === 'no_show' ? 'bg-red-900/30 border-red-700/50' :
-                  'bg-gray-800 border-gray-700'
+                  s.check_in_status === 'no_show' ? 'bg-red-50 border-red-700/50' :
+                  'bg-white border-gray-300'
                 }`}>
                   <div className={`text-2xl font-bold ${
                     s.check_in_status === 'attended' ? 'text-green-400' :
                     s.check_in_status === 'no_show' ? 'text-red-400' : 'text-gray-400'
                   }`}>{s.count}</div>
-                  <div className="text-sm text-gray-300">
+                  <div className="text-sm text-gray-600">
                     {s.check_in_status === 'attended' ? '출석' : s.check_in_status === 'no_show' ? '노쇼' : '미체크'}
                   </div>
                 </div>
@@ -1369,11 +1369,11 @@ export default function AdminPage() {
 
             {/* 노쇼 주의 멤버 */}
             {checkinData.noShowStats.length > 0 && (
-              <div className="bg-red-900/20 border border-red-700/50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-red-300 mb-3">⚠️ 노쇼 주의 멤버</h3>
+              <div className="bg-red-50 border border-red-700/50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-red-600 mb-3">⚠️ 노쇼 주의 멤버</h3>
                 <div className="flex flex-wrap gap-3">
                   {checkinData.noShowStats.map((s: any) => (
-                    <span key={s.user_name} className="px-3 py-1 bg-red-900/50 text-red-200 rounded-full text-sm">
+                    <span key={s.user_name} className="px-3 py-1 bg-red-900/50 text-red-700 rounded-full text-sm">
                       {s.user_name} ({s.no_show_count}회)
                     </span>
                   ))}
@@ -1382,31 +1382,31 @@ export default function AdminPage() {
             )}
 
             {/* 체크인 목록 */}
-            <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-900">
+                  <thead className="bg-gray-100">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">날짜</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">스팟</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">멤버</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">상태</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">변경</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">체크 시간</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">체크한 사람</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">날짜</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">스팟</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">멤버</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">상태</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">변경</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">체크 시간</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">체크한 사람</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-700">
                     {checkinData.reservations.map((r: any) => (
                       <tr key={r.id} className="hover:bg-gray-750">
-                        <td className="px-6 py-4 text-sm text-gray-300">{r.date}</td>
-                        <td className="px-6 py-4 text-sm text-gray-300">{r.spot}</td>
-                        <td className="px-6 py-4 text-sm text-gray-300">{r.user_name}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{r.date}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{r.spot}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{r.user_name}</td>
                         <td className="px-6 py-4 text-sm">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            r.check_in_status === 'attended' ? 'bg-green-900/50 text-green-300' :
-                            r.check_in_status === 'no_show' ? 'bg-red-900/50 text-red-300' :
-                            'bg-gray-700 text-gray-400'
+                            r.check_in_status === 'attended' ? 'bg-green-50 text-green-600' :
+                            r.check_in_status === 'no_show' ? 'bg-red-900/50 text-red-600' :
+                            'bg-gray-200 text-gray-400'
                           }`}>
                             {r.check_in_status === 'attended' ? '✅ 출석' : r.check_in_status === 'no_show' ? '❌ 노쇼' : '⏳ 미체크'}
                           </span>
@@ -1418,7 +1418,7 @@ export default function AdminPage() {
                               className={`px-2.5 py-1 rounded text-xs font-medium transition ${
                                 r.check_in_status === 'attended'
                                   ? 'bg-green-600 text-white'
-                                  : 'bg-gray-700 text-gray-400 hover:bg-green-900/50 hover:text-green-300'
+                                  : 'bg-gray-100 text-gray-500 hover:bg-green-50 hover:text-green-600'
                               }`}
                             >
                               출석
@@ -1428,24 +1428,24 @@ export default function AdminPage() {
                               className={`px-2.5 py-1 rounded text-xs font-medium transition ${
                                 r.check_in_status === 'no_show'
                                   ? 'bg-red-600 text-white'
-                                  : 'bg-gray-700 text-gray-400 hover:bg-red-900/50 hover:text-red-300'
+                                  : 'bg-gray-100 text-gray-500 hover:bg-red-900/50 hover:text-red-600'
                               }`}
                             >
                               노쇼
                             </button>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-400">
+                        <td className="px-6 py-4 text-sm text-gray-500">
                           {r.checked_at ? formatKST(r.checked_at) : '-'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-400">{r.checked_by || '-'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{r.checked_by || '-'}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               {checkinData.reservations.length === 0 && (
-                <div className="text-center py-12 text-gray-400">체크인 데이터가 없습니다.</div>
+                <div className="text-center py-12 text-gray-500">체크인 데이터가 없습니다.</div>
               )}
             </div>
           </div>
@@ -1454,18 +1454,18 @@ export default function AdminPage() {
         {/* 체험권 관리 */}
         {activeTab === 'trial' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white">체험권 관리</h2>
+            <h2 className="text-xl font-semibold text-gray-800">체험권 관리</h2>
 
-            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-              <h3 className="text-lg font-semibold text-white mb-4">체험권 발급</h3>
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">체험권 발급</h3>
               <div className="flex gap-3 items-end">
                 <div>
-                  <label className="block text-sm text-gray-300 mb-2">발급 수량</label>
+                  <label className="block text-sm text-gray-600 mb-2">발급 수량</label>
                   <input
                     type="number"
                     value={trialCount}
                     onChange={(e) => setTrialCount(Math.max(1, Math.min(50, parseInt(e.target.value) || 1)))}
-                    className="w-24 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white"
+                    className="w-24 px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-800"
                     min={1}
                     max={50}
                   />
@@ -1488,7 +1488,7 @@ export default function AdminPage() {
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                     trialFilter === f
                       ? 'bg-amber-600 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                   }`}
                 >
                   {f === 'all' ? '전체' : f === 'delivered' ? '전달 완료' : '미전달'}
@@ -1496,26 +1496,26 @@ export default function AdminPage() {
               ))}
             </div>
 
-            <div className="bg-gray-800 rounded-lg overflow-hidden border border-gray-700">
+            <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-900">
+                  <thead className="bg-gray-100">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">코드</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">사용 상태</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">전달</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">사용자</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">예약 정보</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">생성일</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase">작업</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">코드</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">사용 상태</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">전달</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">사용자</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">예약 정보</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">생성일</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">작업</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-700">
                     {trialTickets.map((t: any) => (
                       <tr key={t.id}>
-                        <td className="px-4 py-3 text-sm font-mono text-amber-300">{t.code}</td>
+                        <td className="px-4 py-3 text-sm font-mono text-amber-600">{t.code}</td>
                         <td className="px-4 py-3 text-sm">
-                          <span className={`px-2 py-1 rounded text-xs ${t.is_used ? 'bg-gray-700 text-gray-400' : 'bg-green-900/50 text-green-300'}`}>
+                          <span className={`px-2 py-1 rounded text-xs ${t.is_used ? 'bg-gray-200 text-gray-400' : 'bg-green-50 text-green-600'}`}>
                             {t.is_used ? '사용됨' : '미사용'}
                           </span>
                         </td>
@@ -1525,20 +1525,20 @@ export default function AdminPage() {
                             className={`px-2 py-1 rounded text-xs transition ${
                               t.is_delivered
                                 ? 'bg-blue-900/50 text-blue-300 hover:bg-blue-800/50'
-                                : 'bg-gray-700 text-gray-400 hover:bg-gray-600'
+                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                             }`}
                           >
                             {t.is_delivered ? '✓ 전달완료' : '미전달'}
                           </button>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-300">{t.name || '-'}</td>
+                        <td className="px-4 py-3 text-sm text-gray-600">{t.name || '-'}</td>
                         <td className="px-4 py-3 text-sm">
                           {t.reservation ? (
                             <div className="text-xs">
-                              <div className="text-gray-300 font-medium">{t.reservation.date}</div>
-                              <div className="text-gray-400">{t.reservation.spot}</div>
+                              <div className="text-gray-600 font-medium">{t.reservation.date}</div>
+                              <div className="text-gray-500">{t.reservation.spot}</div>
                               <div className={`text-xs px-1.5 py-0.5 rounded mt-1 inline-block ${
-                                t.reservation.mode === 'reflection' ? 'bg-indigo-900/50 text-indigo-300' : 'bg-gray-700 text-gray-300'
+                                t.reservation.mode === 'reflection' ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-200 text-gray-500'
                               }`}>
                                 {t.reservation.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
                               </div>
@@ -1547,10 +1547,10 @@ export default function AdminPage() {
                             <span className="text-gray-500 text-xs">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-400">{new Date(t.created_at).toLocaleDateString('ko-KR')}</td>
+                        <td className="px-4 py-3 text-sm text-gray-500">{new Date(t.created_at).toLocaleDateString('ko-KR')}</td>
                         <td className="px-4 py-3">
                           {!t.is_used && (
-                            <button onClick={() => handleDeleteTicket(t.id)} className="text-red-400 hover:text-red-300 text-sm">삭제</button>
+                            <button onClick={() => handleDeleteTicket(t.id)} className="text-red-400 hover:text-red-600 text-sm">삭제</button>
                           )}
                         </td>
                       </tr>
@@ -1558,7 +1558,7 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
-              {trialTickets.length === 0 && <div className="text-center py-12 text-gray-400">발급된 체험권이 없습니다.</div>}
+              {trialTickets.length === 0 && <div className="text-center py-12 text-gray-500">발급된 체험권이 없습니다.</div>}
             </div>
           </div>
         )}
@@ -1566,20 +1566,20 @@ export default function AdminPage() {
         {/* 피드백 */}
         {activeTab === 'feedback' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white">멤버 피드백</h2>
+            <h2 className="text-xl font-semibold text-gray-800">멤버 피드백</h2>
 
             {/* 불편 신고 (우선 표시) */}
             {feedbackData.issues.length > 0 && (
-              <div className="bg-red-900/20 border border-red-700/50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-red-300 mb-4">🚨 불편 신고 ({feedbackData.issues.length}건)</h3>
+              <div className="bg-red-50 border border-red-700/50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold text-red-600 mb-4">🚨 불편 신고 ({feedbackData.issues.length}건)</h3>
                 <div className="space-y-4">
                   {feedbackData.issues.map((f: any) => (
-                    <div key={f.id} className="bg-gray-800 rounded-lg p-4 border border-red-800/30">
+                    <div key={f.id} className="bg-white rounded-lg shadow-sm p-4 border border-red-800/30">
                       <div className="flex justify-between mb-2">
-                        <span className="text-white font-medium">{f.user_name}</span>
-                        <span className="text-gray-400 text-sm">{f.date} · {f.spot}</span>
+                        <span className="text-gray-800 font-medium">{f.user_name}</span>
+                        <span className="text-gray-500 text-sm">{f.date} · {f.spot}</span>
                       </div>
-                      <p className="text-red-200 text-sm">{f.person_issue}</p>
+                      <p className="text-red-700 text-sm">{f.person_issue}</p>
                     </div>
                   ))}
                 </div>
@@ -1589,71 +1589,71 @@ export default function AdminPage() {
             {/* 전체 피드백 */}
             <div className="space-y-4">
               {feedbackData.feedbacks.map((f: any) => (
-                <div key={f.id} className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700">
+                <div key={f.id} className="bg-white rounded-lg shadow-sm p-4 sm:p-6 border border-gray-200">
                   <div className="flex flex-col sm:flex-row justify-between mb-3 gap-2">
                     <div>
-                      <span className="text-white font-medium">{f.user_name}</span>
-                      <span className="text-gray-400 text-sm ml-2">{f.date} · {f.spot}</span>
+                      <span className="text-gray-800 font-medium">{f.user_name}</span>
+                      <span className="text-gray-500 text-sm ml-2">{f.date} · {f.spot}</span>
                     </div>
                     <div className="text-amber-400">{'★'.repeat(f.service_rating)}{'☆'.repeat(5 - f.service_rating)}</div>
                   </div>
                   {f.service_feedback && (
                     <div className="mb-2">
                       <span className="text-xs text-gray-500">서비스 개선:</span>
-                      <p className="text-gray-300 text-sm">{f.service_feedback}</p>
+                      <p className="text-gray-600 text-sm">{f.service_feedback}</p>
                     </div>
                   )}
                   {f.person_issue && (
-                    <div className="mb-2 bg-red-900/20 rounded p-2">
+                    <div className="mb-2 bg-red-50 rounded p-2">
                       <span className="text-xs text-red-400">🔒 불편 신고:</span>
-                      <p className="text-red-200 text-sm">{f.person_issue}</p>
+                      <p className="text-red-700 text-sm">{f.person_issue}</p>
                     </div>
                   )}
                   {f.general_comment && (
                     <div>
                       <span className="text-xs text-gray-500">기타:</span>
-                      <p className="text-gray-300 text-sm">{f.general_comment}</p>
+                      <p className="text-gray-600 text-sm">{f.general_comment}</p>
                     </div>
                   )}
                   <div className="text-xs text-gray-500 mt-2">{formatKST(f.created_at)}</div>
                 </div>
               ))}
-              {feedbackData.feedbacks.length === 0 && <div className="text-center py-12 text-gray-400">피드백이 없습니다.</div>}
+              {feedbackData.feedbacks.length === 0 && <div className="text-center py-12 text-gray-500">피드백이 없습니다.</div>}
             </div>
           </div>
         )}
         {/* 요청사항 관리 */}
         {activeTab === 'requests' && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white">📮 요청사항</h2>
-            <p className="text-gray-400 text-sm">멤버 및 스팟 운영자가 보낸 건의/요청사항입니다.</p>
+            <h2 className="text-xl font-semibold text-gray-800">📮 요청사항</h2>
+            <p className="text-gray-500 text-sm">멤버 및 스팟 운영자가 보낸 건의/요청사항입니다.</p>
 
             {operatorRequests.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">요청사항이 없습니다.</div>
+              <div className="text-center py-12 text-gray-500">요청사항이 없습니다.</div>
             ) : (
               <div className="space-y-3">
                 {operatorRequests.map((r: any) => (
-                  <div key={r.id} className={`bg-gray-800 rounded-lg p-4 border ${r.is_read ? 'border-gray-700' : 'border-emerald-600/50 bg-emerald-900/10'}`}>
+                  <div key={r.id} className={`bg-white rounded-lg shadow-sm p-4 border ${r.is_read ? 'border-gray-300' : 'border-emerald-600/50 bg-emerald-900/10'}`}>
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className="text-white font-medium text-sm">{r.user_name}</span>
+                      <span className="text-gray-800 font-medium text-sm">{r.user_name}</span>
                       {(SPOTS as readonly string[]).includes(r.user_name) ? (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-purple-900/50 text-purple-300 border border-purple-700/30">🏠 스팟 운영자</span>
                       ) : (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-blue-900/50 text-blue-300 border border-blue-700/30">👤 멤버</span>
                       )}
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-300 border border-emerald-700/30">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-600 border border-emerald-700/30">
                         {{ general: '일반', space: '공간', program: '프로그램', service: '서비스', supply: '비품', schedule: '일정', issue: '문제', etc: '기타' }[r.category as string] || r.category}
                       </span>
                       {r.spot && !(SPOTS as readonly string[]).includes(r.user_name) && <span className="text-xs text-gray-500">{r.spot}</span>}
                       {!r.is_read && <span className="text-xs px-1.5 py-0.5 bg-red-600 text-white rounded">NEW</span>}
                       <span className="text-xs text-gray-600 ml-auto">{formatKST(r.created_at)}</span>
                     </div>
-                    <p className="text-gray-300 text-sm mb-2">{r.content}</p>
+                    <p className="text-gray-600 text-sm mb-2">{r.content}</p>
 
                     {r.admin_reply && (
-                      <div className="bg-amber-900/20 border border-amber-700/30 rounded-lg p-3 mt-2">
-                        <p className="text-xs text-amber-300 mb-1">💬 답변</p>
-                        <p className="text-gray-300 text-sm">{r.admin_reply}</p>
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
+                        <p className="text-xs text-amber-600 mb-1">💬 답변</p>
+                        <p className="text-gray-600 text-sm">{r.admin_reply}</p>
                       </div>
                     )}
 
@@ -1663,12 +1663,12 @@ export default function AdminPage() {
                           <textarea
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
-                            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 min-h-[60px] resize-y"
+                            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm placeholder-gray-400 min-h-[60px] resize-y"
                             placeholder="답변 작성..."
                           />
                           <div className="flex gap-2">
                             <button onClick={() => handleReplyRequest(r.id)} className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm">답변 저장</button>
-                            <button onClick={() => { setReplyingId(null); setReplyText(''); }} className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm">취소</button>
+                            <button onClick={() => { setReplyingId(null); setReplyText(''); }} className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-sm">취소</button>
                           </div>
                         </div>
                       ) : (
@@ -1677,7 +1677,7 @@ export default function AdminPage() {
                             {r.admin_reply ? '답변 수정' : '답변 작성'}
                           </button>
                           {!r.is_read && (
-                            <button onClick={() => handleMarkRead(r.id)} className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-xs">읽음 처리</button>
+                            <button onClick={() => handleMarkRead(r.id)} className="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-xs">읽음 처리</button>
                           )}
                         </>
                       )}
@@ -1691,28 +1691,28 @@ export default function AdminPage() {
         {/* 캘린더 관리 */}
         {activeTab === 'calendar' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white">📅 캘린더 관리</h2>
-            <p className="text-gray-400 text-sm">특정 날짜 또는 스팟을 닫을 수 있습니다.</p>
+            <h2 className="text-xl font-semibold text-gray-800">📅 캘린더 관리</h2>
+            <p className="text-gray-500 text-sm">특정 날짜 또는 스팟을 닫을 수 있습니다.</p>
 
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 space-y-3">
+            <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">날짜</label>
+                  <label className="block text-xs text-gray-500 mb-1">날짜</label>
                   <input type="date" value={closeDate} onChange={(e) => setCloseDate(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" />
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">스팟 (비우면 전체 닫기)</label>
+                  <label className="block text-xs text-gray-500 mb-1">스팟 (비우면 전체 닫기)</label>
                   <select value={closeSpot} onChange={(e) => setCloseSpot(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm">
                     <option value="">전체 (모든 스팟)</option>
                     {(SPOTS as readonly string[]).map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">사유 (선택)</label>
+                  <label className="block text-xs text-gray-500 mb-1">사유 (선택)</label>
                   <input type="text" value={closeReason} onChange={(e) => setCloseReason(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm"
                     placeholder="예: 스팟 사정으로 휴무" />
                 </div>
               </div>
@@ -1723,26 +1723,26 @@ export default function AdminPage() {
             </div>
 
             {/* 인원 제한 */}
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 space-y-3">
-              <h3 className="text-sm font-medium text-white">👥 날짜별 인원 제한 <span className="text-gray-500 font-normal">(기본: {defaultCapacity}명)</span></h3>
+            <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 space-y-3">
+              <h3 className="text-sm font-medium text-gray-800">👥 날짜별 인원 제한 <span className="text-gray-500 font-normal">(기본: {defaultCapacity}명)</span></h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">날짜</label>
+                  <label className="block text-xs text-gray-500 mb-1">날짜</label>
                   <input type="date" value={capDate} onChange={(e) => setCapDate(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm" />
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm" />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">스팟</label>
+                  <label className="block text-xs text-gray-500 mb-1">스팟</label>
                   <select value={capSpot} onChange={(e) => setCapSpot(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm">
                     <option value="">스팟 선택</option>
                     {(SPOTS as readonly string[]).map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">최대 인원</label>
+                  <label className="block text-xs text-gray-500 mb-1">최대 인원</label>
                   <input type="number" value={capLimit} onChange={(e) => setCapLimit(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm"
                     placeholder={`기본 ${defaultCapacity}명`} min="1" max="50" />
                 </div>
               </div>
@@ -1753,16 +1753,16 @@ export default function AdminPage() {
 
               {customCapacities.length > 0 && (
                 <div className="space-y-2 mt-3">
-                  <p className="text-xs text-gray-400">설정된 인원 제한</p>
+                  <p className="text-xs text-gray-500">설정된 인원 제한</p>
                   {customCapacities.map((c: any) => (
-                    <div key={`${c.date}_${c.spot}`} className="bg-gray-700/50 rounded-lg p-2.5 flex justify-between items-center">
+                    <div key={`${c.date}_${c.spot}`} className="bg-gray-100 rounded-lg p-2.5 flex justify-between items-center">
                       <div>
-                        <span className="text-white text-sm">{c.date}</span>
-                        <span className="text-gray-400 text-xs ml-2">{c.spot}</span>
-                        <span className="text-amber-300 text-xs ml-2 font-medium">{c.max_capacity}명</span>
+                        <span className="text-gray-800 text-sm">{c.date}</span>
+                        <span className="text-gray-500 text-xs ml-2">{c.spot}</span>
+                        <span className="text-amber-600 text-xs ml-2 font-medium">{c.max_capacity}명</span>
                       </div>
                       <button onClick={() => handleResetCapacity(c.date, c.spot)}
-                        className="px-2.5 py-1 bg-gray-600 hover:bg-gray-500 text-gray-300 rounded text-xs">
+                        className="px-2.5 py-1 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded text-xs">
                         기본값 복원
                       </button>
                     </div>
@@ -1772,20 +1772,20 @@ export default function AdminPage() {
             </div>
 
             {/* 스팟별 안내 메시지 */}
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 space-y-3">
-              <h3 className="text-sm font-medium text-white">ℹ️ 스팟별 안내 메시지</h3>
+            <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 space-y-3">
+              <h3 className="text-sm font-medium text-gray-800">ℹ️ 스팟별 안내 메시지</h3>
               <p className="text-xs text-gray-500">멤버가 스팟 선택 시 보이는 안내입니다. (비우면 삭제)</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <select value={noticeSpot} onChange={(e) => {
                   setNoticeSpot(e.target.value);
                   const existing = spotNotices.find((n: any) => n.spot === e.target.value);
                   setNoticeText(existing?.notice || '');
-                }} className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
+                }} className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm">
                   <option value="">스팟 선택</option>
                   {(SPOTS as readonly string[]).map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
                 <input type="text" value={noticeText} onChange={(e) => setNoticeText(e.target.value)}
-                  className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                  className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm"
                   placeholder="예: 수요일은 8시에 맞춰 오픈합니다" />
               </div>
               <button onClick={handleSaveSpotNotice} disabled={!noticeSpot}
@@ -1795,10 +1795,10 @@ export default function AdminPage() {
               {spotNotices.length > 0 && (
                 <div className="space-y-1.5 mt-2">
                   {spotNotices.map((n: any) => (
-                    <div key={n.id} className="bg-gray-700/50 rounded-lg p-2.5 flex justify-between items-center">
+                    <div key={n.id} className="bg-gray-100 rounded-lg p-2.5 flex justify-between items-center">
                       <div>
-                        <span className="text-gray-300 text-xs">{n.spot}</span>
-                        <span className="text-amber-300 text-xs ml-2">ℹ️ {n.notice}</span>
+                        <span className="text-gray-600 text-xs">{n.spot}</span>
+                        <span className="text-amber-600 text-xs ml-2">ℹ️ {n.notice}</span>
                       </div>
                     </div>
                   ))}
@@ -1808,12 +1808,12 @@ export default function AdminPage() {
 
             {closedDates.length > 0 ? (
               <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-300">닫힌 날짜</h3>
+                <h3 className="text-sm font-medium text-gray-600">닫힌 날짜</h3>
                 {closedDates.map((c: any) => (
-                  <div key={c.id} className="bg-gray-800 rounded-lg p-3 border border-red-800/30 flex justify-between items-center">
+                  <div key={c.id} className="bg-white rounded-lg shadow-sm p-3 border border-red-800/30 flex justify-between items-center">
                     <div>
-                      <span className="text-white font-medium text-sm">{c.date}</span>
-                      <span className="text-gray-400 text-xs ml-2">{c.spot || '전체'}</span>
+                      <span className="text-gray-800 font-medium text-sm">{c.date}</span>
+                      <span className="text-gray-500 text-xs ml-2">{c.spot || '전체'}</span>
                       {c.reason && <span className="text-gray-500 text-xs ml-2">({c.reason})</span>}
                     </div>
                     <button onClick={() => handleOpenDate(c.id)}
@@ -1824,31 +1824,31 @@ export default function AdminPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-400">닫힌 날짜가 없습니다.</div>
+              <div className="text-center py-8 text-gray-500">닫힌 날짜가 없습니다.</div>
             )}
 
             {/* 멤버에게 개별 알림 */}
-            <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 space-y-3">
-              <h3 className="text-sm font-medium text-white">🔔 멤버에게 알림 보내기</h3>
-              {notifySuccess && <p className="text-green-300 text-xs">{notifySuccess}</p>}
+            <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 space-y-3">
+              <h3 className="text-sm font-medium text-gray-800">🔔 멤버에게 알림 보내기</h3>
+              {notifySuccess && <p className="text-green-600 text-xs">{notifySuccess}</p>}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">멤버 이름</label>
+                  <label className="block text-xs text-gray-500 mb-1">멤버 이름</label>
                   <input type="text" value={notifyName} onChange={(e) => setNotifyName(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm"
                     placeholder="이름 정확히 입력" />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-400 mb-1">제목 (선택)</label>
+                  <label className="block text-xs text-gray-500 mb-1">제목 (선택)</label>
                   <input type="text" value={notifyTitle} onChange={(e) => setNotifyTitle(e.target.value)}
-                    className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm"
                     placeholder="기본: 📢 웰모먼트 안내" />
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">내용</label>
+                <label className="block text-xs text-gray-500 mb-1">내용</label>
                 <textarea value={notifyBody} onChange={(e) => setNotifyBody(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm min-h-[60px] resize-y"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm min-h-[60px] resize-y"
                   placeholder="멤버에게 전달할 안내 내용" />
               </div>
               <button onClick={handleSendNotify} disabled={!notifyName || !notifyBody}
@@ -1860,7 +1860,7 @@ export default function AdminPage() {
             {/* 미예약자 마케팅 푸시 */}
             <div className="bg-orange-900/30 rounded-lg p-4 border border-orange-700/50 space-y-3">
               <h3 className="text-sm font-medium text-orange-100">📢 미예약자 마케팅 푸시</h3>
-              <p className="text-xs text-orange-200/70">해당 달 활성 멤버 중 미예약자에게만 알림 (체험권 제외)</p>
+              <p className="text-xs text-orange-700/70">해당 달 활성 멤버 중 미예약자에게만 알림 (체험권 제외)</p>
               <button
                 onClick={async () => {
                   const date = prompt('날짜 (YYYY-MM-DD):', '2026-04-08');
@@ -1896,18 +1896,18 @@ export default function AdminPage() {
 
             {/* 진짜 팝업 푸시 알림 */}
             <div className="bg-purple-900/30 rounded-lg p-4 border border-purple-700/50 space-y-3">
-              <h3 className="text-sm font-medium text-purple-100">📨 웹 푸시 알림 (브라우저 팝업)</h3>
+              <h3 className="text-sm font-medium text-purple-700">📨 웹 푸시 알림 (브라우저 팝업)</h3>
               <p className="text-xs text-purple-200/70">디바이스 알림 센터에 팝업으로 표시되는 진짜 푸시 알림</p>
               <div className="space-y-3">
                 <input
                   type="text"
                   placeholder="알림 제목 (예: 오늘 저녁 타임오프클럽!)"
-                  className="w-full px-3 py-2 bg-purple-800/30 border border-purple-600/50 rounded text-white text-sm"
+                  className="w-full px-3 py-2 bg-purple-50 border border-purple-200 rounded text-gray-800 text-sm"
                   id="pushTitle"
                 />
                 <textarea
                   placeholder="알림 내용 (예: 다시점과 벤슨에서 좋은 대화를 나누어보세요!)"
-                  className="w-full px-3 py-2 bg-purple-800/30 border border-purple-600/50 rounded text-white text-sm min-h-[60px]"
+                  className="w-full px-3 py-2 bg-purple-50 border border-purple-200 rounded text-gray-800 text-sm min-h-[60px]"
                   id="pushBody"
                 />
                 
@@ -1944,7 +1944,7 @@ export default function AdminPage() {
                       <input
                         type="text"
                         placeholder="멤버 이름 (예: 김동현, 박영희) - 여러 명은 콤마로 구분"
-                        className="w-full px-3 py-2 bg-purple-800/30 border border-purple-600/50 rounded text-white text-sm"
+                        className="w-full px-3 py-2 bg-purple-50 border border-purple-200 rounded text-gray-800 text-sm"
                         id="pushTargetUsers"
                       />
                       <p className="text-xs text-purple-300/60">
@@ -2027,11 +2027,11 @@ export default function AdminPage() {
             {/* 자동 참석 확인 시스템 */}
             <div className="bg-orange-900/30 rounded-lg p-4 border border-orange-700/50 space-y-3">
               <h3 className="text-sm font-medium text-orange-100">⚠️ 1명 스몰토크 참석 확인</h3>
-              <p className="text-xs text-orange-200/70">스몰토크에 1명만 예약된 경우 해당 멤버에게 참석 확인 푸시 알림을 발송합니다</p>
+              <p className="text-xs text-orange-700/70">스몰토크에 1명만 예약된 경우 해당 멤버에게 참석 확인 푸시 알림을 발송합니다</p>
               <div className="space-y-2">
                 <input
                   type="date"
-                  className="px-3 py-2 bg-orange-800/30 border border-orange-600/50 rounded text-white text-sm"
+                  className="px-3 py-2 bg-orange-100 border border-orange-300 rounded text-gray-800 text-sm"
                   id="attendanceCheckDate"
                   min={new Date().toISOString().split('T')[0]}
                 />
@@ -2097,7 +2097,7 @@ export default function AdminPage() {
                   </button>
                 </div>
               </div>
-              <div className="text-xs text-orange-300/60 space-y-1">
+              <div className="text-xs text-orange-600/60 space-y-1">
                 <div>💡 세션 시작 3시간 전에 크론잡으로 자동 실행 예정</div>
                 <div>🎯 스몰토크 1명 예약 → 해당 멤버에게 참석 확인 요청</div>
                 <div>📱 웹 푸시로 "참석 가능하신지 확인해주세요" 알림 발송</div>
@@ -2108,11 +2108,11 @@ export default function AdminPage() {
         {/* 공지 관리 */}
         {activeTab === 'notices' && (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-white">📢 스팟 운영자 공지</h2>
+            <h2 className="text-xl font-semibold text-gray-800">📢 스팟 운영자 공지</h2>
 
             {/* 새 공지 작성 / 수정 폼 */}
-            <div className="bg-gray-800 rounded-xl p-4 sm:p-6 border border-gray-700 space-y-4">
-              <h3 className="text-base font-semibold text-white">
+            <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200 space-y-4">
+              <h3 className="text-base font-semibold text-gray-800">
                 {editingNotice ? '✏️ 공지 수정' : '✍️ 새 공지 작성'}
               </h3>
               <input type="text"
@@ -2120,14 +2120,14 @@ export default function AdminPage() {
                 onChange={(e) => editingNotice
                   ? setEditingNotice({ ...editingNotice, title: e.target.value })
                   : setNoticeTitle(e.target.value)}
-                className="w-full px-3 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400"
+                className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm placeholder-gray-400"
                 placeholder="제목을 입력하세요" />
               <textarea
                 value={editingNotice ? editingNotice.content : noticeContent}
                 onChange={(e) => editingNotice
                   ? setEditingNotice({ ...editingNotice, content: e.target.value })
                   : setNoticeContent(e.target.value)}
-                className="w-full px-3 py-2.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-400 min-h-[100px] resize-y"
+                className="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm placeholder-gray-400 min-h-[100px] resize-y"
                 placeholder="내용을 입력하세요" />
               <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                 <select
@@ -2135,14 +2135,14 @@ export default function AdminPage() {
                   onChange={(e) => editingNotice
                     ? setEditingNotice({ ...editingNotice, target: e.target.value })
                     : setNoticeTarget(e.target.value)}
-                  className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
+                  className="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm">
                   <option value="all">📣 전체 운영자</option>
                   <option value="약수_스티키플로어">약수_스티키플로어</option>
                   <option value="망원_다시점">망원_다시점</option>
                   <option value="압구정로데오_벤슨 테이스팅 라운지">압구정로데오_벤슨 테이스팅 라운지</option>
                   <option value="서촌_터틀도브">서촌_터틀도브</option>
                 </select>
-                <label className="flex items-center gap-2 text-sm text-gray-300">
+                <label className="flex items-center gap-2 text-sm text-gray-600">
                   <input type="checkbox"
                     checked={editingNotice ? editingNotice.isPinned || editingNotice.is_pinned : noticePinned}
                     onChange={(e) => editingNotice
@@ -2154,7 +2154,7 @@ export default function AdminPage() {
                 <div className="flex gap-2 ml-auto">
                   {editingNotice && (
                     <button onClick={() => setEditingNotice(null)}
-                      className="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-sm">취소</button>
+                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-sm">취소</button>
                   )}
                   <button
                     onClick={editingNotice ? handleEditNotice : handleCreateNotice}
@@ -2167,9 +2167,9 @@ export default function AdminPage() {
             </div>
 
             {/* 공지 목록 (게시판 형태) */}
-            <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               {notices.length === 0 ? (
-                <div className="text-center py-12 text-gray-400">아직 공지가 없습니다.</div>
+                <div className="text-center py-12 text-gray-500">아직 공지가 없습니다.</div>
               ) : (
                 <div className="divide-y divide-gray-700">
                   {notices.map((n: any) => (
@@ -2178,19 +2178,19 @@ export default function AdminPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             {n.is_pinned && <span className="text-amber-400 text-xs">📌</span>}
-                            <span className="text-white font-medium text-sm">{n.title}</span>
+                            <span className="text-gray-800 font-medium text-sm">{n.title}</span>
                             <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                              n.target === 'all' ? 'bg-blue-900/50 text-blue-300' : 'bg-gray-700 text-gray-400'
+                              n.target === 'all' ? 'bg-blue-900/50 text-blue-300' : 'bg-gray-200 text-gray-400'
                             }`}>{n.target === 'all' ? '전체' : n.target}</span>
                           </div>
-                          <p className="text-gray-300 text-sm mt-2 whitespace-pre-wrap line-clamp-3">{n.content}</p>
+                          <p className="text-gray-600 text-sm mt-2 whitespace-pre-wrap line-clamp-3">{n.content}</p>
                           <p className="text-gray-500 text-xs mt-2">{formatKST(n.created_at)}</p>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <button onClick={() => setEditingNotice({ ...n, isPinned: n.is_pinned })}
-                            className="text-amber-400 hover:text-amber-300 text-xs">수정</button>
+                            className="text-amber-400 hover:text-amber-600 text-xs">수정</button>
                           <button onClick={() => handleDeleteNotice(n.id)}
-                            className="text-red-400 hover:text-red-300 text-xs">삭제</button>
+                            className="text-red-400 hover:text-red-600 text-xs">삭제</button>
                         </div>
                       </div>
                     </div>
@@ -2203,34 +2203,34 @@ export default function AdminPage() {
         {/* 신고 관리 */}
         {activeTab === 'reports' && (
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white">🚨 불편 신고</h2>
+            <h2 className="text-xl font-semibold text-gray-800">🚨 불편 신고</h2>
             {reports.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">접수된 신고가 없습니다.</div>
+              <div className="text-center py-12 text-gray-500">접수된 신고가 없습니다.</div>
             ) : (
               <div className="space-y-3">
                 {reports.map((r: any) => (
-                  <div key={r.id} className={`bg-gray-800 rounded-lg p-4 border ${
-                    r.status === 'pending' ? 'border-red-700/50' : 'border-gray-700'
+                  <div key={r.id} className={`bg-white rounded-lg shadow-sm p-4 border ${
+                    r.status === 'pending' ? 'border-red-700/50' : 'border-gray-300'
                   }`}>
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-white text-sm font-medium">{r.date} · {r.spot}</span>
+                        <span className="text-gray-800 text-sm font-medium">{r.date} · {r.spot}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                          r.status === 'pending' ? 'bg-red-900/50 text-red-300' :
+                          r.status === 'pending' ? 'bg-red-900/50 text-red-600' :
                           r.status === 'reviewed' ? 'bg-yellow-900/50 text-yellow-300' :
-                          'bg-green-900/50 text-green-300'
+                          'bg-green-50 text-green-600'
                         }`}>{r.status === 'pending' ? '미처리' : r.status === 'reviewed' ? '확인' : '처리완료'}</span>
                       </div>
                     </div>
-                    <p className="text-gray-300 text-sm">{r.description}</p>
+                    <p className="text-gray-600 text-sm">{r.description}</p>
                     {r.person_description && (
-                      <p className="text-gray-400 text-xs mt-1">👤 특징: {r.person_description}</p>
+                      <p className="text-gray-500 text-xs mt-1">👤 특징: {r.person_description}</p>
                     )}
                     <p className="text-gray-500 text-xs mt-2">신고자: {r.reporter_name} · {formatKST(r.created_at)}</p>
-                    {r.admin_note && <p className="text-amber-300 text-xs mt-1">📝 메모: {r.admin_note}</p>}
+                    {r.admin_note && <p className="text-amber-600 text-xs mt-1">📝 메모: {r.admin_note}</p>}
                     <div className="flex gap-2 mt-3">
                       <button onClick={() => handleReportAction(r.id, 'reviewed', '')}
-                        className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded text-xs">확인</button>
+                        className="px-3 py-1 bg-yellow-600 hover:bg-yellow-700 text-gray-800 rounded text-xs">확인</button>
                       <button onClick={() => {
                         const note = prompt('처리 메모:');
                         if (note !== null) handleReportAction(r.id, 'resolved', note);

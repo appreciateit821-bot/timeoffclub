@@ -238,15 +238,15 @@ export default function MyHistoryPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-950"><div className="text-gray-400">로딩 중...</div></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0]"><div className="text-gray-500">로딩 중...</div></div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      <header className="bg-gray-900/80 backdrop-blur border-b border-amber-800/30 sticky top-0 z-10">
+    <div className="min-h-screen bg-[#FFF8F0]">
+      <header className="bg-white/80 backdrop-blur border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-lg font-bold text-amber-100">🧘 나의 타임오프</h1>
-          <button onClick={() => router.push('/calendar')} className="px-3 py-1.5 bg-gray-700 text-white rounded-lg text-xs">돌아가기</button>
+          <h1 className="text-lg font-bold text-amber-800">🧘 나의 타임오프</h1>
+          <button onClick={() => router.push('/calendar')} className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg text-xs">돌아가기</button>
         </div>
       </header>
 
@@ -255,11 +255,11 @@ export default function MyHistoryPage() {
         <div className="flex gap-2">
           <button onClick={() => setActiveView('dashboard')}
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
-              activeView === 'dashboard' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400'
+              activeView === 'dashboard' ? 'bg-amber-600 text-white' : 'bg-white text-gray-400'
             }`}>📊 대시보드</button>
           <button onClick={() => setActiveView('history')}
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
-              activeView === 'history' ? 'bg-amber-600 text-white' : 'bg-gray-800 text-gray-400'
+              activeView === 'history' ? 'bg-amber-600 text-white' : 'bg-white text-gray-400'
             }`}>📋 기록</button>
         </div>
       </div>
@@ -269,9 +269,9 @@ export default function MyHistoryPage() {
         {activeView === 'dashboard' && (
           <>
             {/* ========== 메인 디톡스 카드 (공유용) ========== */}
-            <div className="relative overflow-hidden rounded-2xl border border-amber-700/30">
+            <div className="relative overflow-hidden rounded-2xl border border-amber-200">
               {/* 배경 그라디언트 */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-amber-950/40" />
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-amber-100/40" />
               <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/5 rounded-full blur-3xl" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-violet-500/5 rounded-full blur-3xl" />
               
@@ -285,14 +285,14 @@ export default function MyHistoryPage() {
 
                 {/* 디톡스 시간 — 메인 */}
                 <div className="text-center">
-                  <div className="text-6xl font-black text-amber-100 tracking-tight">{detoxHours}<span className="text-2xl text-amber-300 font-medium ml-1">h</span></div>
-                  <p className="text-gray-400 text-sm mt-1">디지털 디톡스 시간</p>
+                  <div className="text-6xl font-black text-amber-800 tracking-tight">{detoxHours}<span className="text-2xl text-amber-600 font-medium ml-1">h</span></div>
+                  <p className="text-gray-500 text-sm mt-1">디지털 디톡스 시간</p>
                 </div>
 
                 {/* 효과 메시지 */}
                 {currentMessage && (
-                  <div className="bg-gray-800/50 rounded-xl p-4 border border-amber-800/20">
-                    <p className="text-amber-100 text-sm leading-relaxed text-center">"{currentMessage.msg}"</p>
+                  <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                    <p className="text-amber-800 text-sm leading-relaxed text-center">"{currentMessage.msg}"</p>
                     {currentMessage.source && (
                       <p className="text-gray-500 text-[10px] text-center mt-2">— {currentMessage.source}</p>
                     )}
@@ -306,7 +306,7 @@ export default function MyHistoryPage() {
                       <span>{currentMessage?.hours || 0}h</span>
                       <span>다음 {nextMessage.hours}h</span>
                     </div>
-                    <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div className="h-2 bg-white rounded-full overflow-hidden">
                       <div className={`h-full rounded-full bg-gradient-to-r ${level.color} transition-all duration-1000`} style={{ width: `${Math.min(progress, 100)}%` }} />
                     </div>
                   </div>
@@ -314,26 +314,26 @@ export default function MyHistoryPage() {
 
                 {/* 통계 그리드 */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-gray-800/60 rounded-xl p-3 text-center border border-gray-700/50">
-                    <div className="text-2xl font-bold text-amber-300">{attendedCount}</div>
-                    <div className="text-[10px] text-gray-400 mt-0.5">세션</div>
+                  <div className="bg-white/80 rounded-xl p-3 text-center border border-gray-200">
+                    <div className="text-2xl font-bold text-amber-600">{attendedCount}</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">세션</div>
                   </div>
-                  <div className="bg-gray-800/60 rounded-xl p-3 text-center border border-gray-700/50">
+                  <div className="bg-white/80 rounded-xl p-3 text-center border border-gray-200">
                     {streak > 0 ? (
                       <>
                         <div className="text-2xl font-bold text-orange-400">🔥{streak}</div>
-                        <div className="text-[10px] text-gray-400 mt-0.5">주 연속</div>
+                        <div className="text-[10px] text-gray-500 mt-0.5">주 연속</div>
                       </>
                     ) : (
                       <>
                         <div className="text-2xl font-bold text-gray-500">-</div>
-                        <div className="text-[10px] text-gray-400 mt-0.5">스트릭</div>
+                        <div className="text-[10px] text-gray-500 mt-0.5">스트릭</div>
                       </>
                     )}
                   </div>
-                  <div className="bg-gray-800/60 rounded-xl p-3 text-center border border-gray-700/50">
+                  <div className="bg-white/80 rounded-xl p-3 text-center border border-gray-200">
                     <div className="text-2xl font-bold text-violet-400">{uniqueSpots.length}</div>
-                    <div className="text-[10px] text-gray-400 mt-0.5">스팟</div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">스팟</div>
                   </div>
                 </div>
 
@@ -341,7 +341,7 @@ export default function MyHistoryPage() {
                 {uniqueSpots.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 justify-center">
                     {uniqueSpots.map(spot => (
-                      <span key={spot} className="px-2.5 py-1 bg-gray-800/80 border border-gray-700/50 rounded-full text-[10px] text-amber-200/80">
+                      <span key={spot} className="px-2.5 py-1 bg-white border border-gray-200 shadow-sm/50 rounded-full text-[10px] text-amber-700/80">
                         {spot.split('_')[1] || spot}
                       </span>
                     ))}
@@ -351,7 +351,7 @@ export default function MyHistoryPage() {
                 {/* 공유 버튼 */}
                 {attendedCount > 0 && (
                   <button onClick={generateShareCard}
-                    className="w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-medium text-sm transition active:scale-95 shadow-lg shadow-violet-900/30">
+                    className="w-full py-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white rounded-xl font-medium text-sm transition active:scale-95 shadow-lg shadow-violet-200/50">
                     📸 인스타 스토리로 공유하기
                   </button>
                 )}
@@ -361,13 +361,13 @@ export default function MyHistoryPage() {
             {/* 다가오는 세션 */}
             {upcoming.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-300 mb-3">📅 다가오는 세션</h3>
+                <h3 className="text-sm font-medium text-gray-600 mb-3">📅 다가오는 세션</h3>
                 <div className="space-y-2">
                   {upcoming.map(r => (
-                    <div key={r.id} className="bg-gray-800/60 rounded-lg p-3 flex justify-between items-center">
+                    <div key={r.id} className="bg-white/80 rounded-lg p-3 flex justify-between items-center">
                       <div>
-                        <div className="text-white text-sm font-medium">{r.date}</div>
-                        <div className="text-gray-400 text-xs">{r.spot.split('_')[1] || r.spot}</div>
+                        <div className="text-gray-800 text-sm font-medium">{r.date}</div>
+                        <div className="text-gray-500 text-xs">{r.spot.split('_')[1] || r.spot}</div>
                       </div>
                       <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
                         r.mode === 'reflection' ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
@@ -381,11 +381,11 @@ export default function MyHistoryPage() {
             {/* 멤버들의 한마디 */}
             {moments.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-300 mb-3">✨ 멤버들의 한마디</h3>
+                <h3 className="text-sm font-medium text-gray-600 mb-3">✨ 멤버들의 한마디</h3>
                 <div className="space-y-2">
                   {moments.slice(0, 5).map((m: any, idx: number) => (
-                    <div key={idx} className="bg-gray-800/40 rounded-lg p-3 border border-gray-700/30">
-                      <p className="text-gray-200 text-sm italic">"{m.moment_text}"</p>
+                    <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200/30">
+                      <p className="text-gray-700 text-sm italic">"{m.moment_text}"</p>
                       <span className="text-gray-500 text-xs">{m.display_name}</span>
                     </div>
                   ))}
@@ -395,20 +395,20 @@ export default function MyHistoryPage() {
 
             {/* 노쇼 기록 */}
             {noShowHistory.noShows.length > 0 && (
-              <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 space-y-2">
-                <p className="text-red-200 text-sm font-medium">⚠️ 불참(노쇼) 기록</p>
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-2">
+                <p className="text-red-700 text-sm font-medium">⚠️ 불참(노쇼) 기록</p>
                 <div className="space-y-1.5">
                   {noShowHistory.noShows.map((ns: any, idx: number) => {
                     const [, month, day] = ns.date.split('-');
                     const spotName = ns.spot.split('_')[1] || ns.spot;
                     return (
-                      <p key={idx} className="text-red-300/80 text-xs">
+                      <p key={idx} className="text-red-600/80 text-xs">
                         · {parseInt(month)}/{parseInt(day)}일 {spotName} 세션 불참
                       </p>
                     );
                   })}
                 </div>
-                <p className="text-red-300/60 text-xs pt-1 border-t border-red-800/30">
+                <p className="text-red-500/60 text-xs pt-1 border-t border-red-800/30">
                   누적 {noShowHistory.totalNoShows}회. 3회 누적 시 멤버십이 정지됩니다. 참석이 어려우면 미리 취소해주세요.
                 </p>
               </div>
@@ -422,11 +422,11 @@ export default function MyHistoryPage() {
             {attended.length > 0 ? (
               <div className="space-y-2">
                 {attended.sort((a: any, b: any) => b.date.localeCompare(a.date)).map(r => (
-                  <div key={r.id} className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50">
+                  <div key={r.id} className="bg-white/80 rounded-xl p-4 border border-gray-200">
                     <div className="flex justify-between items-start">
                       <div>
-                        <div className="text-amber-200 text-sm font-medium">{r.date}</div>
-                        <div className="text-gray-400 text-xs">{r.spot.split('_')[1] || r.spot}</div>
+                        <div className="text-amber-700 text-sm font-medium">{r.date}</div>
+                        <div className="text-gray-500 text-xs">{r.spot.split('_')[1] || r.spot}</div>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className={`text-sm font-semibold px-3 py-1 rounded-full ${
@@ -436,12 +436,12 @@ export default function MyHistoryPage() {
                           className="text-[10px] text-gray-500 hover:text-red-400">🚨</button>
                       </div>
                     </div>
-                    {r.memo && <p className="text-gray-400 text-xs mt-2 italic">💭 "{r.memo}"</p>}
+                    {r.memo && <p className="text-gray-500 text-xs mt-2 italic">💭 "{r.memo}"</p>}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 text-gray-400">
+              <div className="text-center py-16 text-gray-500">
                 <div className="text-4xl mb-3">🌱</div>
                 <p>아직 참석한 세션이 없어요</p>
                 <p className="text-xs mt-1 text-gray-500">첫 타임오프를 예약해보세요!</p>
@@ -453,28 +453,28 @@ export default function MyHistoryPage() {
         {/* 신고 모달 */}
         {showReport && (
           <div className="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-md space-y-4 animate-fade-in">
-              <h3 className="text-white font-medium">🚨 불편 신고</h3>
-              <p className="text-gray-400 text-xs">이 내용은 웰모먼트만 확인하며, 신고자 정보는 비공개입니다.</p>
+            <div className="bg-white rounded-2xl shadow-sm p-6 w-full max-w-md space-y-4 animate-fade-in">
+              <h3 className="text-gray-800 font-medium">🚨 불편 신고</h3>
+              <p className="text-gray-500 text-xs">이 내용은 웰모먼트만 확인하며, 신고자 정보는 비공개입니다.</p>
               {reportSession && <div className="text-xs text-gray-500">{reportSession.date} · {reportSession.spot}</div>}
               <div>
-                <label className="text-xs text-gray-300 mb-1 block">어떤 상황이었나요?</label>
+                <label className="text-xs text-gray-600 mb-1 block">어떤 상황이었나요?</label>
                 <textarea value={reportDesc} onChange={(e) => setReportDesc(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm min-h-[80px] resize-y placeholder-gray-500"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm min-h-[80px] resize-y placeholder-gray-400"
                   placeholder="불편했던 상황을 설명해주세요" />
               </div>
               <div>
-                <label className="text-xs text-gray-300 mb-1 block">해당 참가자 특징 (선택)</label>
+                <label className="text-xs text-gray-600 mb-1 block">해당 참가자 특징 (선택)</label>
                 <input type="text" value={reportPerson} onChange={(e) => setReportPerson(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm placeholder-gray-500"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm placeholder-gray-400"
                   placeholder="예: 안경 쓴 분, 창가에 앉은 분 등" />
               </div>
-              {reportSuccess && <p className="text-green-300 text-sm">{reportSuccess}</p>}
+              {reportSuccess && <p className="text-green-600 text-sm">{reportSuccess}</p>}
               <div className="flex gap-2">
                 <button onClick={handleReport} disabled={!reportDesc.trim()}
                   className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium disabled:opacity-50">신고</button>
                 <button onClick={() => { setShowReport(false); setReportSuccess(''); }}
-                  className="flex-1 py-2.5 bg-gray-700 text-white rounded-lg text-sm">닫기</button>
+                  className="flex-1 py-2.5 bg-gray-100 text-gray-800 rounded-lg text-sm">닫기</button>
               </div>
             </div>
           </div>

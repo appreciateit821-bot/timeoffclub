@@ -116,11 +116,11 @@ export default function GuidePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-      <header className="bg-gray-900/80 backdrop-blur border-b border-amber-800/30 sticky top-0 z-10">
+    <div className="min-h-screen bg-[#FFF8F0]">
+      <header className="bg-white/80 backdrop-blur border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-lg sm:text-xl font-bold text-amber-100">스몰토크 가이드</h1>
-          <button onClick={() => router.push('/calendar')} className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-xs sm:text-sm">
+          <h1 className="text-lg sm:text-xl font-bold text-amber-800">스몰토크 가이드</h1>
+          <button onClick={() => router.push('/calendar')} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs sm:text-sm">
             돌아가기
           </button>
         </div>
@@ -128,11 +128,11 @@ export default function GuidePage() {
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
         {/* 인트로 */}
-        <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-5">
-          <p className="text-amber-200 text-sm leading-relaxed">
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+          <p className="text-amber-700 text-sm leading-relaxed">
             💚 나를 전혀 모르는 낯설지만 안전한 사람들 사이에서, 일상의 무게를 덜어내는 엉뚱한 상상과 사소한 관찰을 나눠보세요.
           </p>
-          <p className="text-amber-200/80 text-sm leading-relaxed mt-3">
+          <p className="text-amber-700/80 text-sm leading-relaxed mt-3">
             🧡 오늘 우리가 나눈 대화는 이 문을 나서는 순간 사라지는 연기 같아도 좋습니다. 남는 게 없어서 비로소 가벼워지는 시간을 즐겨주세요.
           </p>
         </div>
@@ -146,29 +146,29 @@ export default function GuidePage() {
         </button>
         
         {showRandom && randomQ && (
-          <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-6 text-center animate-fade-in">
-            <p className="text-amber-100 text-lg font-medium leading-relaxed">"{randomQ}"</p>
-            <button onClick={fetchRandom} className="mt-3 text-xs text-amber-300/70 hover:text-amber-200 underline">다시 뽑기</button>
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center animate-fade-in">
+            <p className="text-amber-800 text-lg font-medium leading-relaxed">"{randomQ}"</p>
+            <button onClick={fetchRandom} className="mt-3 text-xs text-amber-600/70 hover:text-amber-700 underline">다시 뽑기</button>
           </div>
         )}
 
-        <p className="text-gray-400 text-xs text-center">스마트폰 반납 전에 한번 훑어보세요 ☕</p>
+        <p className="text-gray-500 text-xs text-center">스마트폰 반납 전에 한번 훑어보세요 ☕</p>
 
         {/* 카테고리 토글 */}
         {GUIDE_CATEGORIES.map((cat, idx) => (
-          <div key={idx} className="bg-gray-800/80 border border-gray-700 rounded-xl overflow-hidden">
+          <div key={idx} className="bg-white border border-gray-200 shadow-sm rounded-xl overflow-hidden">
             <button
               onClick={() => setOpenCategory(openCategory === idx ? null : idx)}
-              className="w-full px-4 py-4 flex items-center justify-between text-left active:bg-gray-700/50 transition"
+              className="w-full px-4 py-4 flex items-center justify-between text-left active:bg-gray-100 transition"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{cat.emoji}</span>
                 <div>
-                  <div className="text-white font-medium text-sm">{cat.title}</div>
-                  <div className="text-gray-400 text-xs mt-0.5">{cat.subtitle}</div>
+                  <div className="text-gray-800 font-medium text-sm">{cat.title}</div>
+                  <div className="text-gray-500 text-xs mt-0.5">{cat.subtitle}</div>
                 </div>
               </div>
-              <span className={`text-gray-400 transition-transform ${openCategory === idx ? 'rotate-180' : ''}`}>
+              <span className={`text-gray-500 transition-transform ${openCategory === idx ? 'rotate-180' : ''}`}>
                 ▾
               </span>
             </button>
@@ -176,9 +176,9 @@ export default function GuidePage() {
             {openCategory === idx && (
               <div className="px-4 pb-4 space-y-2">
                 {cat.questions.map((q, qIdx) => (
-                  <div key={qIdx} className="flex items-start gap-2 py-2 px-3 bg-gray-700/50 rounded-lg">
+                  <div key={qIdx} className="flex items-start gap-2 py-2 px-3 bg-gray-100 rounded-lg">
                     <span className="text-amber-400 text-sm mt-0.5">•</span>
-                    <span className="text-gray-200 text-sm">{q}</span>
+                    <span className="text-gray-700 text-sm">{q}</span>
                   </div>
                 ))}
               </div>
@@ -187,9 +187,9 @@ export default function GuidePage() {
         ))}
 
         {/* 팁 */}
-        <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5 mt-6">
-          <h3 className="text-amber-300 font-medium text-sm mb-3">💡 스몰토크 팁</h3>
-          <ul className="space-y-2 text-gray-300 text-sm">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mt-6">
+          <h3 className="text-amber-600 font-medium text-sm mb-3">💡 스몰토크 팁</h3>
+          <ul className="space-y-2 text-gray-600 text-sm">
             <li className="flex items-start gap-2"><span className="text-amber-400">•</span>정답은 없어요. 떠오르는 대로 말해보세요.</li>
             <li className="flex items-start gap-2"><span className="text-amber-400">•</span>침묵이 흘러도 괜찮아요. 그것도 대화의 일부입니다.</li>
             <li className="flex items-start gap-2"><span className="text-amber-400">•</span>상대의 이야기에 "왜?"보다 "어떤 느낌이었어요?"가 좋아요.</li>

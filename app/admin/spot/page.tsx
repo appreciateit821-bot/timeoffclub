@@ -255,34 +255,34 @@ export default function SpotOperatorPage() {
     return action;
   };
   const actionColor = (action: string) => {
-    if (action === 'CREATE') return 'bg-green-900/50 text-green-300';
-    if (action === 'CANCEL') return 'bg-red-900/50 text-red-300';
+    if (action === 'CREATE') return 'bg-green-50 text-green-600';
+    if (action === 'CANCEL') return 'bg-red-900/50 text-red-600';
     return 'bg-yellow-900/50 text-yellow-300';
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-950"><div className="text-gray-400">로딩 중...</div></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0]"><div className="text-gray-500">로딩 중...</div></div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      <header className="bg-gray-900 border-b border-gray-800 sticky top-0 z-10">
+    <div className="min-h-screen bg-[#FFF8F0]">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-lg sm:text-2xl font-bold text-white">스팟 운영자</h1>
-            <p className="text-xs sm:text-sm text-gray-400 mt-1">{spotName.split('_')[1] || spotName}</p>
+            <h1 className="text-lg sm:text-2xl font-bold text-gray-800">스팟 운영자</h1>
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">{spotName.split('_')[1] || spotName}</p>
           </div>
-          <button onClick={handleLogout} className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-xs sm:text-sm">로그아웃</button>
+          <button onClick={handleLogout} className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs sm:text-sm">로그아웃</button>
         </div>
       </header>
 
-      <div className="border-b border-gray-800 overflow-x-auto scrollbar-hide">
+      <div className="border-b border-gray-200 overflow-x-auto scrollbar-hide">
         <div className="max-w-7xl mx-auto px-2 sm:px-4">
           <div className="flex gap-0">
             {(['checkin', 'sessions', 'reservations', 'logs', 'notices', 'requests'] as const).map(tab => (
               <button key={tab} onClick={() => { setActiveTab(tab); if (tab === 'sessions') fetchSessions(); if (tab === 'requests') fetchSpotRequests(); }}
                 className={`px-2.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition border-b-2 whitespace-nowrap ${
-                  activeTab === tab ? 'text-amber-400 border-amber-400' : 'text-gray-400 border-transparent hover:text-gray-300'
+                  activeTab === tab ? 'text-amber-400 border-amber-400' : 'text-gray-500 border-transparent hover:text-gray-300'
                 }`}>
                 {tab === 'checkin' ? '✅ 체크' : tab === 'sessions' ? '📅 일정' : tab === 'reservations' ? '📋 예약' : tab === 'logs' ? '📝 로그' : tab === 'notices' ? '📢 공지' : '📮 요청'}
               </button>
@@ -299,9 +299,9 @@ export default function SpotOperatorPage() {
 
         {/* 전체 자동 노쇼 확인 필요 (날짜 무관) */}
         {pendingAutoNoShows.length > 0 && (
-          <div className="bg-orange-900/20 border border-orange-600/40 rounded-xl p-4 space-y-3">
+          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-3">
             <div>
-              <div className="text-orange-300 font-bold text-sm">⚠️ 자동 노쇼 확인 필요 {pendingAutoNoShows.length}건</div>
+              <div className="text-orange-600 font-bold text-sm">⚠️ 자동 노쇼 확인 필요 {pendingAutoNoShows.length}건</div>
               <div className="text-orange-400/80 text-[11px] mt-1">세션 종료 후 미체크된 멤버가 자동으로 노쇼 처리됐어요. 맞는지 확인해주세요. (3일간 미확인 시 자동 확정)</div>
             </div>
             <div className="space-y-2">
@@ -310,17 +310,17 @@ export default function SpotOperatorPage() {
                 const dow = d.getDay() === 3 ? '수' : d.getDay() === 0 ? '일' : '';
                 const time = d.getDay() === 3 ? '20:00' : d.getDay() === 0 ? '15:00' : '';
                 return (
-                  <div key={`pending-${r.id}`} className="bg-gray-800/80 rounded-lg border border-orange-700/30 overflow-hidden">
+                  <div key={`pending-${r.id}`} className="bg-white rounded-lg border border-orange-200 overflow-hidden">
                     <div className="p-3">
                       <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                        <span className="text-amber-200 font-bold text-xs bg-amber-900/40 px-2 py-0.5 rounded">📅 {r.date.slice(5)} ({dow}) {time}</span>
-                        <span className="text-white font-mono font-bold text-sm">{r.display_id}</span>
-                        {r.is_trial && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-900/50 text-orange-300">🎫 체험권</span>}
+                        <span className="text-amber-700 font-bold text-xs bg-amber-900/40 px-2 py-0.5 rounded">📅 {r.date.slice(5)} ({dow}) {time}</span>
+                        <span className="text-gray-800 font-mono font-bold text-sm">{r.display_id}</span>
+                        {r.is_trial && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-600">🎫 체험권</span>}
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'}`}>
                           {r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}
                         </span>
                       </div>
-                      {r.memo && <p className="text-gray-400 text-xs italic">💭 "{r.memo}"</p>}
+                      {r.memo && <p className="text-gray-500 text-xs italic">💭 "{r.memo}"</p>}
                     </div>
                     <div className="flex border-t border-orange-700/40">
                       <button
@@ -343,11 +343,11 @@ export default function SpotOperatorPage() {
         )}
 
         {/* 한 달 세션 요약 */}
-        <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-700/30 mb-4">
+        <div className="bg-gradient-to-r from-amber-900/20 to-gray-800/80 rounded-xl p-4 border border-amber-200 mb-4">
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <div className="text-white font-bold">{spotName.split('_')[1] || spotName}</div>
-              <div className="text-xs text-gray-400">{spotName.split('_')[0]} · 한 달 세션</div>
+              <div className="text-gray-800 font-bold">{spotName.split('_')[1] || spotName}</div>
+              <div className="text-xs text-gray-500">{spotName.split('_')[0]} · 한 달 세션</div>
             </div>
           </div>
           <div className="space-y-2">
@@ -359,14 +359,14 @@ export default function SpotOperatorPage() {
                 <div key={s.date}
                   className={`rounded-xl p-3 transition ${
                     s.isToday ? 'bg-emerald-900/20 border border-emerald-600/40' :
-                    checkinDate === s.date ? 'bg-amber-900/20 border border-amber-600/40' : 'bg-gray-800/80 border border-gray-700'
+                    checkinDate === s.date ? 'bg-amber-50 border border-amber-200' : 'bg-white border border-gray-200 shadow-sm'
                   }`}>
                   <div className="flex items-center justify-between" onClick={() => setCheckinDate(s.date)}>
                     <div className="flex items-center gap-3">
                       <div className="text-center min-w-[48px]">
                         {s.isToday && <div className="text-[9px] text-emerald-400 font-bold">오늘</div>}
-                        <div className={`text-[10px] ${s.isToday ? 'text-emerald-300' : 'text-gray-400'}`}>{s.day}</div>
-                        <div className={`text-sm font-bold ${s.isToday ? 'text-emerald-200' : 'text-white'}`}>{s.date.slice(5)}</div>
+                        <div className={`text-[10px] ${s.isToday ? 'text-emerald-600' : 'text-gray-400'}`}>{s.day}</div>
+                        <div className={`text-sm font-bold ${s.isToday ? 'text-emerald-700' : 'text-gray-800'}`}>{s.date.slice(5)}</div>
                         <div className="text-[10px] text-gray-500">{s.time}</div>
                       </div>
                       <div>
@@ -376,7 +376,7 @@ export default function SpotOperatorPage() {
                           </div>
                         ) : (
                         <div className="flex items-center gap-2">
-                          <span className="text-amber-300 font-bold text-lg">{data?.total ?? 0}</span>
+                          <span className="text-amber-600 font-bold text-lg">{data?.total ?? 0}</span>
                           <span className="text-gray-500 text-xs">명 예약</span>
                           {cap && <span className="text-gray-600 text-[10px]">/ {cap.capacity}명</span>}
                         </div>
@@ -391,19 +391,19 @@ export default function SpotOperatorPage() {
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); if (isEditing) { setEditingCapDate(''); } else { setEditingCapDate(s.date); setEditingCapValue(String(cap?.capacity || 10)); } }}
                       className={`px-3 py-1.5 rounded-lg text-xs transition active:scale-95 ${
-                        isEditing ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        isEditing ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                       }`}>
                       {isEditing ? '닫기' : '👥 인원'}
                     </button>
                   </div>
                   {/* 인원 조절 펼침 */}
                   {isEditing && (
-                    <div className="mt-3 pt-3 border-t border-gray-700 space-y-2">
+                    <div className="mt-3 pt-3 border-t border-gray-300 space-y-2">
                       <div className="flex gap-1.5">
                         {[2, 4, 6, 8, 10].map(n => (
                           <button key={n} onClick={() => setEditingCapValue(String(n))}
                             className={`flex-1 py-2 rounded-lg text-sm font-bold transition active:scale-95 ${
-                              editingCapValue === String(n) ? 'bg-amber-600 text-white' : 'bg-gray-700 text-gray-400'
+                              editingCapValue === String(n) ? 'bg-amber-600 text-white' : 'bg-gray-200 text-gray-400'
                             }`}>{n}</button>
                         ))}
                       </div>
@@ -414,7 +414,7 @@ export default function SpotOperatorPage() {
                         </button>
                         {cap?.isCustom && (
                           <button onClick={() => handleResetCapacity(s.date)}
-                            className="px-3 py-2 bg-gray-700 text-gray-400 rounded-lg text-xs transition">초기화</button>
+                            className="px-3 py-2 bg-gray-100 text-gray-500 rounded-lg text-xs transition">초기화</button>
                         )}
                       </div>
                     </div>
@@ -427,19 +427,19 @@ export default function SpotOperatorPage() {
 
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-lg font-semibold text-white">참가자 체크</h2>
-                <p className="text-xs text-gray-400 mt-0.5">{checkinDate} {(() => { const d = new Date(checkinDate + 'T00:00:00+09:00'); return d.getDay() === 3 ? '수요일 20:00' : d.getDay() === 0 ? '일요일 15:00' : ''; })()}</p>
+                <h2 className="text-lg font-semibold text-gray-800">참가자 체크</h2>
+                <p className="text-xs text-gray-500 mt-0.5">{checkinDate} {(() => { const d = new Date(checkinDate + 'T00:00:00+09:00'); return d.getDay() === 3 ? '수요일 20:00' : d.getDay() === 0 ? '일요일 15:00' : ''; })()}</p>
               </div>
               <input type="date" value={checkinDate} onChange={(e) => setCheckinDate(e.target.value)}
-                className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm" />
+                className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-800 text-sm" />
             </div>
 
             {/* 오늘 세션 요약 */}
             {checkinList.length > 0 && (
-              <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700 space-y-3">
+              <div className="bg-white/80 rounded-xl p-4 border border-gray-200 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300 text-sm font-medium">세션 참가자 구성</span>
-                  <span className="text-amber-300 text-sm font-bold">{checkinList.length}명</span>
+                  <span className="text-gray-600 text-sm font-medium">세션 참가자 구성</span>
+                  <span className="text-amber-600 text-sm font-bold">{checkinList.length}명</span>
                 </div>
                 
                 {/* 모드별 통계 */}
@@ -457,46 +457,46 @@ export default function SpotOperatorPage() {
                 {/* 멤버 유형별 통계 */}
                 <div className="flex gap-3">
                   <div className="flex-1 bg-orange-900/30 rounded-lg p-2.5 text-center border border-orange-800/30">
-                    <div className="text-orange-300 text-lg font-bold">{checkinList.filter(r => r.is_trial).length}</div>
+                    <div className="text-orange-600 text-lg font-bold">{checkinList.filter(r => r.is_trial).length}</div>
                     <div className="text-orange-400 text-[10px]">🎫 체험권</div>
                   </div>
-                  <div className="flex-1 bg-gray-700/50 rounded-lg p-2.5 text-center border border-gray-600/30">
-                    <div className="text-gray-300 text-lg font-bold">{checkinList.filter(r => !r.is_trial).length}</div>
-                    <div className="text-gray-400 text-[10px]">👤 멤버</div>
+                  <div className="flex-1 bg-gray-100 rounded-lg p-2.5 text-center border border-gray-200/30">
+                    <div className="text-gray-600 text-lg font-bold">{checkinList.filter(r => !r.is_trial).length}</div>
+                    <div className="text-gray-500 text-[10px]">👤 멤버</div>
                   </div>
                 </div>
               </div>
             )}
 
             {/* 인원 표시 */}
-            <div className="bg-gray-800/60 rounded-lg p-3 border border-gray-700 flex items-center justify-between">
-              <span className="text-gray-400 text-sm">👥 최대 <span className="text-amber-300 font-bold">{sessionCapacities[checkinDate]?.capacity || '...'}</span>명</span>
+            <div className="bg-white/80 rounded-lg p-3 border border-gray-200 flex items-center justify-between">
+              <span className="text-gray-500 text-sm">👥 최대 <span className="text-amber-600 font-bold">{sessionCapacities[checkinDate]?.capacity || '...'}</span>명</span>
               <span className="text-gray-500 text-xs">상단에서 인원 변경 가능</span>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-green-900/30 border border-green-700/50 rounded-lg p-3 text-center">
                 <div className="text-xl font-bold text-green-400">{attendedCount}</div>
-                <div className="text-xs text-green-300">출석</div>
+                <div className="text-xs text-green-600">출석</div>
                 <div className="flex justify-center gap-2 mt-1">
-                  <span className="text-[9px] text-orange-300">🎫{checkinList.filter(r => r.check_in_status === 'attended' && r.is_trial).length}</span>
-                  <span className="text-[9px] text-gray-300">👤{checkinList.filter(r => r.check_in_status === 'attended' && !r.is_trial).length}</span>
+                  <span className="text-[9px] text-orange-600">🎫{checkinList.filter(r => r.check_in_status === 'attended' && r.is_trial).length}</span>
+                  <span className="text-[9px] text-gray-600">👤{checkinList.filter(r => r.check_in_status === 'attended' && !r.is_trial).length}</span>
                 </div>
               </div>
-              <div className="bg-red-900/30 border border-red-700/50 rounded-lg p-3 text-center">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
                 <div className="text-xl font-bold text-red-400">{noShowCount}</div>
-                <div className="text-xs text-red-300">노쇼</div>
+                <div className="text-xs text-red-600">노쇼</div>
                 <div className="flex justify-center gap-2 mt-1">
-                  <span className="text-[9px] text-orange-300">🎫{checkinList.filter(r => r.check_in_status === 'no_show' && r.is_trial).length}</span>
-                  <span className="text-[9px] text-gray-300">👤{checkinList.filter(r => r.check_in_status === 'no_show' && !r.is_trial).length}</span>
+                  <span className="text-[9px] text-orange-600">🎫{checkinList.filter(r => r.check_in_status === 'no_show' && r.is_trial).length}</span>
+                  <span className="text-[9px] text-gray-600">👤{checkinList.filter(r => r.check_in_status === 'no_show' && !r.is_trial).length}</span>
                 </div>
               </div>
-              <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 text-center">
-                <div className="text-xl font-bold text-gray-400">{uncheckedCount}</div>
-                <div className="text-xs text-gray-400">미체크</div>
+              <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
+                <div className="text-xl font-bold text-gray-500">{uncheckedCount}</div>
+                <div className="text-xs text-gray-500">미체크</div>
                 <div className="flex justify-center gap-2 mt-1">
-                  <span className="text-[9px] text-orange-300">🎫{checkinList.filter(r => r.check_in_status === 'unchecked' && r.is_trial).length}</span>
-                  <span className="text-[9px] text-gray-300">👤{checkinList.filter(r => r.check_in_status === 'unchecked' && !r.is_trial).length}</span>
+                  <span className="text-[9px] text-orange-600">🎫{checkinList.filter(r => r.check_in_status === 'unchecked' && r.is_trial).length}</span>
+                  <span className="text-[9px] text-gray-600">👤{checkinList.filter(r => r.check_in_status === 'unchecked' && !r.is_trial).length}</span>
                 </div>
               </div>
             </div>
@@ -508,26 +508,26 @@ export default function SpotOperatorPage() {
                 const isAutoNoShow = false;
                 return (
                 <div key={r.id}
-                  className={`bg-gray-800 rounded-xl overflow-hidden border ${
+                  className={`bg-white rounded-xl shadow-sm overflow-hidden border ${
                     isAutoNoShow ? 'border-orange-500/60' :
                     r.check_in_status === 'attended' ? 'border-green-600/50' :
-                    r.check_in_status === 'no_show' ? 'border-red-600/50' : 'border-gray-700'
+                    r.check_in_status === 'no_show' ? 'border-red-600/50' : 'border-gray-300'
                   }`}>
                   {/* 참가자 정보 */}
                   <div className="p-4">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <span className="text-white font-mono font-bold text-base">{r.display_id}</span>
+                      <span className="text-gray-800 font-mono font-bold text-base">{r.display_id}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        r.is_trial ? 'bg-orange-900/50 text-orange-300' : 'bg-gray-700 text-gray-400'
+                        r.is_trial ? 'bg-orange-100 text-orange-600' : 'bg-gray-200 text-gray-400'
                       }`}>{r.is_trial ? '🎫 체험권' : '멤버'}</span>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         r.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
                       }`}>{r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</span>
                       {isAutoNoShow && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-orange-600/30 text-orange-200 border border-orange-500/50">🤖 자동 노쇼</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-orange-600/30 text-orange-700 border border-orange-500/50">🤖 자동 노쇼</span>
                       )}
                     </div>
-                    {r.memo && <p className="text-gray-400 text-sm italic mt-1">💭 "{r.memo}"</p>}
+                    {r.memo && <p className="text-gray-500 text-sm italic mt-1">💭 "{r.memo}"</p>}
                     {r.checked_at && (
                       <p className="text-[11px] text-gray-500 mt-1">{formatKST(r.checked_at)} {isAutoNoShow ? '자동 처리' : '체크'}</p>
                     )}
@@ -535,7 +535,7 @@ export default function SpotOperatorPage() {
 
                   {isAutoNoShow ? (
                     <>
-                      <div className="px-4 py-3 bg-orange-950/40 border-t border-orange-700/40 text-orange-200 text-xs text-center">
+                      <div className="px-4 py-3 bg-orange-950/40 border-t border-orange-700/40 text-orange-700 text-xs text-center">
                         이 멤버 노쇼 처리 맞나요?
                       </div>
                       <div className="flex border-t border-orange-700/40">
@@ -553,23 +553,23 @@ export default function SpotOperatorPage() {
                       </div>
                     </>
                   ) : (
-                    <div className="flex border-t border-gray-700">
+                    <div className="flex border-t border-gray-300">
                       <button
                         onClick={() => handleCheckin(r.id, r.check_in_status === 'attended' ? 'unchecked' : 'attended')}
                         className={`flex-1 py-4 text-center font-bold text-base transition active:scale-95 ${
                           r.check_in_status === 'attended'
                             ? 'bg-green-600 text-white'
-                            : 'bg-gray-800 text-gray-400 hover:bg-green-900/30 hover:text-green-300'
+                            : 'bg-white text-gray-500 hover:bg-green-900/30 hover:text-green-600'
                         }`}>
                         ✅ 출석
                       </button>
-                      <div className="w-px bg-gray-700" />
+                      <div className="w-px bg-gray-300" />
                       <button
                         onClick={() => handleCheckin(r.id, r.check_in_status === 'no_show' ? 'unchecked' : 'no_show')}
                         className={`flex-1 py-4 text-center font-bold text-base transition active:scale-95 ${
                           r.check_in_status === 'no_show'
                             ? 'bg-red-600 text-white'
-                            : 'bg-gray-800 text-gray-400 hover:bg-red-900/30 hover:text-red-300'
+                            : 'bg-white text-gray-500 hover:bg-red-50 hover:text-red-600'
                         }`}>
                         ❌ 노쇼
                       </button>
@@ -579,7 +579,7 @@ export default function SpotOperatorPage() {
                 );
               })}
               {checkinList.length === 0 && (
-                <div className="text-center py-12 text-gray-400">해당 날짜에 예약이 없습니다.</div>
+                <div className="text-center py-12 text-gray-500">해당 날짜에 예약이 없습니다.</div>
               )}
             </div>
           </div>
@@ -589,19 +589,19 @@ export default function SpotOperatorPage() {
         {activeTab === 'sessions' && (
           <div className="space-y-4">
             {sessionLoading ? (
-              <div className="text-center py-12 text-gray-400">로딩 중...</div>
+              <div className="text-center py-12 text-gray-500">로딩 중...</div>
             ) : sessionData ? (
               <>
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-white">📅 {sessionData.month?.replace('-', '년 ')}월 세션 일정</h2>
+                  <h2 className="text-lg font-semibold text-gray-800">📅 {sessionData.month?.replace('-', '년 ')}월 세션 일정</h2>
                   {!sessionData.canEdit && (
                     <span className="text-xs text-yellow-400">{sessionData.canEditFrom}부터 조정 가능</span>
                   )}
                 </div>
 
-                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
-                  <div className="flex gap-4 text-sm text-gray-300 mb-1">
-                    <span>열린 세션: <strong className="text-amber-300">{sessionData.openCount?.total}회</strong></span>
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                  <div className="flex gap-4 text-sm text-gray-600 mb-1">
+                    <span>열린 세션: <strong className="text-amber-600">{sessionData.openCount?.total}회</strong></span>
                     <span>수요일 <strong className="text-blue-300">{sessionData.openCount?.wed}</strong></span>
                     <span>일요일 <strong className="text-purple-300">{sessionData.openCount?.sun}</strong></span>
                   </div>
@@ -615,15 +615,15 @@ export default function SpotOperatorPage() {
                     <div className="space-y-2">
                       {(sessionData.sessions || []).filter((s: any) => s.day === 'wed').map((s: any) => (
                         <div key={s.date} className={`flex items-center justify-between p-3 rounded-lg border ${
-                          s.isClosed ? 'bg-gray-800/30 border-gray-700 opacity-60' : 'bg-gray-800/60 border-gray-700'
+                          s.isClosed ? 'bg-gray-50 border-gray-300 opacity-60' : 'bg-white/80 border-gray-300'
                         }`}>
                           <div>
-                            <span className="text-sm text-white font-mono">{s.date.slice(5)}</span>
-                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.isClosed ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'}`}>
+                            <span className="text-sm text-gray-800 font-mono">{s.date.slice(5)}</span>
+                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.isClosed ? 'bg-red-900/50 text-red-600' : 'bg-green-50 text-green-600'}`}>
                               {s.isClosed ? '닫힘' : '열림'}
                             </span>
                             {s.reservationCount > 0 && (
-                              <span className="ml-2 text-xs text-amber-300">{s.reservationCount}명 예약</span>
+                              <span className="ml-2 text-xs text-amber-600">{s.reservationCount}명 예약</span>
                             )}
                           </div>
                           {sessionData.canEdit && (
@@ -634,7 +634,7 @@ export default function SpotOperatorPage() {
                                 s.isClosed
                                   ? 'bg-green-700 hover:bg-green-600 text-white'
                                   : s.reservationCount > 0
-                                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
                                     : 'bg-red-700 hover:bg-red-600 text-white'
                               }`}>
                               {s.isClosed ? '열기' : '닫기'}
@@ -651,15 +651,15 @@ export default function SpotOperatorPage() {
                     <div className="space-y-2">
                       {(sessionData.sessions || []).filter((s: any) => s.day === 'sun').map((s: any) => (
                         <div key={s.date} className={`flex items-center justify-between p-3 rounded-lg border ${
-                          s.isClosed ? 'bg-gray-800/30 border-gray-700 opacity-60' : 'bg-gray-800/60 border-gray-700'
+                          s.isClosed ? 'bg-gray-50 border-gray-300 opacity-60' : 'bg-white/80 border-gray-300'
                         }`}>
                           <div>
-                            <span className="text-sm text-white font-mono">{s.date.slice(5)}</span>
-                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.isClosed ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'}`}>
+                            <span className="text-sm text-gray-800 font-mono">{s.date.slice(5)}</span>
+                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.isClosed ? 'bg-red-900/50 text-red-600' : 'bg-green-50 text-green-600'}`}>
                               {s.isClosed ? '닫힘' : '열림'}
                             </span>
                             {s.reservationCount > 0 && (
-                              <span className="ml-2 text-xs text-amber-300">{s.reservationCount}명 예약</span>
+                              <span className="ml-2 text-xs text-amber-600">{s.reservationCount}명 예약</span>
                             )}
                           </div>
                           {sessionData.canEdit && (
@@ -670,7 +670,7 @@ export default function SpotOperatorPage() {
                                 s.isClosed
                                   ? 'bg-green-700 hover:bg-green-600 text-white'
                                   : s.reservationCount > 0
-                                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
                                     : 'bg-red-700 hover:bg-red-600 text-white'
                               }`}>
                               {s.isClosed ? '열기' : '닫기'}
@@ -687,7 +687,7 @@ export default function SpotOperatorPage() {
                 </p>
               </>
             ) : (
-              <div className="text-center py-12 text-gray-400">세션 데이터를 불러오지 못했습니다.</div>
+              <div className="text-center py-12 text-gray-500">세션 데이터를 불러오지 못했습니다.</div>
             )}
           </div>
         )}
@@ -695,21 +695,21 @@ export default function SpotOperatorPage() {
         {/* 예약 현황 */}
         {activeTab === 'reservations' && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-white">{spotName} 예약 ({reservations.length}건)</h2>
+            <h2 className="text-lg font-semibold text-gray-800">{spotName} 예약 ({reservations.length}건)</h2>
             {reservations.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">예약이 없습니다.</div>
+              <div className="text-center py-12 text-gray-500">예약이 없습니다.</div>
             ) : (
               <div className="space-y-2">
                 {reservations.map((r: any) => (
-                  <div key={r.id} className="bg-gray-800 rounded-lg p-3 border border-gray-700 flex justify-between items-center">
+                  <div key={r.id} className="bg-white rounded-lg shadow-sm p-3 border border-gray-200 flex justify-between items-center">
                     <div>
-                      <div className="text-white text-sm font-medium">{r.date}</div>
-                      <div className="text-gray-400 text-xs">{r.display_id} · {r.is_trial ? '🎫체험' : '멤버'} · {r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</div>
+                      <div className="text-gray-800 text-sm font-medium">{r.date}</div>
+                      <div className="text-gray-500 text-xs">{r.display_id} · {r.is_trial ? '🎫체험' : '멤버'} · {r.mode === 'reflection' ? '🧘 사색' : '💬 스몰토크'}</div>
                     </div>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                      r.check_in_status === 'attended' ? 'bg-green-900/50 text-green-300' :
-                      r.check_in_status === 'no_show' ? 'bg-red-900/50 text-red-300' :
-                      'bg-gray-700 text-gray-400'
+                      r.check_in_status === 'attended' ? 'bg-green-50 text-green-600' :
+                      r.check_in_status === 'no_show' ? 'bg-red-900/50 text-red-600' :
+                      'bg-gray-200 text-gray-400'
                     }`}>{r.check_in_status === 'attended' ? '출석' : r.check_in_status === 'no_show' ? '노쇼' : '예약'}</span>
                   </div>
                 ))}
@@ -721,15 +721,15 @@ export default function SpotOperatorPage() {
         {/* 로그 */}
         {activeTab === 'logs' && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-white">변경/취소 로그</h2>
+            <h2 className="text-lg font-semibold text-gray-800">변경/취소 로그</h2>
             {logs.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">로그가 없습니다.</div>
+              <div className="text-center py-12 text-gray-500">로그가 없습니다.</div>
             ) : (
               <div className="space-y-2">
                 {logs.map((log: any) => (
-                  <div key={log.id} className="bg-gray-800 rounded-lg p-3 border border-gray-700 flex justify-between items-center">
+                  <div key={log.id} className="bg-white rounded-lg shadow-sm p-3 border border-gray-200 flex justify-between items-center">
                     <div>
-                      <div className="text-gray-300 text-sm">{log.display_id || "****"} · {log.date}</div>
+                      <div className="text-gray-600 text-sm">{log.display_id || "****"} · {log.date}</div>
                       <div className="text-gray-500 text-xs">{formatKST(log.created_at)}</div>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full font-medium ${actionColor(log.action)}`}>
@@ -745,17 +745,17 @@ export default function SpotOperatorPage() {
         {/* 공지 */}
         {activeTab === 'notices' && (
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-white">📢 웰모먼트 공지</h2>
+            <h2 className="text-lg font-semibold text-gray-800">📢 웰모먼트 공지</h2>
             {notices.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">공지가 없습니다.</div>
+              <div className="text-center py-12 text-gray-500">공지가 없습니다.</div>
             ) : (
               notices.map((n: any) => (
-                <div key={n.id} className={`bg-gray-800 rounded-lg p-4 border ${n.is_pinned ? 'border-amber-600/50' : 'border-gray-700'}`}>
+                <div key={n.id} className={`bg-white rounded-lg shadow-sm p-4 border ${n.is_pinned ? 'border-amber-600/50' : 'border-gray-300'}`}>
                   <div className="flex items-center gap-2 mb-2">
                     {n.is_pinned && <span className="text-xs">📌</span>}
-                    <span className="text-white font-medium">{n.title}</span>
+                    <span className="text-gray-800 font-medium">{n.title}</span>
                   </div>
-                  <p className="text-gray-300 text-sm whitespace-pre-wrap">{n.content}</p>
+                  <p className="text-gray-600 text-sm whitespace-pre-wrap">{n.content}</p>
                   <p className="text-gray-500 text-xs mt-2">{formatKST(n.created_at)}</p>
                 </div>
               ))
@@ -767,19 +767,19 @@ export default function SpotOperatorPage() {
         {activeTab === 'requests' && (
           <div className="space-y-6">
             {reqSuccess && (
-              <div className="bg-green-900/50 border border-green-700 text-green-200 px-4 py-3 rounded-lg">{reqSuccess}</div>
+              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">{reqSuccess}</div>
             )}
 
-            <div className="bg-gray-800/80 rounded-xl p-5 border border-emerald-800/30 space-y-4">
+            <div className="bg-white rounded-xl shadow-sm p-5 border border-emerald-800/30 space-y-4">
               <div>
-                <h3 className="text-emerald-200 font-medium mb-1">📮 웰모먼트에 요청</h3>
-                <p className="text-gray-400 text-xs">운영 관련 건의사항, 요청사항을 자유롭게 남겨주세요.</p>
+                <h3 className="text-emerald-700 font-medium mb-1">📮 웰모먼트에 요청</h3>
+                <p className="text-gray-500 text-xs">운영 관련 건의사항, 요청사항을 자유롭게 남겨주세요.</p>
               </div>
 
               <div>
-                <label className="block text-sm text-gray-300 mb-1.5">카테고리</label>
+                <label className="block text-sm text-gray-600 mb-1.5">카테고리</label>
                 <select value={reqCategory} onChange={(e) => setReqCategory(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white text-sm">
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-800 text-sm">
                   <option value="general">일반 건의</option>
                   <option value="space">공간/시설 관련</option>
                   <option value="supply">비품/물품 요청</option>
@@ -790,9 +790,9 @@ export default function SpotOperatorPage() {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-300 mb-1.5">내용</label>
+                <label className="block text-sm text-gray-600 mb-1.5">내용</label>
                 <textarea value={reqContent} onChange={(e) => setReqContent(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[120px] resize-y"
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[120px] resize-y"
                   placeholder="웰모먼트에 전달하고 싶은 내용을 작성해주세요..." maxLength={1000} />
               </div>
 
@@ -805,21 +805,21 @@ export default function SpotOperatorPage() {
             {/* 내가 보낸 요청 목록 */}
             {spotRequests.length > 0 && (
               <div>
-                <h3 className="text-sm font-medium text-gray-300 mb-3">📋 보낸 요청</h3>
+                <h3 className="text-sm font-medium text-gray-600 mb-3">📋 보낸 요청</h3>
                 <div className="space-y-2">
                   {spotRequests.map((r: any) => (
-                    <div key={r.id} className="bg-gray-800/60 rounded-lg p-4 border border-gray-700/50">
+                    <div key={r.id} className="bg-white/80 rounded-lg p-4 border border-gray-200">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-300 border border-emerald-700/30">
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-900/50 text-emerald-600 border border-emerald-700/30">
                           {{ general: '일반', space: '공간/시설', supply: '비품', schedule: '일정', issue: '문제', etc: '기타' }[r.category as string] || r.category}
                         </span>
                         <span className="text-xs text-gray-600 ml-auto">{r.created_at?.slice(0, 10)}</span>
                       </div>
-                      <p className="text-gray-300 text-sm">{r.content}</p>
+                      <p className="text-gray-600 text-sm">{r.content}</p>
                       {r.admin_reply && (
-                        <div className="mt-2 pt-2 border-t border-gray-700">
-                          <p className="text-xs text-amber-300">💬 웰모먼트 답변</p>
-                          <p className="text-gray-300 text-sm mt-1">{r.admin_reply}</p>
+                        <div className="mt-2 pt-2 border-t border-gray-300">
+                          <p className="text-xs text-amber-600">💬 웰모먼트 답변</p>
+                          <p className="text-gray-600 text-sm mt-1">{r.admin_reply}</p>
                         </div>
                       )}
                     </div>
@@ -834,21 +834,21 @@ export default function SpotOperatorPage() {
       {/* 공지사항 팝업 */}
       {showNoticePopup && notices.length > 0 && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 rounded-2xl w-full max-w-md border border-amber-700/30 overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-gray-700">
-              <h3 className="text-base font-bold text-amber-100">📢 웰모먼트 공지사항</h3>
-              <button onClick={() => setShowNoticePopup(false)} className="text-gray-400 hover:text-white text-xl leading-none">&times;</button>
+          <div className="bg-white rounded-2xl shadow-sm w-full max-w-md border border-amber-200 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-300">
+              <h3 className="text-base font-bold text-amber-800">📢 웰모먼트 공지사항</h3>
+              <button onClick={() => setShowNoticePopup(false)} className="text-gray-500 hover:text-gray-700 text-xl leading-none">&times;</button>
             </div>
             <div className="p-4 max-h-80 overflow-y-auto space-y-3">
               {notices.map((n: any, i: number) => (
-                <div key={i} className="bg-gray-700/50 rounded-lg p-3">
-                  <p className="text-sm text-white font-medium mb-1">{n.title}</p>
-                  <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">{n.content}</p>
+                <div key={i} className="bg-gray-100 rounded-lg p-3">
+                  <p className="text-sm text-gray-800 font-medium mb-1">{n.title}</p>
+                  <p className="text-xs text-gray-600 leading-relaxed whitespace-pre-line">{n.content}</p>
                   {n.created_at && <p className="text-[10px] text-gray-500 mt-2">{n.created_at.slice(0, 10)}</p>}
                 </div>
               ))}
             </div>
-            <div className="p-4 border-t border-gray-700">
+            <div className="p-4 border-t border-gray-300">
               <button onClick={() => setShowNoticePopup(false)} className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-medium transition">
                 확인했습니다
               </button>

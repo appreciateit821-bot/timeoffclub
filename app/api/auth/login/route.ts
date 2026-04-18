@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       // 현재 월 이상의 활성월이 하나라도 있으면 OK
       const hasValidMonth = activeMonths.some((m: string) => m >= currentMonth);
       if (!hasValidMonth) {
-        return NextResponse.json({ error: `멤버십이 만료되었습니다. 관리자 (카카오톡 well__moment)로 연락 부탁드립니다 🦊` }, { status: 403 });
+        return NextResponse.json({ error: `멤버십이 만료되었습니다. 다음 달 멤버십을 갱신해주세요.`, renewUrl: '/renew' }, { status: 403 });
       }
     }
 

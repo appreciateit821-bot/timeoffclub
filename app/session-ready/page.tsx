@@ -156,22 +156,22 @@ function SessionReadyContent() {
   const reflectionCount = participants.filter(p => p.mode === 'reflection').length;
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gray-950"><div className="text-gray-400">로딩 중...</div></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0]"><div className="text-gray-500">로딩 중...</div></div>;
   }
 
   // 세션 종료 후 화면
   if (ready && sessionEnded) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+      <div className="min-h-screen bg-[#FFF8F0]">
         <div className="max-w-sm mx-auto px-6 py-12 space-y-8 animate-fade-in">
 
           {/* 디톡스 완료 + 카드 선택 공유 */}
           <div className="text-center space-y-4">
             <div className="text-5xl">✨</div>
-            <h1 className="text-2xl font-light text-amber-100 leading-relaxed">
+            <h1 className="text-2xl font-light text-amber-800 leading-relaxed">
               오늘도 <span className="font-medium">디지털 디톡스</span> 완료!
             </h1>
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-500 text-sm">
               마음에 드는 카드를 골라<br/>인스타 스토리로 공유해보세요.
             </p>
 
@@ -180,7 +180,7 @@ function SessionReadyContent() {
               <img
                 src={shareCards[selectedCard].src}
                 alt={shareCards[selectedCard].label}
-                className="w-52 mx-auto rounded-2xl shadow-lg shadow-black/50 transition-all"
+                className="w-52 mx-auto rounded-2xl shadow-lg shadow-gray-300/50 transition-all"
               />
             </div>
 
@@ -192,8 +192,8 @@ function SessionReadyContent() {
                   onClick={() => setSelectedCard(idx)}
                   className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
                     selectedCard === idx
-                      ? 'border-purple-500 scale-105 shadow-lg shadow-purple-900/30'
-                      : 'border-gray-700 opacity-50 hover:opacity-80'
+                      ? 'border-purple-500 scale-105 shadow-lg shadow-purple-200/50'
+                      : 'border-gray-300 opacity-50 hover:opacity-80'
                   }`}
                 >
                   <img src={card.src} alt={card.label} className="w-full h-full object-cover" />
@@ -210,13 +210,13 @@ function SessionReadyContent() {
             </button>
           </div>
 
-          <div className="w-12 h-px bg-gray-700 mx-auto" />
+          <div className="w-12 h-px bg-gray-300 mx-auto" />
 
           {/* 별점 섹션 */}
-          <div className="bg-gray-800/60 border border-amber-700/20 rounded-2xl p-5 text-center space-y-4">
+          <div className="bg-white/80 border border-amber-200 rounded-2xl p-5 text-center space-y-4">
             <div>
-              <p className="text-amber-100 text-base font-medium">오늘 세션은 어떠셨나요?</p>
-              <p className="text-gray-400 text-xs mt-1">별점으로 만족도를 남겨주세요</p>
+              <p className="text-amber-800 text-base font-medium">오늘 세션은 어떠셨나요?</p>
+              <p className="text-gray-500 text-xs mt-1">별점으로 만족도를 남겨주세요</p>
             </div>
             <div className="flex justify-center gap-2">
               {[1, 2, 3, 4, 5].map((n) => (
@@ -236,8 +236,8 @@ function SessionReadyContent() {
 
             {/* 2점 이하 피드백 요청 */}
             {!starSubmitted && starRating > 0 && starRating <= 2 && (
-              <div className="bg-orange-900/20 border border-orange-700/30 rounded-xl p-3">
-                <p className="text-orange-200 text-xs leading-relaxed">
+              <div className="bg-orange-50 border border-orange-700/30 rounded-xl p-3">
+                <p className="text-orange-700 text-xs leading-relaxed">
                   아쉬운 경험이 있으셨군요. 😔<br/>
                   저장 후 <strong>"스몰토크/사색 피드백 남기기"</strong>에서<br/>
                   무엇이 불편했는지 남겨주시면 큰 도움이 돼요.
@@ -251,56 +251,56 @@ function SessionReadyContent() {
                 disabled={starRating === 0 || submittingRating}
                 className={`w-full py-3 rounded-xl font-medium transition active:scale-95 ${
                   starRating === 0
-                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                    ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
                     : 'bg-amber-600 hover:bg-amber-700 text-white'
                 }`}
               >
                 {submittingRating ? '저장 중...' : '별점 저장하기'}
               </button>
             ) : (
-              <p className="text-emerald-300 text-sm">별점이 저장되었어요 💛</p>
+              <p className="text-emerald-600 text-sm">별점이 저장되었어요 💛</p>
             )}
           </div>
 
           {/* 피드백 섹션 */}
           <div className="space-y-3">
-            <p className="text-center text-gray-300 text-sm">더 자세한 이야기를 남기고 싶다면</p>
+            <p className="text-center text-gray-600 text-sm">더 자세한 이야기를 남기고 싶다면</p>
 
             <button
               onClick={() => router.push('/feedback')}
-              className="w-full bg-gray-800/80 border border-gray-700/50 rounded-xl p-4 text-left hover:bg-gray-800 transition active:scale-[0.98]"
+              className="w-full bg-white border border-gray-200 shadow-sm/50 rounded-xl p-4 text-left hover:bg-white transition active:scale-[0.98]"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">💬</span>
                 <div>
-                  <p className="text-amber-100 text-sm font-medium">스몰토크 피드백 남기기</p>
-                  <p className="text-gray-400 text-xs mt-0.5">오늘 경험에 대한 솔직한 이야기를 들려주세요</p>
+                  <p className="text-amber-800 text-sm font-medium">스몰토크 피드백 남기기</p>
+                  <p className="text-gray-500 text-xs mt-0.5">오늘 경험에 대한 솔직한 이야기를 들려주세요</p>
                 </div>
               </div>
             </button>
 
             <button
               onClick={() => router.push('/feedback?tab=reflection')}
-              className="w-full bg-gray-800/80 border border-gray-700/50 rounded-xl p-4 text-left hover:bg-gray-800 transition active:scale-[0.98]"
+              className="w-full bg-white border border-gray-200 shadow-sm/50 rounded-xl p-4 text-left hover:bg-white transition active:scale-[0.98]"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🧘</span>
                 <div>
-                  <p className="text-violet-200 text-sm font-medium">사색 피드백 남기기</p>
-                  <p className="text-gray-400 text-xs mt-0.5">오늘의 사색 시간을 되돌아보세요</p>
+                  <p className="text-violet-700 text-sm font-medium">사색 피드백 남기기</p>
+                  <p className="text-gray-500 text-xs mt-0.5">오늘의 사색 시간을 되돌아보세요</p>
                 </div>
               </div>
             </button>
 
             <button
               onClick={() => router.push('/my-history')}
-              className="w-full bg-gray-800/80 border border-gray-700/50 rounded-xl p-4 text-left hover:bg-gray-800 transition active:scale-[0.98]"
+              className="w-full bg-white border border-gray-200 shadow-sm/50 rounded-xl p-4 text-left hover:bg-white transition active:scale-[0.98]"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🚨</span>
                 <div>
-                  <p className="text-red-300 text-sm font-medium">불편한 경험 신고하기</p>
-                  <p className="text-gray-400 text-xs mt-0.5">불편하게 한 멤버가 있었다면 알려주세요</p>
+                  <p className="text-red-600 text-sm font-medium">불편한 경험 신고하기</p>
+                  <p className="text-gray-500 text-xs mt-0.5">불편하게 한 멤버가 있었다면 알려주세요</p>
                 </div>
               </div>
             </button>
@@ -308,10 +308,10 @@ function SessionReadyContent() {
 
           {/* 체험권 사용자 전환 CTA */}
           {isTrial && (
-            <div className="bg-gradient-to-br from-amber-900/30 to-amber-800/10 border border-amber-700/30 rounded-2xl p-6 space-y-5">
+            <div className="bg-gradient-to-br from-amber-900/30 to-amber-800/10 border border-amber-200 rounded-2xl p-6 space-y-5">
               <div className="text-center">
-                <p className="text-amber-100 text-lg font-medium">오늘의 경험, 어떠셨나요?</p>
-                <p className="text-gray-400 text-sm mt-2 leading-relaxed">
+                <p className="text-amber-800 text-lg font-medium">오늘의 경험, 어떠셨나요?</p>
+                <p className="text-gray-500 text-sm mt-2 leading-relaxed">
                   이 고요한 시간이 좋으셨다면,<br/>다음 주에도 만나요.
                 </p>
               </div>
@@ -321,13 +321,13 @@ function SessionReadyContent() {
                 href="https://smartstore.naver.com/wellmoment/products/13210795609"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full bg-gray-800/80 border border-gray-700/50 rounded-xl p-4 hover:bg-gray-800 transition active:scale-[0.98]"
+                className="block w-full bg-white border border-gray-200 shadow-sm/50 rounded-xl p-4 hover:bg-white transition active:scale-[0.98]"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">🎟️</span>
                   <div className="flex-1">
-                    <p className="text-amber-100 text-sm font-medium">체험권 한 번 더</p>
-                    <p className="text-gray-400 text-xs mt-0.5">부담 없이 1회 더 참여하기</p>
+                    <p className="text-amber-800 text-sm font-medium">체험권 한 번 더</p>
+                    <p className="text-gray-500 text-xs mt-0.5">부담 없이 1회 더 참여하기</p>
                   </div>
                   <span className="text-gray-500 text-xs">→</span>
                 </div>
@@ -338,15 +338,15 @@ function SessionReadyContent() {
                 href="https://smartstore.naver.com/wellmoment/products/13132932761"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block w-full bg-gradient-to-r from-amber-600 to-amber-700 rounded-xl p-4 hover:from-amber-700 hover:to-amber-800 transition active:scale-[0.98] shadow-lg shadow-amber-900/30"
+                className="block w-full bg-gradient-to-r from-amber-600 to-amber-700 rounded-xl p-4 hover:from-amber-700 hover:to-amber-800 transition active:scale-[0.98] shadow-lg shadow-amber-200/50"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">🌿</span>
                   <div className="flex-1">
-                    <p className="text-white text-sm font-semibold">정기 멤버십 가입하기</p>
-                    <p className="text-amber-200/80 text-xs mt-0.5">한 달 무제한 참여 · 매달 마지막 주 구매 가능</p>
+                    <p className="text-gray-800 text-sm font-semibold">정기 멤버십 가입하기</p>
+                    <p className="text-amber-700/80 text-xs mt-0.5">한 달 무제한 참여 · 매달 마지막 주 구매 가능</p>
                   </div>
-                  <span className="text-amber-200/60 text-xs">→</span>
+                  <span className="text-amber-700/60 text-xs">→</span>
                 </div>
               </a>
 
@@ -359,7 +359,7 @@ function SessionReadyContent() {
           {/* 홈으로 */}
           <button
             onClick={() => router.push('/calendar')}
-            className="w-full py-3 text-gray-500 text-sm hover:text-gray-300 transition"
+            className="w-full py-3 text-gray-500 text-sm hover:text-gray-600 transition"
           >
             홈으로 돌아가기
           </button>
@@ -371,26 +371,26 @@ function SessionReadyContent() {
   // 스마트폰 내려놓기 화면
   if (ready) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 flex flex-col items-center justify-center px-6">
+      <div className="min-h-screen bg-[#FFF8F0] flex flex-col items-center justify-center px-6">
         <div className="text-center space-y-8 animate-fade-in">
           <div className="text-6xl">🌿</div>
-          <h1 className="text-2xl font-light text-amber-100 leading-relaxed">
+          <h1 className="text-2xl font-light text-amber-800 leading-relaxed">
             스마트폰을 내려놓고<br/>
             <span className="font-medium">온전한 당신의 시간</span>을<br/>
             시작하세요
           </h1>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-500 text-sm">
             이 문을 나서는 순간 사라지는 연기 같아도 좋습니다.<br/>
             남는 게 없어서 비로소 가벼워지는 시간을 즐겨주세요.
           </p>
           <div className="pt-8">
-            <div className="w-16 h-0.5 bg-amber-600/50 mx-auto rounded-full" />
+            <div className="w-16 h-0.5 bg-amber-400/50 mx-auto rounded-full" />
           </div>
         </div>
         <div className="mt-auto pb-12 pt-8 w-full max-w-sm">
           <button
             onClick={() => setSessionEnded(true)}
-            className="w-full py-3 text-gray-500 text-sm border border-gray-700/50 rounded-xl hover:text-gray-300 hover:border-gray-600 transition"
+            className="w-full py-3 text-gray-500 text-sm border border-gray-200 rounded-xl hover:text-gray-600 hover:border-gray-300 transition"
           >
             타임오프클럽 세션 종료
           </button>
@@ -400,19 +400,19 @@ function SessionReadyContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-      <header className="bg-gray-900/80 backdrop-blur border-b border-amber-800/30 sticky top-0 z-10">
+    <div className="min-h-screen bg-[#FFF8F0]">
+      <header className="bg-white/80 backdrop-blur border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-lg font-bold text-amber-100">오늘의 타임오프</h1>
-          <button onClick={() => router.push('/calendar')} className="px-3 py-1.5 bg-gray-700 text-white rounded-lg text-xs">돌아가기</button>
+          <h1 className="text-lg font-bold text-amber-800">오늘의 타임오프</h1>
+          <button onClick={() => router.push('/calendar')} className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-lg text-xs">돌아가기</button>
         </div>
       </header>
 
       <main className="max-w-lg mx-auto px-4 py-6 space-y-5">
         {/* 세션 정보 */}
-        <div className="bg-gray-800/80 rounded-xl p-5 border border-amber-700/30 text-center">
-          <div className="text-amber-300 text-sm">{date}</div>
-          <div className="text-white text-xl font-bold mt-1">{spot}</div>
+        <div className="bg-white rounded-xl shadow-sm p-5 border border-amber-200 text-center">
+          <div className="text-amber-600 text-sm">{date}</div>
+          <div className="text-gray-800 text-xl font-bold mt-1">{spot}</div>
           <div className="flex justify-center gap-4 mt-3">
             <span className="text-sm text-blue-300">💬 스몰토크 {smalltalkCount}명</span>
             <span className="text-sm text-violet-300">🧘 사색 {reflectionCount}명</span>
@@ -421,20 +421,20 @@ function SessionReadyContent() {
 
         {/* 오늘의 참가자 */}
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-gray-300">오늘의 참가자</h3>
+          <h3 className="text-sm font-medium text-gray-600">오늘의 참가자</h3>
           {participants.map((p, idx) => {
             const isMe = reservation && p.user_name === reservation.user_name;
             return (
-              <div key={idx} className={`bg-gray-800/60 rounded-lg p-3 ${isMe ? 'border border-amber-700/40' : ''}`}>
+              <div key={idx} className={`bg-white/80 rounded-lg p-3 ${isMe ? 'border border-amber-700/40' : ''}`}>
                 <div className="flex items-center gap-2">
-                  <span className="text-white text-sm font-medium">{isMe ? '나' : `멤버 ${idx + 1}`}</span>
+                  <span className="text-gray-800 text-sm font-medium">{isMe ? '나' : `멤버 ${idx + 1}`}</span>
                   <span className="text-xs">{energyEmoji(p.energy || 'normal')}</span>
                   <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                     p.mode === 'reflection' ? 'bg-violet-900/50 text-violet-300' : 'bg-blue-900/50 text-blue-300'
                   }`}>{modeLabel(p.mode || 'smalltalk')}</span>
                 </div>
                 {p.memo && (
-                  <p className="text-gray-400 text-xs mt-1 italic">"{p.memo}"</p>
+                  <p className="text-gray-500 text-xs mt-1 italic">"{p.memo}"</p>
                 )}
               </div>
             );
@@ -443,20 +443,20 @@ function SessionReadyContent() {
 
         {/* 모드별 카드 */}
         {myMode === 'reflection' ? (
-          <div className="bg-violet-900/20 border border-violet-700/30 rounded-xl p-5 text-center">
+          <div className="bg-violet-50 border border-violet-200 rounded-xl p-5 text-center">
             <div className="text-xs text-violet-400 mb-2">🧘 오늘의 사색 카드</div>
             <div className="text-3xl mb-2">{currentReflectionCard.emoji}</div>
             <p className="text-violet-100 text-lg font-medium">{currentReflectionCard.title}</p>
-            <p className="text-violet-200/70 text-sm mt-2 leading-relaxed">{currentReflectionCard.desc}</p>
-            <button onClick={pickReflectionCard} className="mt-3 text-xs text-violet-300/70 hover:text-violet-200 underline transition">
+            <p className="text-violet-700/70 text-sm mt-2 leading-relaxed">{currentReflectionCard.desc}</p>
+            <button onClick={pickReflectionCard} className="mt-3 text-xs text-violet-300/70 hover:text-violet-700 underline transition">
               다른 카드 뽑기
             </button>
           </div>
         ) : (
-          <div className="bg-amber-900/20 border border-amber-700/30 rounded-xl p-5 text-center">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center">
             <div className="text-xs text-amber-400 mb-2">🗨️ 오늘의 대화 카드</div>
-            <p className="text-amber-100 text-lg font-medium leading-relaxed">"{randomQuestion}"</p>
-            <button onClick={fetchRandomQuestion} className="mt-3 text-xs text-amber-300/70 hover:text-amber-200 underline transition">
+            <p className="text-amber-800 text-lg font-medium leading-relaxed">"{randomQuestion}"</p>
+            <button onClick={fetchRandomQuestion} className="mt-3 text-xs text-amber-600/70 hover:text-amber-700 underline transition">
               다른 질문 뽑기
             </button>
           </div>
@@ -465,10 +465,10 @@ function SessionReadyContent() {
         {/* 이 스팟의 최근 한마디 */}
         {recentMoments.length > 0 && (
           <div className="space-y-2">
-            <h3 className="text-xs text-gray-400">💬 이 스팟의 최근 한마디</h3>
+            <h3 className="text-xs text-gray-500">💬 이 스팟의 최근 한마디</h3>
             {recentMoments.map((m: any, i: number) => (
-              <div key={i} className="bg-gray-800/40 rounded-lg px-3 py-2 border border-gray-700/30">
-                <p className="text-gray-300 text-sm italic">"{m.moment_text}"</p>
+              <div key={i} className="bg-gray-50 rounded-lg px-3 py-2 border border-gray-200/30">
+                <p className="text-gray-600 text-sm italic">"{m.moment_text}"</p>
                 <p className="text-gray-500 text-[10px] mt-1">{m.display_name} · {m.date}</p>
               </div>
             ))}
@@ -494,9 +494,9 @@ function SessionReadyContent() {
           const modeKey = isReflectionMode ? 'reflection' : 'smalltalk';
 
           return (
-            <div className="bg-gray-800/60 rounded-2xl border border-amber-700/20 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-amber-200 overflow-hidden">
               <div className="px-5 pt-5 pb-2 text-center">
-                <p className="text-gray-400 text-xs">
+                <p className="text-gray-500 text-xs">
                   {isReflectionMode ? '🧘 사색을 신청한 멤버를 위한' : '🗣️ 스몰토크를 신청한 멤버를 위한'} 약속
                 </p>
               </div>
@@ -545,7 +545,7 @@ function SessionReadyContent() {
                   {ruleSlide > 0 && (
                     <button
                       onClick={() => setRuleSlide(prev => prev - 1)}
-                      className="flex-1 py-2.5 bg-gray-700/50 text-gray-300 rounded-xl text-sm transition hover:bg-gray-700"
+                      className="flex-1 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-sm transition hover:bg-gray-200"
                     >
                       이전
                     </button>
@@ -567,12 +567,12 @@ function SessionReadyContent() {
         })()}
 
         {/* 인스타 스토리 공유 */}
-        <div className="bg-gradient-to-br from-gray-800/80 to-gray-800/40 rounded-xl p-5 border border-purple-700/20">
+        <div className="bg-white rounded-xl p-5 border border-purple-200 shadow-sm">
           <div className="flex items-center gap-4">
             <img src="/share-detox.png" alt="Digital Detox" className="w-20 h-20 rounded-xl object-cover shadow-md" />
             <div className="flex-1">
-              <p className="text-purple-100 text-sm font-medium">스마트폰 내려놓기 전,<br/>디톡스 시작을 공유해보세요</p>
-              <p className="text-gray-400 text-xs mt-1">인스타 스토리에 올리기</p>
+              <p className="text-purple-700 text-sm font-medium">스마트폰 내려놓기 전,<br/>디톡스 시작을 공유해보세요</p>
+              <p className="text-gray-500 text-xs mt-1">인스타 스토리에 올리기</p>
             </div>
           </div>
           <button
@@ -584,14 +584,14 @@ function SessionReadyContent() {
         </div>
 
         {/* 안내사항 */}
-        <div className="bg-gray-800/60 rounded-xl p-4 border border-gray-700/50 space-y-2.5">
+        <div className="bg-white/80 rounded-xl p-4 border border-gray-200 space-y-2.5">
           <div className="flex items-start gap-2">
             <span className="text-base">📵</span>
-            <p className="text-gray-300 text-sm">입장 시 스마트폰을 <strong className="text-amber-200">보관함에 맡겨주세요.</strong> 세션 종료 후 돌려드립니다.</p>
+            <p className="text-gray-600 text-sm">입장 시 스마트폰을 <strong className="text-amber-700">보관함에 맡겨주세요.</strong> 세션 종료 후 돌려드립니다.</p>
           </div>
           <div className="flex items-start gap-2">
             <span className="text-base">⏰</span>
-            <p className="text-gray-300 text-sm">세션은 <strong className="text-amber-200">정시에 시작</strong>합니다. 시간에 맞춰 도착해주세요!</p>
+            <p className="text-gray-600 text-sm">세션은 <strong className="text-amber-700">정시에 시작</strong>합니다. 시간에 맞춰 도착해주세요!</p>
           </div>
         </div>
 
@@ -603,8 +603,8 @@ function SessionReadyContent() {
               onClick={() => allChecked && setReady(true)}
               disabled={!allChecked}
               className={`w-full py-4 rounded-xl font-semibold text-lg transition shadow-lg ${allChecked
-                ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white active:scale-95 shadow-amber-900/30'
-                : 'bg-gray-800 text-gray-500 cursor-not-allowed shadow-none'}`}
+                ? 'bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white active:scale-95 shadow-amber-200/50'
+                : 'bg-white text-gray-500 cursor-not-allowed shadow-none'}`}
             >
               {allChecked ? '📵 스마트폰을 내려놓을 준비가 되었습니다' : '위의 약속을 모두 확인해주세요'}
             </button>
@@ -617,7 +617,7 @@ function SessionReadyContent() {
 
 export default function SessionReadyPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-950"><div className="text-gray-400">로딩 중...</div></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#FFF8F0]"><div className="text-gray-500">로딩 중...</div></div>}>
       <SessionReadyContent />
     </Suspense>
   );

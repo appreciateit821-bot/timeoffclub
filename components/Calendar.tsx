@@ -177,12 +177,12 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
           selected
             ? 'bg-amber-600 text-white font-semibold shadow-md'
             : dayClosed
-            ? 'bg-red-900/30 text-red-400 cursor-not-allowed border border-red-800/30'
+            ? 'bg-red-50 text-red-400 cursor-not-allowed border border-red-200'
             : closed
-            ? 'bg-red-900/30 text-red-400 cursor-not-allowed border border-red-800/30'
+            ? 'bg-red-50 text-red-400 cursor-not-allowed border border-red-200'
             : available && !isPast
-            ? 'bg-gray-700 hover:bg-gray-600 text-white hover:border-amber-500/30 border border-transparent'
-            : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+            ? 'bg-gray-100 hover:bg-gray-200 text-gray-700 hover:border-amber-500/30 border border-transparent'
+            : 'bg-white text-gray-600 cursor-not-allowed'
         }`}
       >
         <div className="flex flex-col items-center justify-center h-full">
@@ -205,24 +205,24 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
   const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
 
   return (
-    <div className="bg-gray-800/80 backdrop-blur rounded-xl p-4 sm:p-6 border border-amber-800/30 shadow-lg">
+    <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200">
       <div className="flex justify-between items-center mb-6">
         <button
           onClick={previousMonth}
-          className="p-2 hover:bg-gray-700 rounded-lg transition"
+          className="p-2 hover:bg-gray-200 rounded-lg transition"
         >
-          <svg className="w-6 h-6 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h2 className="text-xl font-bold text-amber-100">
+        <h2 className="text-xl font-bold text-amber-800">
           {year}년 {monthNames[month]}
         </h2>
         <button
           onClick={nextMonth}
-          className="p-2 hover:bg-gray-700 rounded-lg transition"
+          className="p-2 hover:bg-gray-200 rounded-lg transition"
         >
-          <svg className="w-6 h-6 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -230,7 +230,7 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
 
       <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
         {dayNames.map((day) => (
-          <div key={day} className="text-center text-sm font-medium text-gray-400 py-2">
+          <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
             {day}
           </div>
         ))}
@@ -240,8 +240,8 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
         {days}
       </div>
 
-      <div className="mt-6 pt-4 border-t border-gray-700">
-        <p className="text-sm text-gray-400">
+      <div className="mt-6 pt-4 border-t border-gray-300">
+        <p className="text-sm text-gray-500">
           수요일(20:00), 일요일(15:00)만 선택 가능합니다.
         </p>
         {selectedDates.length > 0 && (
@@ -254,11 +254,11 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
       {/* 멤버십 결제 안내 모달 */}
       {showMembershipAlert && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowMembershipAlert(false)}>
-          <div className="bg-gray-800 rounded-2xl p-6 w-full max-w-sm space-y-4 border border-amber-700/30 animate-fade-in" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-sm p-6 w-full max-w-sm space-y-4 border border-amber-200 animate-fade-in" onClick={e => e.stopPropagation()}>
             <div className="text-center space-y-2">
               <div className="text-3xl">🌿</div>
-              <h3 className="text-white font-bold text-lg">{alertMonth} 멤버십</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
+              <h3 className="text-gray-800 font-bold text-lg">{alertMonth} 멤버십</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">
                 {alertMonth} 멤버십이 아직 활성화되지 않았어요.<br/>
                 계속해서 타임오프를 즐기시려면<br/>멤버십을 결제해주세요!
               </p>
@@ -274,7 +274,7 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
               </a>
               <button
                 onClick={() => setShowMembershipAlert(false)}
-                className="block w-full py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-xl text-sm transition"
+                className="block w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-xl text-sm transition"
               >
                 닫기
               </button>
