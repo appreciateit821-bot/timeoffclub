@@ -410,7 +410,28 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       <h2 className="text-xl font-bold text-amber-100">스팟 선택</h2>
       <p className="text-xs text-gray-400">{date}</p>
 
-
+      {/* 다음 달 예약 D-7 안내 */}
+      {(() => {
+        const now = new Date();
+        const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000 + now.getTimezoneOffset() * 60 * 1000);
+        const currentMonth = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
+        const dateMonth = date.slice(0, 7);
+        if (dateMonth > currentMonth) {
+          const [ry, rm] = dateMonth.split('-').map(Number);
+          const firstDay = new Date(Date.UTC(ry, rm - 1, 1));
+          const bookingOpens = new Date(firstDay.getTime() - 7 * 24 * 60 * 60 * 1000);
+          if (now.getTime() < bookingOpens.getTime()) {
+            const opensStr = bookingOpens.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
+            return (
+              <div className="bg-amber-900/20 border border-amber-700/30 rounded-lg p-3 text-center">
+                <p className="text-amber-200 text-sm font-medium">📅 {dateMonth.replace('-', '년 ')}월 예약 안내</p>
+                <p className="text-amber-300/80 text-xs mt-1">{opensStr}부터 예약 가능합니다</p>
+              </div>
+            );
+          }
+        }
+        return null;
+      })()}
 
       {/* 인원 적은 스팟 대화 주제 배너 */}
       {(() => {
