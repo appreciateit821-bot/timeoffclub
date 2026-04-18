@@ -941,29 +941,53 @@ export default function AdminPage() {
                     }`}>
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-sm font-medium text-white">{sp.spot_id}</p>
-                        {sp.inactive_from ? (
-                          <span className="text-xs px-2 py-0.5 rounded bg-red-900/50 text-red-300">
-                            {sp.inactive_from.replace('-', '년 ')}월부터 OFF
-                          </span>
-                        ) : (
-                          <span className="text-xs px-2 py-0.5 rounded bg-green-900/50 text-green-300">ON — 운영 중</span>
-                        )}
+                        <div className="flex gap-1">
+                          {sp.active_from && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-blue-900/50 text-blue-300">
+                              {sp.active_from.replace('-', '년 ')}월부터 ON
+                            </span>
+                          )}
+                          {sp.inactive_from && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-red-900/50 text-red-300">
+                              {sp.inactive_from.replace('-', '년 ')}월부터 OFF
+                            </span>
+                          )}
+                          {!sp.active_from && !sp.inactive_from && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-green-900/50 text-green-300">ON — 운영 중</span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="month"
-                          defaultValue={sp.inactive_from || ''}
-                          className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-xs"
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val) handleSpotInactiveFrom(sp.spot_id, val);
-                          }}
-                        />
-                        {sp.inactive_from && (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <div className="flex items-center gap-1">
+                          <span className="text-[11px] text-gray-400">시작:</span>
+                          <input
+                            type="month"
+                            defaultValue={sp.active_from || ''}
+                            className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-xs"
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              handleSpotInactiveFrom(sp.spot_id, sp.inactive_from);
+                              fetch('/api/admin/spots', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ spotId: sp.spot_id, activeFrom: val || null }) }).then(() => fetchSpots());
+                            }}
+                          />
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[11px] text-gray-400">종료:</span>
+                          <input
+                            type="month"
+                            defaultValue={sp.inactive_from || ''}
+                            className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded-lg text-white text-xs"
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val) handleSpotInactiveFrom(sp.spot_id, val);
+                            }}
+                          />
+                        </div>
+                        {(sp.inactive_from || sp.active_from) && (
                           <button
-                            onClick={() => handleSpotInactiveFrom(sp.spot_id, null)}
-                            className="px-3 py-1.5 bg-green-700 hover:bg-green-600 text-white rounded-lg text-xs transition">
-                            해제 (ON)
+                            onClick={() => { handleSpotInactiveFrom(sp.spot_id, null); fetch('/api/admin/spots', { method: 'PATCH', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ spotId: sp.spot_id, activeFrom: null }) }).then(() => fetchSpots()); }}
+                            className="px-3 py-1.5 bg-gray-600 hover:bg-gray-500 text-white rounded-lg text-xs transition">
+                            초기화
                           </button>
                         )}
                       </div>

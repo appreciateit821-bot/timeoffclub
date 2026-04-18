@@ -50,10 +50,14 @@ export async function POST(request: NextRequest) {
     if (!date || !spot) return NextResponse.json({ error: '날짜와 스팟을 선택해주세요.' }, { status: 400 });
     if (isBookingClosed(date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 예약할 수 없습니다.' }, { status: 400 });
 
-    // 비활성 스팟 체크 (즉시 OFF 또는 월 기반 OFF)
+    // 비활성 스팟 체크 (즉시 OFF / 월 기반 OFF / 아직 활성 안 됨)
     const reservationMonth = date.slice(0, 7);
-    const spotOp = await db.prepare('SELECT is_spot_active, inactive_from FROM spot_operators WHERE spot_id = ?').bind(spot).first() as any;
-    if (spotOp && (spotOp.is_spot_active === 0 || (spotOp.inactive_from && spotOp.inactive_from <= reservationMonth))) {
+    const spotOp = await db.prepare('SELECT is_spot_active, inactive_from, active_from FROM spot_operators WHERE spot_id = ?').bind(spot).first() as any;
+    if (spotOp && (
+      spotOp.is_spot_active === 0 ||
+      (spotOp.inactive_from && spotOp.inactive_from <= reservationMonth) ||
+      (spotOp.active_from && spotOp.active_from > reservationMonth)
+    )) {
       return NextResponse.json({ error: '현재 운영하지 않는 스팟입니다.' }, { status: 400 });
     }
 

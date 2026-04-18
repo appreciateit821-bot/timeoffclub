@@ -5,7 +5,9 @@ export const PASSWORDS = {
     '약수_스티키플로어': '3321',
     '망원_다시점': '6626',
     '압구정로데오_벤슨 테이스팅 라운지': '9633',
-    '서촌_터틀도브': '7849'
+    '서촌_터틀도브': '7849',
+    '신당_이에즈': '2824',
+    '동대문역사문화공원_lmp 작업실': '5653'
   }
 };
 
@@ -50,6 +52,22 @@ export const SPOT_DETAILS: SpotInfo[] = [
     discount: '해피아워 7,000원 (계절과 그날의 분위기에 맞는 오늘의 차 2종을 직접 셀렉하여 우려서 제공. 기존 12,000-15,000원 선)',
     features: '서촌에 위치한 2층짜리 한옥 웰니스라운지. 1층은 사색 공간, 2층은 스몰톡 공간. 고즈넉한 서촌에서 도심속 즐거운 단절을 경험.',
     mapUrl: 'https://naver.me/xS10BwNC'
+  },
+  {
+    id: '신당_이에즈',
+    name: '신당_이에즈',
+    address: '서울 중구 신당동 290-27',
+    discount: '추후 안내 예정',
+    features: '추후 안내 예정',
+    mapUrl: 'https://naver.me/xcnvWZNf'
+  },
+  {
+    id: '동대문역사문화공원_lmp 작업실',
+    name: '동대문역사문화공원_lmp 작업실',
+    address: '서울 중구 을지로7가 33',
+    discount: '추후 안내 예정',
+    features: '추후 안내 예정',
+    mapUrl: 'https://naver.me/5T4aV7hz'
   }
 ];
 
