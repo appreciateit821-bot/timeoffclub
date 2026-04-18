@@ -457,10 +457,9 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
       {/* 스팟 목록 (랜덤 순서) */}
       <div className="grid gap-3">
-        {shuffledSpots.map(spotInfo => {
+        {shuffledSpots.filter(s => !closedSpots.has(s.id)).map(spotInfo => {
           const count = availability[spotInfo.id] || 0;
-          const isClosed = closedSpots.has(spotInfo.id);
-          const isFull = !isClosed && count >= getCapForSpot(spotInfo.id);
+          const isFull = count >= getCapForSpot(spotInfo.id);
           const isSelected = selectedSpot === spotInfo.id;
           const stats = modeStats[spotInfo.id];
 
@@ -468,7 +467,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
             <button
               key={spotInfo.id}
               onClick={() => {
-                if (isFull || isClosed) return;
+                if (isFull) return;
                 // 대화 주제가 이미 있는 스팟이면 바로 선택
                 if (conversationTopics[spotInfo.id]) {
                   setSelectedSpot(spotInfo.id);
@@ -481,12 +480,10 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                   setSelectedSpot(spotInfo.id);
                 }
               }}
-              disabled={isFull || isClosed}
+              disabled={isFull}
               className={`p-3 sm:p-4 rounded-lg transition text-left active:scale-[0.98] ${
                 isSelected
                   ? 'bg-amber-600 text-white border-2 border-amber-500'
-                  : isClosed
-                  ? 'bg-gray-800 text-gray-600 cursor-not-allowed border border-gray-700 opacity-60'
                   : isFull
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-600'
                   : 'bg-gray-700 hover:bg-gray-600 text-white border border-gray-600 hover:border-amber-500/50'
@@ -498,9 +495,6 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     <span className="font-semibold text-base">{spotInfo.name.split('_')[1] || spotInfo.name}</span>
                   </div>
                   <div className="text-right">
-                    {isClosed ? (
-                      <span className="text-sm font-medium px-2 py-1 rounded bg-gray-700 text-gray-500">휴무</span>
-                    ) : (
                     <span className={`text-sm font-medium px-2 py-1 rounded ${
                       isFull ? 'bg-red-900/50 text-red-300'
                       : isSelected ? 'bg-amber-700 text-amber-100'
@@ -508,12 +502,11 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                     }`}>
                       {count}/{getCapForSpot(spotInfo.id)}명
                     </span>
-                    )}
                     {!isFull && count >= getCapForSpot(spotInfo.id) * 0.8 && (
                       <div className="text-[10px] text-orange-400 mt-0.5">🔥 마감 임박</div>
                     )}
                     {/* 프라이빗 세션 라벨 비활성화
-                    count >= 0 && count <= 2 && !isFull && !isClosed && (
+                    count >= 0 && count <= 2 && !isFull && (
                       <div className="text-[10px] text-emerald-300 mt-0.5">🌿 프라이빗 세션</div>
                     )
                     */}
@@ -523,7 +516,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                   </div>
                 </div>
 
-                {!visitedSpots.has(spotInfo.id) && visitedSpots.size > 0 && !isClosed && (
+                {!visitedSpots.has(spotInfo.id) && visitedSpots.size > 0 && (
                   <div className={`text-xs px-2.5 py-1.5 rounded-lg ${isSelected ? 'bg-violet-700/40 text-violet-100' : 'bg-violet-900/30 text-violet-300/90'} border border-violet-700/20`}>
                     아직 가보지 않은 스팟이에요. 새로운 공간에서 색다른 타임오프를 경험해보세요!
                   </div>
@@ -538,7 +531,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                 </div>
 
                 {/* 스팟 안내 (수요일만 표시되는 안내 고려) */}
-                {spotNotices[spotInfo.id] && !isClosed && (() => {
+                {spotNotices[spotInfo.id] && (() => {
                   // 선택한 날짜의 요일 확인 (수요일=3)
                   const selectedDay = new Date(date + 'T00:00:00+09:00').getDay();
                   const notice = spotNotices[spotInfo.id];
@@ -559,8 +552,8 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
                   const hasTopic = conversationTopics[spotInfo.id];
                   // 스몰토크 인원만 체크 (사색 제외)
                   const smalltalkCount = stats ? stats.smalltalk : 0;
-                  const canOpenTopic = !isClosed && !isFull && smalltalkCount <= 1 && eligibleSpots.includes(spotInfo.id);
-                  const hasLonelyMember = !isClosed && !isFull && smalltalkCount === 1 && !hasTopic; // 혼자 대기 중인 멤버
+                  const canOpenTopic = !isFull && smalltalkCount <= 1 && eligibleSpots.includes(spotInfo.id);
+                  const hasLonelyMember = !isFull && smalltalkCount === 1 && !hasTopic; // 혼자 대기 중인 멤버
                   
                   if (hasTopic) {
                     // 이미 주제가 있는 경우

@@ -14,6 +14,7 @@ export default function SpotOperatorPage() {
   const [sessionData, setSessionData] = useState<any>(null);
   const [sessionLoading, setSessionLoading] = useState(false);
   const [notices, setNotices] = useState<any[]>([]);
+  const [showNoticePopup, setShowNoticePopup] = useState(false);
   const [spotName, setSpotName] = useState('');
   const [spotRequests, setSpotRequests] = useState<any[]>([]);
   const [reqCategory, setReqCategory] = useState('general');
@@ -56,7 +57,7 @@ export default function SpotOperatorPage() {
       setLogs((await logsRes.json()).logs);
       const userData = await userRes.json();
       setSpotName(userData.user?.spotId || '');
-      try { const nr = await fetch('/api/admin/notices'); if (nr.ok) setNotices((await nr.json()).notices); } catch {}
+      try { const nr = await fetch('/api/admin/notices'); if (nr.ok) { const nd = await nr.json(); setNotices(nd.notices || []); if ((nd.notices || []).length > 0) setShowNoticePopup(true); } } catch {}
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -829,6 +830,32 @@ export default function SpotOperatorPage() {
           </div>
         )}
       </main>
+
+      {/* 공지사항 팝업 */}
+      {showNoticePopup && notices.length > 0 && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 rounded-2xl w-full max-w-md border border-amber-700/30 overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-700">
+              <h3 className="text-base font-bold text-amber-100">📢 웰모먼트 공지사항</h3>
+              <button onClick={() => setShowNoticePopup(false)} className="text-gray-400 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <div className="p-4 max-h-80 overflow-y-auto space-y-3">
+              {notices.map((n: any, i: number) => (
+                <div key={i} className="bg-gray-700/50 rounded-lg p-3">
+                  <p className="text-sm text-white font-medium mb-1">{n.title}</p>
+                  <p className="text-xs text-gray-300 leading-relaxed whitespace-pre-line">{n.content}</p>
+                  {n.created_at && <p className="text-[10px] text-gray-500 mt-2">{n.created_at.slice(0, 10)}</p>}
+                </div>
+              ))}
+            </div>
+            <div className="p-4 border-t border-gray-700">
+              <button onClick={() => setShowNoticePopup(false)} className="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-medium transition">
+                확인했습니다
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
