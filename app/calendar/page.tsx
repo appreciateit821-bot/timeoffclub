@@ -325,6 +325,15 @@ export default function CalendarPage() {
               onDatesChange={setSelectedDates}
               activeMonths={user?.activeMonths}
               isTrial={user?.phoneLast4?.startsWith('T-') || false}
+              userName={user?.name}
+              phoneLast4={user?.phoneLast4}
+              onRenewSuccess={(newMonth) => {
+                if (user) {
+                  const months = user.activeMonths ? user.activeMonths.split(',').map(m => m.trim()).filter(Boolean) : [];
+                  if (!months.includes(newMonth)) months.push(newMonth);
+                  setUser({ ...user, activeMonths: months.sort().join(',') });
+                }
+              }}
             />
 
             {selectedDates.length > 0 && (

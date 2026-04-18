@@ -8,7 +8,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [phoneLast4, setPhoneLast4] = useState('');
   const [error, setError] = useState('');
-  const [renewUrl, setRenewUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [loginMode, setLoginMode] = useState<'member' | 'admin'>('member');
   const [newUserPrompt, setNewUserPrompt] = useState(false);
@@ -35,7 +34,6 @@ export default function LoginPage() {
 
       if (!res.ok) {
         setError(data.error || '로그인에 실패했습니다.');
-        if (data.renewUrl) setRenewUrl(data.renewUrl);
         return;
       }
 
@@ -191,16 +189,8 @@ export default function LoginPage() {
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm whitespace-pre-line">
                 {error}
-                {renewUrl && (
-                  <button
-                    type="button"
-                    onClick={() => router.push(renewUrl)}
-                    className="mt-3 w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-medium transition">
-                    멤버십 갱신하기
-                  </button>
-                )}
               </div>
             )}
 

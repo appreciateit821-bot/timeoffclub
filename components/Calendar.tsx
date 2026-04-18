@@ -19,9 +19,12 @@ interface CalendarProps {
   onDatesChange: (dates: string[]) => void;
   activeMonths?: string;
   isTrial?: boolean;
+  userName?: string;
+  phoneLast4?: string;
+  onRenewSuccess?: (newMonth: string) => void;
 }
 
-export default function Calendar({ selectedDates, onDatesChange, activeMonths, isTrial }: CalendarProps) {
+export default function Calendar({ selectedDates, onDatesChange, activeMonths, isTrial, userName, phoneLast4, onRenewSuccess }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(() => {
     // 체험권은 4월부터 시작
     if (isTrial) return new Date(2026, 3, 1);
@@ -42,6 +45,10 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
   });
   const [showMembershipAlert, setShowMembershipAlert] = useState(false);
   const [alertMonth, setAlertMonth] = useState('');
+  const [renewOrderId, setRenewOrderId] = useState('');
+  const [renewLoading, setRenewLoading] = useState(false);
+  const [renewError, setRenewError] = useState('');
+  const [renewSuccess, setRenewSuccess] = useState('');
   const [dateStats, setDateStats] = useState<{ [date: string]: DateStats }>({});
   const [closedDates, setClosedDates] = useState<{ date: string; spot: string | null }[]>([]);
 
@@ -251,34 +258,96 @@ export default function Calendar({ selectedDates, onDatesChange, activeMonths, i
         )}
       </div>
 
-      {/* 멤버십 결제 안내 모달 */}
+      {/* 멤버십 갱신 모달 */}
       {showMembershipAlert && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowMembershipAlert(false)}>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => { if (!renewLoading) { setShowMembershipAlert(false); setRenewOrderId(''); setRenewError(''); setRenewSuccess(''); } }}>
           <div className="bg-white rounded-2xl shadow-sm p-6 w-full max-w-sm space-y-4 border border-amber-200 animate-fade-in" onClick={e => e.stopPropagation()}>
-            <div className="text-center space-y-2">
-              <div className="text-3xl">🌿</div>
-              <h3 className="text-gray-800 font-bold text-lg">{alertMonth} 멤버십</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                {alertMonth} 멤버십이 아직 활성화되지 않았어요.<br/>
-                계속해서 타임오프를 즐기시려면<br/>멤버십을 결제해주세요!
-              </p>
-            </div>
-            <div className="space-y-2">
-              <a
-                href="https://smartstore.naver.com/wellmoment"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block w-full py-3 bg-[#03C75A] hover:bg-[#02b351] text-white rounded-xl font-semibold text-center transition active:scale-95"
-              >
-                🛒 멤버십 결제하기
-              </a>
-              <button
-                onClick={() => setShowMembershipAlert(false)}
-                className="block w-full py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-600 rounded-xl text-sm transition"
-              >
-                닫기
-              </button>
-            </div>
+            {renewSuccess ? (
+              <div className="text-center space-y-3">
+                <div className="text-4xl">🎉</div>
+                <h3 className="text-gray-800 font-bold text-lg">{renewSuccess}</h3>
+                <p className="text-gray-500 text-sm">이제 {alertMonth} 세션을 예약할 수 있어요.</p>
+                <button
+                  onClick={() => { setShowMembershipAlert(false); setRenewSuccess(''); setRenewOrderId(''); }}
+                  className="w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-semibold transition active:scale-95"
+                >
+                  예약하러 가기
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="text-center space-y-2">
+                  <div className="text-3xl">🌿</div>
+                  <h3 className="text-gray-800 font-bold text-lg">{alertMonth} 멤버십</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    {alertMonth} 멤버십이 아직 활성화되지 않았어요.
+                  </p>
+                </div>
+
+                <a
+                  href="https://smartstore.naver.com/wellmoment"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full py-3 bg-[#03C75A] hover:bg-[#02b351] text-white rounded-xl font-semibold text-center transition active:scale-95"
+                >
+                  🛒 스마트스토어에서 결제하기
+                </a>
+
+                <div className="border-t border-gray-200 pt-4">
+                  <p className="text-gray-700 text-sm font-medium mb-2">이미 결제하셨나요?</p>
+                  <p className="text-gray-500 text-xs mb-3">스마트스토어 마이페이지 → 주문내역에서 주문번호를 확인해주세요.</p>
+                  <input
+                    value={renewOrderId}
+                    onChange={e => setRenewOrderId(e.target.value)}
+                    placeholder="주문번호 입력"
+                    className="w-full px-3 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-base font-mono focus:outline-none focus:border-amber-500 mb-3"
+                  />
+                  {renewError && (
+                    <p className="text-red-600 text-xs mb-3 leading-relaxed">{renewError}</p>
+                  )}
+                  <button
+                    onClick={async () => {
+                      if (!renewOrderId.trim() || !userName || !phoneLast4) return;
+                      setRenewLoading(true);
+                      setRenewError('');
+                      try {
+                        const res = await fetch('/api/renew', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ name: userName, phoneLast4, smartstoreOrderId: renewOrderId.trim() }),
+                        });
+                        const data = await res.json();
+                        if (!res.ok) {
+                          setRenewError(data.error || '갱신 실패');
+                          return;
+                        }
+                        setRenewSuccess(data.message);
+                        if (onRenewSuccess) onRenewSuccess(data.month);
+                      } catch {
+                        setRenewError('네트워크 오류가 발생했습니다.');
+                      } finally {
+                        setRenewLoading(false);
+                      }
+                    }}
+                    disabled={!renewOrderId.trim() || renewLoading}
+                    className={`w-full py-3 rounded-xl font-semibold text-sm transition active:scale-95 ${
+                      renewOrderId.trim() && !renewLoading
+                        ? 'bg-amber-600 hover:bg-amber-500 text-white'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                  >
+                    {renewLoading ? '확인 중...' : '멤버십 활성화'}
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => { setShowMembershipAlert(false); setRenewOrderId(''); setRenewError(''); }}
+                  className="block w-full py-2 text-gray-500 text-sm hover:text-gray-700 transition"
+                >
+                  닫기
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
