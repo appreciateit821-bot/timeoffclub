@@ -187,6 +187,41 @@ CREATE TABLE conversation_topics (
 
 ## 6. 개발 히스토리
 
+### 2026-04-17: 스마트스토어 주문번호 연동 + 멤버십 갱신 시스템
+
+#### 네이버 스마트스토어 주문번호 검증 (프로덕션 완성)
+- fly.dev 프록시(`timeoff-naver-proxy.fly.dev`) ↔ Cloudflare Pages 연동 완성
+- Cloudflare Pages 환경변수 등록: `NAVER_PROXY_URL`, `NAVER_PROXY_SECRET`, `NAVER_MEMBERSHIP_PRODUCT_IDS`
+- `lib/naver-proxy.ts`: 주문번호 → productOrderIds 해석 → POST query 조회 → 이름/뒷4자리/상품ID 매칭
+- 가짜/존재하지 않는 주문번호(네이버 4xx) → 즉시 거부 (저장 X)
+- 네이버 5xx/네트워크 오류 → `pending` 저장 후 관리자 수동 검토
+- 주문번호 중복 사용 방지 (같은 주문번호로 2번 가입 불가)
+
+#### 멤버십 갱신 시스템 (`/renew`)
+- `/renew` 페이지: 이름 + 뒷4자리 + 새 주문번호만으로 다음달 멤버십 활성화
+- `/api/renew`: 기존 멤버 확인 → 주문번호 검증 → `active_months`에 다음달 추가
+- `/login` 하단에 "다음 달 멤버십 갱신" 버튼 추가
+- 이미 활성화된 달 중복 갱신 방지
+
+#### 가입 프로세스 개선
+- 가입 시 `active_months` 자동 설정 (당월이 아닌 **다음 달**만 활성화)
+- 가입 제출 전 핸드폰 번호 확인 팝업 (`010-XXXX-XXXX 맞으신가요?`)
+- 모든 거부 에러 메시지 끝에 "문의사항은 카카오톡 well__moment로 연락해주세요" 추가
+
+#### 인프라 수정
+- OpenSSL CA 심볼릭 링크 복구 (`/usr/local/etc/openssl@3/cert.pem` → `ca-certificates/cert.pem`)
+  - 근본 원인: Homebrew openssl@3가 기대하는 cert.pem 위치에 파일 없음 → Node TLS 실패
+- npm `strict-ssl=false` 보안 구멍 제거
+- GitHub PAT 교체 (기존 `.git/config` 평문 노출 제거)
+- Node v25 → v22 LTS 전환 (brew unlink/link)
+
+#### 멤버 프로세스 (확정)
+```
+[신규 가입] 스마트스토어 결제 → /onboarding 설문+주문번호 → 검증 → 다음달 활성화 → /calendar
+[매달 갱신] 스마트스토어 재결제 → /renew 주문번호만 → 검증 → 다음달 추가 → 로그인
+[로그인]   /login → 이름+뒷4자리 → active_months 체크 → /calendar
+```
+
 ### 2026-04-11: 세션 룰 슬라이드 카드 + 모드별 분기
 - 멤버가 신청한 모드(스몰토크/사색)에 따라 본인 약속만 표시
 - 슬라이드 카드 형식으로 한 항목씩 큰 글씨로 보여줌
@@ -244,12 +279,16 @@ timeoff-club/
 │   │   ├── reflection-log/      # 사색 회고 API
 │   │   ├── requests/            # 요청 API
 │   │   ├── push/                # 웹 푸시 API
+│   │   ├── onboarding/          # 자가 가입 API (주문번호 검증)
+│   │   ├── renew/               # 멤버십 갱신 API (주문번호 검증)
 │   │   └── admin/               # 관리자 API
 │   ├── calendar/page.tsx        # 캘린더 메인
 │   ├── feedback/page.tsx        # 피드백 페이지
 │   ├── session-ready/page.tsx   # 세션 준비 + 종료 공유
 │   ├── my-history/page.tsx      # 내 기록 + 공유 카드
 │   ├── login/page.tsx           # 로그인
+│   ├── onboarding/page.tsx      # 가입 신청 폼
+│   ├── renew/page.tsx           # 멤버십 갱신 폼
 │   ├── guide/page.tsx           # 스몰토크 가이드
 │   └── admin/                   # 관리자 페이지
 ├── components/
