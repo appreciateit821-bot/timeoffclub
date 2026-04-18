@@ -9,7 +9,9 @@ export default function AdminPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices' | 'reports' | 'requests' | 'calendar' | 'pending'>('reservations');
+  const [activeTab, setActiveTab] = useState<'reservations' | 'logs' | 'members' | 'checkin' | 'trial' | 'feedback' | 'notices' | 'reports' | 'requests' | 'calendar' | 'pending' | 'spots'>('reservations');
+  const [spotsList, setSpotsList] = useState<any[]>([]);
+  const [spotsLoading, setSpotsLoading] = useState(false);
   const [pendingMembers, setPendingMembers] = useState<any[]>([]);
   const [pendingMembersLoading, setPendingMembersLoading] = useState(false);
   const [newMemberName, setNewMemberName] = useState('');
@@ -309,6 +311,28 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/feedbacks');
       if (res.ok) { const data = await res.json(); setFeedbackData(data); }
+    } catch (e) { console.error(e); }
+  };
+
+  const fetchSpots = async () => {
+    setSpotsLoading(true);
+    try {
+      const res = await fetch('/api/admin/spots');
+      if (res.ok) { const data = await res.json(); setSpotsList(data.spots || []); }
+    } catch (e) { console.error(e); }
+    finally { setSpotsLoading(false); }
+  };
+
+  const handleSpotToggle = async (spotId: string, currentActive: number) => {
+    const action = currentActive ? '비활성화' : '활성화';
+    if (!confirm(`${spotId}를 ${action}하시겠어요?`)) return;
+    try {
+      const res = await fetch('/api/admin/spots', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spotId, isActive: !currentActive }),
+      });
+      if (res.ok) fetchSpots();
     } catch (e) { console.error(e); }
   };
 
@@ -705,6 +729,16 @@ export default function AdminPage() {
               📅 캘린더
             </button>
             <button
+              onClick={() => { setActiveTab('spots'); fetchSpots(); }}
+              className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
+                activeTab === 'spots'
+                  ? 'text-amber-400 border-amber-400'
+                  : 'text-gray-400 border-transparent hover:text-gray-300'
+              }`}
+            >
+              🏠 스팟
+            </button>
+            <button
               onClick={() => { setActiveTab('notices'); fetchNotices(); }}
               className={`px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium transition border-b-2 whitespace-nowrap ${
                 activeTab === 'notices'
@@ -890,6 +924,42 @@ export default function AdminPage() {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'spots' && (
+          <div className="space-y-5">
+            <h2 className="text-xl font-semibold text-white">🏠 스팟 관리</h2>
+            <p className="text-xs text-gray-400">스팟을 OFF하면 멤버 캘린더에서 해당 스팟이 보이지 않습니다.</p>
+            {spotsLoading ? (
+              <div className="text-center py-8 text-gray-400">로딩 중...</div>
+            ) : (
+              <div className="space-y-3">
+                {spotsList.map((sp: any) => (
+                  <div key={sp.spot_id} className={`flex items-center justify-between p-4 rounded-xl border ${
+                    sp.is_spot_active ? 'bg-gray-800/60 border-gray-700' : 'bg-gray-800/30 border-gray-700 opacity-60'
+                  }`}>
+                    <div>
+                      <p className="text-sm font-medium text-white">{sp.spot_id}</p>
+                      <span className={`text-xs px-2 py-0.5 rounded ${
+                        sp.is_spot_active ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'
+                      }`}>
+                        {sp.is_spot_active ? 'ON — 운영 중' : 'OFF — 비활성'}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleSpotToggle(sp.spot_id, sp.is_spot_active)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                        sp.is_spot_active
+                          ? 'bg-red-700 hover:bg-red-600 text-white'
+                          : 'bg-green-700 hover:bg-green-600 text-white'
+                      }`}>
+                      {sp.is_spot_active ? 'OFF' : 'ON'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

@@ -181,6 +181,10 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
       if (res.ok) {
         const data = await res.json();
         const closed = new Set<string>();
+        // 비활성 스팟 추가
+        for (const s of (data.inactiveSpots || [])) {
+          closed.add(s);
+        }
         for (const c of (data.closed || [])) {
           if (c.date === date) {
             if (!c.spot) { SPOTS.forEach(s => closed.add(s)); } // 전체 닫기

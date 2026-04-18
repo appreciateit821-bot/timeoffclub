@@ -10,7 +10,9 @@ export default function SpotOperatorPage() {
   const [checkinList, setCheckinList] = useState<any[]>([]);
   const [pendingAutoNoShows, setPendingAutoNoShows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'checkin' | 'reservations' | 'logs' | 'notices' | 'requests'>('checkin');
+  const [activeTab, setActiveTab] = useState<'checkin' | 'reservations' | 'sessions' | 'logs' | 'notices' | 'requests'>('checkin');
+  const [sessionData, setSessionData] = useState<any>(null);
+  const [sessionLoading, setSessionLoading] = useState(false);
   const [notices, setNotices] = useState<any[]>([]);
   const [spotName, setSpotName] = useState('');
   const [spotRequests, setSpotRequests] = useState<any[]>([]);
@@ -95,6 +97,29 @@ export default function SpotOperatorPage() {
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
+  };
+
+  const fetchSessions = async (month?: string) => {
+    setSessionLoading(true);
+    try {
+      const url = month ? `/api/admin/spot/sessions?month=${month}` : '/api/admin/spot/sessions';
+      const res = await fetch(url);
+      if (res.ok) setSessionData(await res.json());
+    } catch (e) { console.error(e); }
+    finally { setSessionLoading(false); }
+  };
+
+  const handleSessionToggle = async (date: string, isClosed: boolean) => {
+    try {
+      const res = await fetch('/api/admin/spot/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date, action: isClosed ? 'open' : 'close' }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.error); return; }
+      fetchSessions(sessionData?.month);
+    } catch (e) { console.error(e); }
   };
 
   const fetchSessionCapacity = async (date: string) => {
@@ -253,12 +278,12 @@ export default function SpotOperatorPage() {
       <div className="border-b border-gray-800 overflow-x-auto scrollbar-hide">
         <div className="max-w-7xl mx-auto px-2 sm:px-4">
           <div className="flex gap-0">
-            {(['checkin', 'reservations', 'logs', 'notices', 'requests'] as const).map(tab => (
-              <button key={tab} onClick={() => { setActiveTab(tab); if (tab === 'requests') fetchSpotRequests(); }}
+            {(['checkin', 'sessions', 'reservations', 'logs', 'notices', 'requests'] as const).map(tab => (
+              <button key={tab} onClick={() => { setActiveTab(tab); if (tab === 'sessions') fetchSessions(); if (tab === 'requests') fetchSpotRequests(); }}
                 className={`px-2.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition border-b-2 whitespace-nowrap ${
                   activeTab === tab ? 'text-amber-400 border-amber-400' : 'text-gray-400 border-transparent hover:text-gray-300'
                 }`}>
-                {tab === 'checkin' ? '✅ 체크' : tab === 'reservations' ? '📋 예약' : tab === 'logs' ? '📝 로그' : tab === 'notices' ? '📢 공지' : '📮 요청'}
+                {tab === 'checkin' ? '✅ 체크' : tab === 'sessions' ? '📅 일정' : tab === 'reservations' ? '📋 예약' : tab === 'logs' ? '📝 로그' : tab === 'notices' ? '📢 공지' : '📮 요청'}
               </button>
             ))}
           </div>
@@ -556,6 +581,113 @@ export default function SpotOperatorPage() {
                 <div className="text-center py-12 text-gray-400">해당 날짜에 예약이 없습니다.</div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* 세션 일정 관리 */}
+        {activeTab === 'sessions' && (
+          <div className="space-y-4">
+            {sessionLoading ? (
+              <div className="text-center py-12 text-gray-400">로딩 중...</div>
+            ) : sessionData ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold text-white">📅 {sessionData.month?.replace('-', '년 ')}월 세션 일정</h2>
+                  {!sessionData.canEdit && (
+                    <span className="text-xs text-yellow-400">{sessionData.canEditFrom}부터 조정 가능</span>
+                  )}
+                </div>
+
+                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                  <div className="flex gap-4 text-sm text-gray-300 mb-1">
+                    <span>열린 세션: <strong className="text-amber-300">{sessionData.openCount?.total}회</strong></span>
+                    <span>수요일 <strong className="text-blue-300">{sessionData.openCount?.wed}</strong></span>
+                    <span>일요일 <strong className="text-purple-300">{sessionData.openCount?.sun}</strong></span>
+                  </div>
+                  <p className="text-[11px] text-gray-500">최소 수요일 1회 + 일요일 1회 유지 필요</p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* 수요일 */}
+                  <div>
+                    <h3 className="text-sm font-medium text-blue-300 mb-2">수요일 (20:00)</h3>
+                    <div className="space-y-2">
+                      {(sessionData.sessions || []).filter((s: any) => s.day === 'wed').map((s: any) => (
+                        <div key={s.date} className={`flex items-center justify-between p-3 rounded-lg border ${
+                          s.isClosed ? 'bg-gray-800/30 border-gray-700 opacity-60' : 'bg-gray-800/60 border-gray-700'
+                        }`}>
+                          <div>
+                            <span className="text-sm text-white font-mono">{s.date.slice(5)}</span>
+                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.isClosed ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'}`}>
+                              {s.isClosed ? '닫힘' : '열림'}
+                            </span>
+                            {s.reservationCount > 0 && (
+                              <span className="ml-2 text-xs text-amber-300">{s.reservationCount}명 예약</span>
+                            )}
+                          </div>
+                          {sessionData.canEdit && (
+                            <button
+                              onClick={() => handleSessionToggle(s.date, s.isClosed)}
+                              disabled={!s.isClosed && s.reservationCount > 0}
+                              className={`text-xs px-3 py-1.5 rounded-lg transition ${
+                                s.isClosed
+                                  ? 'bg-green-700 hover:bg-green-600 text-white'
+                                  : s.reservationCount > 0
+                                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                    : 'bg-red-700 hover:bg-red-600 text-white'
+                              }`}>
+                              {s.isClosed ? '열기' : '닫기'}
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 일요일 */}
+                  <div>
+                    <h3 className="text-sm font-medium text-purple-300 mb-2">일요일 (15:00)</h3>
+                    <div className="space-y-2">
+                      {(sessionData.sessions || []).filter((s: any) => s.day === 'sun').map((s: any) => (
+                        <div key={s.date} className={`flex items-center justify-between p-3 rounded-lg border ${
+                          s.isClosed ? 'bg-gray-800/30 border-gray-700 opacity-60' : 'bg-gray-800/60 border-gray-700'
+                        }`}>
+                          <div>
+                            <span className="text-sm text-white font-mono">{s.date.slice(5)}</span>
+                            <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${s.isClosed ? 'bg-red-900/50 text-red-300' : 'bg-green-900/50 text-green-300'}`}>
+                              {s.isClosed ? '닫힘' : '열림'}
+                            </span>
+                            {s.reservationCount > 0 && (
+                              <span className="ml-2 text-xs text-amber-300">{s.reservationCount}명 예약</span>
+                            )}
+                          </div>
+                          {sessionData.canEdit && (
+                            <button
+                              onClick={() => handleSessionToggle(s.date, s.isClosed)}
+                              disabled={!s.isClosed && s.reservationCount > 0}
+                              className={`text-xs px-3 py-1.5 rounded-lg transition ${
+                                s.isClosed
+                                  ? 'bg-green-700 hover:bg-green-600 text-white'
+                                  : s.reservationCount > 0
+                                    ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                                    : 'bg-red-700 hover:bg-red-600 text-white'
+                              }`}>
+                              {s.isClosed ? '열기' : '닫기'}
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-gray-500 leading-relaxed">
+                  예약자가 1명이라도 있는 세션은 닫을 수 없습니다. 인원 조정은 체크 탭에서 가능합니다.
+                </p>
+              </>
+            ) : (
+              <div className="text-center py-12 text-gray-400">세션 데이터를 불러오지 못했습니다.</div>
+            )}
           </div>
         )}
 

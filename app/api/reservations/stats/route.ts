@@ -28,5 +28,10 @@ export async function GET(request: NextRequest) {
     'SELECT date, spot, reason FROM closed_dates WHERE date LIKE ?'
   ).bind(`${month}%`).all();
 
-  return NextResponse.json({ stats, closed });
+  // 비활성 스팟 목록
+  const { results: inactiveSpots } = await db.prepare(
+    'SELECT spot_id FROM spot_operators WHERE is_spot_active = 0'
+  ).all();
+
+  return NextResponse.json({ stats, closed, inactiveSpots: (inactiveSpots || []).map((r: any) => r.spot_id) });
 }

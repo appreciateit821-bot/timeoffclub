@@ -50,6 +50,27 @@ export async function POST(request: NextRequest) {
     if (!date || !spot) return NextResponse.json({ error: '날짜와 스팟을 선택해주세요.' }, { status: 400 });
     if (isBookingClosed(date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 예약할 수 없습니다.' }, { status: 400 });
 
+    // 비활성 스팟 체크
+    const spotOp = await db.prepare('SELECT is_spot_active FROM spot_operators WHERE spot_id = ?').bind(spot).first() as any;
+    if (spotOp && spotOp.is_spot_active === 0) {
+      return NextResponse.json({ error: '현재 운영하지 않는 스팟입니다.' }, { status: 400 });
+    }
+
+    // 다음 달 예약 D-7 제한: 다음 달 세션은 해당 월 1일 7일 전부터 예약 가능
+    const now = new Date();
+    const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000 + now.getTimezoneOffset() * 60 * 1000);
+    const currentMonth = `${kstNow.getFullYear()}-${String(kstNow.getMonth() + 1).padStart(2, '0')}`;
+    const reservationMonth = date.slice(0, 7);
+    if (reservationMonth > currentMonth) {
+      const [ry, rm] = reservationMonth.split('-').map(Number);
+      const firstDay = new Date(Date.UTC(ry, rm - 1, 1));
+      const bookingOpens = new Date(firstDay.getTime() - 7 * 24 * 60 * 60 * 1000);
+      if (now.getTime() < bookingOpens.getTime()) {
+        const opensDate = bookingOpens.toISOString().slice(0, 10);
+        return NextResponse.json({ error: `${reservationMonth.replace('-', '년 ')}월 예약은 ${opensDate}부터 가능합니다.` }, { status: 400 });
+      }
+    }
+
     // 닫힌 날짜 체크
     const closedAll = await db.prepare('SELECT * FROM closed_dates WHERE date = ? AND spot IS NULL').bind(date).first();
     if (closedAll) return NextResponse.json({ error: '해당 날짜는 운영이 중단되었습니다.' }, { status: 400 });
