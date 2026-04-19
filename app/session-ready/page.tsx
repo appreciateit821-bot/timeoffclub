@@ -350,9 +350,15 @@ function SessionReadyContent() {
                 </div>
               </a>
 
-              <p className="text-center text-gray-500 text-[11px] leading-relaxed">
-                멤버십은 매달 마지막 주에 구매할 수 있으며<br/>다음 달 한 달간 무제한으로 참여할 수 있습니다.
-              </p>
+              <div className="bg-white/60 rounded-lg p-3 space-y-1">
+                <p className="text-amber-800 text-xs font-medium">안내</p>
+                <p className="text-gray-600 text-[11px] leading-relaxed">
+                  • 멤버십은 보통 매달 마지막 주에 오픈됩니다<br/>
+                  • 멤버십 결제 후 <strong>가입 설문 작성 + 주문번호 입력</strong>이 필요해요<br/>
+                  • 가입 후에는 <strong>이름 + 연락처 뒷4자리</strong>로 로그인합니다<br/>
+                  • 체험권 추가 시 새 코드로 다시 로그인해주세요
+                </p>
+              </div>
             </div>
           )}
 

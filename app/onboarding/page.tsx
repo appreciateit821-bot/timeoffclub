@@ -102,7 +102,14 @@ function OnboardingContent() {
       <Centered>
         <div className="text-5xl mb-4">🎉</div>
         <h1 className="text-xl font-bold text-amber-800 mb-3">가입 완료!</h1>
-        <p className="text-gray-700 text-sm">잠시 후 예약 페이지로 이동합니다...</p>
+        <p className="text-gray-700 text-sm mb-4">잠시 후 예약 페이지로 이동합니다...</p>
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-left">
+          <p className="text-amber-800 text-xs font-medium mb-1">다음부터 로그인 방법</p>
+          <p className="text-gray-600 text-[11px] leading-relaxed">
+            이름 + <strong>연락처 뒷 4자리</strong>로 로그인하세요.<br/>
+            (체험권 코드가 아닌 연락처 뒷 4자리입니다)
+          </p>
+        </div>
       </Centered>
     );
   }
@@ -112,10 +119,17 @@ function OnboardingContent() {
       <Centered>
         <div className="text-5xl mb-4">📮</div>
         <h1 className="text-xl font-bold text-amber-800 mb-3">가입 신청이 접수됐어요</h1>
-        <p className="text-gray-700 text-sm leading-relaxed mb-6">
+        <p className="text-gray-700 text-sm leading-relaxed mb-4">
           운영진이 주문번호와 정보를 확인한 후 승인 안내드립니다.<br />
           보통 1~2영업일 이내 연락드려요.
         </p>
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-left mb-4">
+          <p className="text-amber-800 text-xs font-medium mb-1">승인 후 로그인 방법</p>
+          <p className="text-gray-600 text-[11px] leading-relaxed">
+            이름 + <strong>연락처 뒷 4자리</strong>로 로그인하세요.<br/>
+            (체험권 코드가 아닌 연락처 뒷 4자리입니다)
+          </p>
+        </div>
         <p className="text-gray-500 text-xs">
           궁금한 점은 카카오톡 <span className="text-amber-600">well__moment</span>로 문의해주세요.
         </p>

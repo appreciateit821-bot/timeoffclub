@@ -315,6 +315,47 @@ export default function CalendarPage() {
         </div>
       )}
 
+      {/* 체험권 소진 유저 안내 배너 */}
+      {user?.isTrial && reservations.length >= 1 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+            <div className="text-center mb-4">
+              <div className="text-2xl mb-2">🌿</div>
+              <h3 className="text-amber-800 font-bold text-base">체험이 끝났어요!</h3>
+              <p className="text-gray-600 text-sm mt-1">다음 타임오프를 준비해볼까요?</p>
+            </div>
+            <div className="space-y-3">
+              <a
+                href="https://smartstore.naver.com/wellmoment"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-semibold text-center transition active:scale-95"
+              >
+                🌿 멤버십 가입하기 — 매주 참여 가능
+              </a>
+              <a
+                href="https://smartstore.naver.com/wellmoment"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-3 bg-white hover:bg-gray-50 text-amber-700 border border-amber-200 rounded-xl text-sm font-medium text-center transition active:scale-95"
+              >
+                🎫 체험권 한 번 더 — 상시 구매 가능
+              </a>
+              <div className="bg-amber-100/50 rounded-lg p-3 space-y-1.5">
+                <p className="text-amber-800 text-xs font-medium">안내</p>
+                <p className="text-amber-700 text-[11px] leading-relaxed">
+                  • 멤버십은 보통 매달 마지막 주에 오픈됩니다<br/>
+                  • 멤버십 결제 후 가입 설문을 작성해주세요<br/>
+                  • 가입 후에는 <strong>이름 + 연락처 뒷4자리</strong>로 로그인합니다<br/>
+                  • 체험권 추가 구매 시 새 코드로 다시 로그인해주세요
+                </p>
+              </div>
+              <p className="text-center text-[11px] text-gray-500">문의: 카카오톡 well__moment</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
