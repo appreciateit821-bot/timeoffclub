@@ -524,7 +524,7 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
                 <div className={`text-sm space-y-1.5 ${isSelected ? 'text-amber-50' : 'text-gray-300'}`}>
                   <p className="flex items-start gap-2"><span className="text-xs mt-0.5">📍</span><span>{spotInfo.address}</span></p>
-                  <p className="flex items-start gap-2"><span className="text-xs mt-0.5">🎫</span><span>{spotInfo.discount}</span></p>
+                  <p className="flex items-start gap-2"><span className="text-xs mt-0.5">🎫</span><span className="whitespace-pre-line">{spotInfo.discount}</span></p>
                   <p className={`flex items-start gap-2 ${isSelected ? 'text-amber-100' : 'text-gray-400'}`}>
                     <span className="text-xs mt-0.5">✨</span><span className="text-xs leading-relaxed">{spotInfo.features}</span>
                   </p>

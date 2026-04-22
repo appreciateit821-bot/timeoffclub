@@ -57,8 +57,8 @@ export const SPOT_DETAILS: SpotInfo[] = [
     id: '신당_이에즈',
     name: '신당_이에즈',
     address: '서울 중구 신당동 290-27',
-    discount: '추후 안내 예정',
-    features: '추후 안내 예정',
+    discount: '① 웰모먼트 전용 "신당동 떡볶이 쿠키와 음료 세트" — 떡볶이 쿠키 + 베리에이션 음료 중 택 1 = 9,500원\n② 차우림 주문 시 떡볶이 쿠키 서비스',
+    features: '위트있는 홈메이드 음료와 감각적인 디저트를 즐길 수 있는 편안하고 아늑한 공간',
     mapUrl: 'https://naver.me/xcnvWZNf'
   },
   {
