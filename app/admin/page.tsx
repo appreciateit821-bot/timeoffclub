@@ -20,6 +20,7 @@ export default function AdminPage() {
   const [memberSearch, setMemberSearch] = useState('');
   const [memberError, setMemberError] = useState('');
   const [memberSuccess, setMemberSuccess] = useState('');
+  const [expandedMemberIds, setExpandedMemberIds] = useState<Set<number>>(new Set());
   const [sheetUrl, setSheetUrl] = useState('');
   const [sheetLoading, setSheetLoading] = useState(false);
   const [sheetResult, setSheetResult] = useState('');
@@ -1141,103 +1142,115 @@ export default function AdminPage() {
             })()}
 
             {/* 멤버 목록 */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        이름
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        연락처 뒷4자리
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        상태
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        활성 월
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        추가일
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        작업
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {members.map((member: any) => (
-                      <tr key={member.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {member.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          {member.phone_last4}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              member.is_active
-                                ? 'bg-green-50 text-green-600'
-                                : 'bg-red-50 text-red-600'
-                            }`}
-                          >
-                            {member.is_active ? '활성' : '비활성'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                          <input type="text" defaultValue={member.active_months || ''}
-                            onBlur={(e) => {
-                              if (e.target.value !== (member.active_months || '')) {
-                                fetch('/api/admin/members', {
-                                  method: 'PATCH',
-                                  headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ id: member.id, activeMonths: e.target.value })
-                                }).then(() => fetchMembers(memberSearch));
-                              }
-                            }}
-                            className="w-full px-2 py-1 bg-white border border-gray-300 rounded text-xs text-gray-800"
-                            placeholder="2026-04,2026-05" />
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
-                          {member.created_at ? (() => {
-                            const d = new Date(member.created_at.includes('T') ? member.created_at : member.created_at + 'Z');
-                            const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-                            return `${kst.getUTCFullYear()}-${String(kst.getUTCMonth()+1).padStart(2,'0')}-${String(kst.getUTCDate()).padStart(2,'0')}`;
-                          })() : '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleToggleActive(member.id, member.is_active)}
-                              className={`px-3 py-1 rounded text-xs font-medium transition ${
-                                member.is_active
-                                  ? 'bg-yellow-600 hover:bg-yellow-700 text-gray-800'
-                                  : 'bg-green-600 hover:bg-green-700 text-white'
-                              }`}
-                            >
-                              {member.is_active ? '비활성화' : '활성화'}
-                            </button>
-                            <button
-                              onClick={() => handleDeleteMember(member.id)}
-                              className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium transition"
-                            >
-                              삭제
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
+            <div className="space-y-2">
               {members.length === 0 && (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-500 bg-white rounded-xl border border-gray-200">
                   등록된 멤버가 없습니다.
                 </div>
               )}
+              {members.map((member: any) => {
+                const isExpanded = expandedMemberIds.has(member.id);
+                const hasSurvey = member.email || member.age_gender || member.occupation || member.self_intro || member.reasons || member.expectation;
+                let reasonsList: string[] = [];
+                try { reasonsList = JSON.parse(member.reasons || '[]'); } catch {}
+                const joinedAt = member.created_at ? (() => {
+                  const d = new Date(member.created_at.includes('T') ? member.created_at : member.created_at + 'Z');
+                  const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+                  return `${kst.getUTCFullYear()}-${String(kst.getUTCMonth()+1).padStart(2,'0')}-${String(kst.getUTCDate()).padStart(2,'0')}`;
+                })() : '-';
+
+                return (
+                  <div key={member.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    {/* 기본 행 */}
+                    <div className="flex items-center gap-3 px-4 py-3">
+                      {/* 이름 + 설문 토글 */}
+                      <button
+                        onClick={() => {
+                          if (!hasSurvey) return;
+                          setExpandedMemberIds(prev => {
+                            const next = new Set(prev);
+                            next.has(member.id) ? next.delete(member.id) : next.add(member.id);
+                            return next;
+                          });
+                        }}
+                        className={`flex items-center gap-1.5 text-left ${hasSurvey ? 'cursor-pointer' : 'cursor-default'}`}
+                      >
+                        <span className="font-semibold text-gray-800 text-sm">{member.name}</span>
+                        <span className="text-gray-400 text-xs font-mono">({member.phone_last4})</span>
+                        {hasSurvey && (
+                          <span className="text-gray-400 text-xs">{isExpanded ? '▲' : '▼'}</span>
+                        )}
+                      </button>
+
+                      <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${member.is_active ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                        {member.is_active ? '활성' : '비활성'}
+                      </span>
+
+                      <div className="flex-1 min-w-0">
+                        <input type="text" defaultValue={member.active_months || ''}
+                          onBlur={(e) => {
+                            if (e.target.value !== (member.active_months || '')) {
+                              fetch('/api/admin/members', {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: member.id, activeMonths: e.target.value })
+                              }).then(() => fetchMembers(memberSearch));
+                            }
+                          }}
+                          className="w-full px-2 py-1 bg-gray-50 border border-gray-200 rounded text-xs text-gray-700"
+                          placeholder="활성월 (2026-04,2026-05)" />
+                      </div>
+
+                      <span className="text-[11px] text-gray-400 shrink-0 hidden sm:block">{joinedAt}</span>
+
+                      <div className="flex gap-1.5 shrink-0">
+                        <button onClick={() => handleToggleActive(member.id, member.is_active)}
+                          className={`px-2.5 py-1 rounded text-xs font-medium transition ${member.is_active ? 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800' : 'bg-green-100 hover:bg-green-200 text-green-800'}`}>
+                          {member.is_active ? '비활성화' : '활성화'}
+                        </button>
+                        <button onClick={() => handleDeleteMember(member.id)}
+                          className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-xs font-medium transition">
+                          삭제
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 설문 내용 펼치기 */}
+                    {isExpanded && hasSurvey && (
+                      <div className="border-t border-gray-100 px-4 py-3 bg-amber-50/50 space-y-2">
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600">
+                          {member.email && <span>✉️ {member.email}</span>}
+                          {member.age_gender && <span>👤 {member.age_gender}</span>}
+                          {member.occupation && <span>💼 {member.occupation}</span>}
+                          {member.phone && <span>📞 {member.phone}</span>}
+                        </div>
+                        {reasonsList.length > 0 && (
+                          <div>
+                            <p className="text-[11px] text-gray-400 mb-1">가입 이유</p>
+                            <div className="flex flex-wrap gap-1">
+                              {reasonsList.map((r, i) => (
+                                <span key={i} className="text-[11px] px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">{r}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {member.self_intro && (
+                          <div>
+                            <p className="text-[11px] text-gray-400 mb-1">자기 소개</p>
+                            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap bg-white rounded-lg p-2 border border-gray-100">{member.self_intro}</p>
+                          </div>
+                        )}
+                        {member.expectation && (
+                          <div>
+                            <p className="text-[11px] text-gray-400 mb-1">기대하는 형태</p>
+                            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap bg-white rounded-lg p-2 border border-gray-100">{member.expectation}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
