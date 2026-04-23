@@ -64,9 +64,9 @@ export const SPOT_DETAILS: SpotInfo[] = [
   {
     id: '동대문역사문화공원_lmp 작업실',
     name: '동대문역사문화공원_lmp 작업실',
-    address: '서울 중구 을지로7가 33',
-    discount: '추후 안내 예정',
-    features: '추후 안내 예정',
+    address: '서울 중구 을지로 282-5 1층',
+    discount: '① 웰모먼트 전용 "손일거리 키트" 🧶 + ☕️(커피/차 한잔 포함) = 10,000원 (위빙, 뜨개, 북바인딩 등을 경험할 수 있는 간단한 수공예 키트)\n② 드립커피 5,000원',
+    features: '자신만의 방식으로 맘껏 게을러도 되는 골목 안쪽의 아지트 같은 공간',
     mapUrl: 'https://naver.me/5T4aV7hz'
   }
 ];
