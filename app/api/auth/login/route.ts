@@ -73,18 +73,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '멤버십이 비활성 상태입니다. 관리자에게 문의하세요.' }, { status: 403 });
     }
 
-    // 활성 월 체크 — 현재 월 또는 미래 활성월이 있으면 로그인 허용
-    if (member.active_months) {
-      const now = new Date();
-      const kstNow = new Date(now.getTime() + 9 * 60 * 60 * 1000 + now.getTimezoneOffset() * 60 * 1000);
-      const currentMonth = `${kstNow.getFullYear()}-${String(kstNow.getMonth() + 1).padStart(2, '0')}`;
-      const activeMonths = member.active_months.split(',').map((m: string) => m.trim());
-      // 현재 월 이상의 활성월이 하나라도 있으면 OK
-      const hasValidMonth = activeMonths.some((m: string) => m >= currentMonth);
-      if (!hasValidMonth) {
-        return NextResponse.json({ error: `멤버십이 만료되었습니다. 스마트스토어에서 멤버십 결제 후 로그인해주세요.\n\n문의: 카카오톡 well__moment` }, { status: 403 });
-      }
-    }
+    // 만료 멤버도 로그인은 허용 (예약 시점에 활성월 체크)
 
     await db.prepare('INSERT OR REPLACE INTO users (name, is_admin) VALUES (?, 0)').bind(name).run();
     await createSession({ name, isAdmin: false, isSpotOperator: false, phoneLast4 });

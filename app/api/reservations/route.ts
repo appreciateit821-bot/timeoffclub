@@ -50,8 +50,23 @@ export async function POST(request: NextRequest) {
     if (!date || !spot) return NextResponse.json({ error: '날짜와 스팟을 선택해주세요.' }, { status: 400 });
     if (isBookingClosed(date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 예약할 수 없습니다.' }, { status: 400 });
 
-    // 비활성 스팟 체크 (즉시 OFF / 월 기반 OFF / 아직 활성 안 됨)
     const reservationMonth = date.slice(0, 7);
+
+    // 멤버십 활성월 체크 (체험권 유저는 제외)
+    if (user.phoneLast4 && !user.phoneLast4.startsWith('T-')) {
+      const member = await db.prepare('SELECT active_months FROM members WHERE name = ? AND phone_last4 = ?')
+        .bind(user.name, user.phoneLast4).first() as any;
+      if (member?.active_months) {
+        const activeMonths = member.active_months.split(',').map((m: string) => m.trim());
+        if (!activeMonths.includes(reservationMonth)) {
+          return NextResponse.json({
+            error: `${reservationMonth.replace('-', '년 ')}월은 멤버십이 활성화되지 않았어요.\n스마트스토어에서 결제 후 "멤버십 갱신"에서 주문번호를 등록해주세요.\n\n문의: 카카오톡 well__moment`
+          }, { status: 403 });
+        }
+      }
+    }
+
+    // 비활성 스팟 체크 (즉시 OFF / 월 기반 OFF / 아직 활성 안 됨)
     const spotOp = await db.prepare('SELECT is_spot_active, inactive_from, active_from FROM spot_operators WHERE spot_id = ?').bind(spot).first() as any;
     if (spotOp && (
       spotOp.is_spot_active === 0 ||

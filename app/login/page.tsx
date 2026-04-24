@@ -71,7 +71,7 @@ export default function LoginPage() {
           </div>
 
           {/* 클럽 규칙 */}
-          <div className="mb-6 p-4 sm:p-5 bg-gray-50 rounded-xl border border-gray-200">
+          <div className="mb-6 p-4 sm:p-5 bg-yellow-100 rounded-xl border border-gray-200">
             <div className="space-y-4 text-sm">
               <div className="flex items-start gap-3">
                 <span className="text-amber-600 flex-shrink-0 text-lg">📵</span>

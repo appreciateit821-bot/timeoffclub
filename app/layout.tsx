@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Agentation from '@/components/Agentation';
 
 export const metadata: Metadata = {
   title: "타임오프클럽 예약",
@@ -24,6 +25,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased min-h-screen bg-[#FFF8F0] text-gray-800">
         {children}
+        <Agentation />
       </body>
     </html>
   );

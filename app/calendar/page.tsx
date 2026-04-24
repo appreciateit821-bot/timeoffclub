@@ -315,6 +315,49 @@ export default function CalendarPage() {
         </div>
       )}
 
+      {/* 멤버십 만료 배너 (이용 가능한 활성월이 없는 일반 멤버) */}
+      {(() => {
+        if (!user || user.isAdmin || user.isTrial || !user.activeMonths) return null;
+        const now = new Date();
+        const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000 + now.getTimezoneOffset() * 60 * 1000);
+        const currentMonth = `${kst.getFullYear()}-${String(kst.getMonth() + 1).padStart(2, '0')}`;
+        const months = user.activeMonths.split(',').map(m => m.trim()).filter(Boolean);
+        const hasFuture = months.some(m => m >= currentMonth);
+        if (hasFuture) return null;
+        const latestMonth = months.sort().slice(-1)[0];
+        return (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+              <div className="text-center mb-4">
+                <div className="text-2xl mb-2">🌱</div>
+                <h3 className="text-amber-800 font-bold text-base">멤버십이 만료되었어요</h3>
+                <p className="text-gray-600 text-sm mt-1">
+                  마지막 활성월: <strong>{latestMonth?.replace('-', '년 ')}월</strong>
+                </p>
+                <p className="text-gray-500 text-xs mt-1">새 달 예약을 위해 멤버십을 갱신해주세요</p>
+              </div>
+              <div className="space-y-3">
+                <a
+                  href="https://smartstore.naver.com/wellmoment"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full py-3 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-sm font-semibold text-center transition active:scale-95"
+                >
+                  🌿 스마트스토어에서 결제하기
+                </a>
+                <a
+                  href="/renew"
+                  className="block w-full py-3 bg-white hover:bg-gray-50 text-amber-700 border border-amber-200 rounded-xl text-sm font-medium text-center transition active:scale-95"
+                >
+                  🔁 결제 후 주문번호로 갱신하기
+                </a>
+                <p className="text-center text-[11px] text-gray-500">문의: 카카오톡 well__moment</p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* 체험권 소진 유저 안내 배너 */}
       {user?.isTrial && reservations.length >= 1 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
