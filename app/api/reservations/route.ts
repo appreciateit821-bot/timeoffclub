@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { getDB } from '@/lib/db';
 import { isBookingClosed } from '@/lib/constants';
 import { checkAndAwardBadges, cleanupOrphanedTopics } from '@/lib/badges';
+import { verifyNaverOrder } from '@/lib/naver-proxy';
 
 export const runtime = 'edge';
 
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
   if (!user || !db) return NextResponse.json({ error: '인증이 필요합니다.' }, { status: 401 });
 
   try {
-    const { date, spot, mode, memo, energy } = await request.json();
+    const { date, spot, mode, memo, energy, smartstoreOrderId } = await request.json();
     if (!date || !spot) return NextResponse.json({ error: '날짜와 스팟을 선택해주세요.' }, { status: 400 });
     if (isBookingClosed(date)) return NextResponse.json({ error: '세션 시작 2시간 전부터는 예약할 수 없습니다.' }, { status: 400 });
 
@@ -54,14 +55,56 @@ export async function POST(request: NextRequest) {
 
     // 멤버십 활성월 체크 (체험권 유저는 제외)
     if (user.phoneLast4 && !user.phoneLast4.startsWith('T-')) {
-      const member = await db.prepare('SELECT active_months FROM members WHERE name = ? AND phone_last4 = ?')
+      const member = await db.prepare('SELECT id, active_months FROM members WHERE name = ? AND phone_last4 = ?')
         .bind(user.name, user.phoneLast4).first() as any;
-      if (member?.active_months) {
-        const activeMonths = member.active_months.split(',').map((m: string) => m.trim());
+      if (member) {
+        const activeMonths = (member.active_months || '').split(',').map((m: string) => m.trim()).filter(Boolean);
         if (!activeMonths.includes(reservationMonth)) {
-          return NextResponse.json({
-            error: `${reservationMonth.replace('-', '년 ')}월은 멤버십이 활성화되지 않았어요.\n스마트스토어에서 결제 후 "멤버십 갱신"에서 주문번호를 등록해주세요.\n\n문의: 카카오톡 well__moment`
-          }, { status: 403 });
+          // 주문번호 미제공 → 프론트에서 입력 모달 띄우도록 안내
+          if (!smartstoreOrderId) {
+            return NextResponse.json({
+              error: `${reservationMonth.replace('-', '년 ')}월 멤버십이 활성화되지 않았어요.`,
+              needsOrderNumber: true,
+              month: reservationMonth,
+            }, { status: 403 });
+          }
+
+          // 주문번호 중복 사용 방지
+          const used = await db.prepare('SELECT id, name FROM members WHERE smartstore_order_id = ? AND id != ?')
+            .bind(smartstoreOrderId.trim(), member.id).first() as any;
+          if (used) {
+            return NextResponse.json({
+              error: '이미 사용된 주문번호입니다. 새로 결제한 주문번호를 입력해주세요.',
+              needsOrderNumber: true,
+              month: reservationMonth,
+            }, { status: 400 });
+          }
+
+          // 네이버 주문번호 검증
+          const verify = await verifyNaverOrder(smartstoreOrderId.trim(), user.name, user.phoneLast4);
+          if (!verify.ok) {
+            const msg = verify.kind === 'order_invalid'
+              ? '존재하지 않는 주문번호입니다. 스마트스토어 마이페이지에서 확인해주세요.'
+              : '일시적인 오류가 발생했어요. 잠시 후 다시 시도해주세요.';
+            return NextResponse.json({ error: msg, needsOrderNumber: true, month: reservationMonth }, { status: verify.kind === 'order_invalid' ? 400 : 503 });
+          }
+          if (!verify.matched) {
+            const reasons: string[] = [];
+            if (!verify.nameMatch) reasons.push(`주문자 이름 불일치 (주문자: ${verify.buyer.name || '확인 불가'})`);
+            if (!verify.phoneMatch) reasons.push('연락처 뒷 4자리 불일치');
+            if (!verify.productMatch) reasons.push(`멤버십 상품이 아님${verify.buyer.productName ? ` (주문 상품: ${verify.buyer.productName})` : ''}`);
+            return NextResponse.json({
+              error: '주문번호 검증 실패 — ' + reasons.join(' / '),
+              needsOrderNumber: true,
+              month: reservationMonth,
+            }, { status: 400 });
+          }
+
+          // 검증 성공 → 해당 예약월 활성화
+          const updatedMonths = [...activeMonths, reservationMonth].sort().join(',');
+          await db.prepare(
+            'UPDATE members SET active_months = ?, smartstore_order_id = ?, is_active = 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+          ).bind(updatedMonths, smartstoreOrderId.trim(), member.id).run();
         }
       }
     }

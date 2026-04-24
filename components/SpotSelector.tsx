@@ -67,6 +67,12 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
   const [maxCapacity, setMaxCapacity] = useState(MAX_CAPACITY);
   const [spotCapacities, setSpotCapacities] = useState<{ [spot: string]: number }>({});
   const [spotDefaultCaps, setSpotDefaultCaps] = useState<{ [spot: string]: number }>({});
+
+  // 주문번호 입력 모달 (예약월 멤버십 미활성 시)
+  const [orderModal, setOrderModal] = useState<{ month: string; message: string } | null>(null);
+  const [orderInput, setOrderInput] = useState('');
+  const [orderSubmitting, setOrderSubmitting] = useState(false);
+
   const date = selectedDates[0];
 
   useEffect(() => {
@@ -281,6 +287,26 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
     } catch { setError('대기 등록 중 오류'); }
   };
 
+  const submitReservation = async (smartstoreOrderId?: string) => {
+    const body: any = {
+      date,
+      spot: selectedSpot,
+      mode: selectedMode,
+      memo: selectedMode === 'reflection' && reflectionActivity
+        ? `[${REFLECTION_ACTIVITIES.find(a => a.id === reflectionActivity)?.label}] ${memo}`.trim()
+        : memo,
+    };
+    if (smartstoreOrderId) body.smartstoreOrderId = smartstoreOrderId;
+
+    const res = await fetch('/api/reservations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({} as any));
+    return { res, data };
+  };
+
   const handleSubmit = async () => {
     if (!selectedSpot) { setError('스팟을 선택해주세요.'); return; }
     if (!selectedMode) { setError('참여 방식(스몰토크/사색)을 선택해주세요.'); return; }
@@ -288,20 +314,15 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
     setLoading(true);
 
     try {
-      const res = await fetch('/api/reservations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date, spot: selectedSpot, mode: selectedMode, memo: selectedMode === 'reflection' && reflectionActivity ? `[${REFLECTION_ACTIVITIES.find(a => a.id === reflectionActivity)?.label}] ${memo}`.trim() : memo })
-      });
+      const { res, data } = await submitReservation();
 
       if (res.ok) {
-        const data = await res.json();
         const spotInfo = SPOT_DETAILS.find(s => s.id === selectedSpot);
         const currentSmalltalk = (modeStats[selectedSpot]?.smalltalk || 0) + (selectedMode === 'smalltalk' ? 1 : 0);
         setSuccessInfo({ date, spot: spotInfo?.name || selectedSpot, mode: selectedMode, warning: data.warning, smalltalkCount: currentSmalltalk });
         setShowSuccess(true);
 
-        // 자동 캘린더 다운로드 (아이폰: 열면 "캘린더에 추가" 팝업)
+        // 자동 캘린더 다운로드
         try {
           const icsUrl = `/api/reservations/ics?date=${date}&spot=${encodeURIComponent(selectedSpot)}`;
           const link = document.createElement('a');
@@ -316,12 +337,43 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
         setSelectedMode('');
         setMemo('');
         onComplete();
+      } else if (data?.needsOrderNumber) {
+        setOrderModal({ month: data.month, message: data.error || '해당 월 멤버십이 활성화되지 않았어요.' });
+        setOrderInput('');
       } else {
-        const data = await res.json();
         setError(data.error || '예약 실패');
       }
     } catch { setError('예약 중 오류'); }
     finally { setLoading(false); }
+  };
+
+  const handleOrderSubmit = async () => {
+    if (!orderInput.trim()) return;
+    setOrderSubmitting(true);
+    try {
+      const { res, data } = await submitReservation(orderInput.trim());
+      if (res.ok) {
+        const spotInfo = SPOT_DETAILS.find(s => s.id === selectedSpot);
+        const currentSmalltalk = (modeStats[selectedSpot]?.smalltalk || 0) + (selectedMode === 'smalltalk' ? 1 : 0);
+        setSuccessInfo({ date, spot: spotInfo?.name || selectedSpot, mode: selectedMode, warning: data.warning, smalltalkCount: currentSmalltalk });
+        setShowSuccess(true);
+        setOrderModal(null);
+        setOrderInput('');
+        setSelectedSpot('');
+        setSelectedMode('');
+        setMemo('');
+        onComplete();
+      } else if (data?.needsOrderNumber) {
+        setOrderModal({ month: data.month || orderModal?.month || '', message: data.error || '주문번호를 다시 확인해주세요.' });
+      } else {
+        setError(data.error || '예약 실패');
+        setOrderModal(null);
+      }
+    } catch {
+      setError('예약 중 오류');
+    } finally {
+      setOrderSubmitting(false);
+    }
   };
 
   // 스팟별 인원 제한
@@ -407,6 +459,64 @@ export default function SpotSelector({ selectedDates, userName, isTrial = false,
 
   return (
     <div className="bg-gray-800/80 backdrop-blur rounded-xl p-4 sm:p-6 border border-amber-800/30 shadow-lg space-y-5">
+      {/* 멤버십 미활성 월 — 주문번호 입력 모달 */}
+      {orderModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="text-center">
+              <div className="text-3xl mb-2">🌿</div>
+              <h3 className="text-amber-800 font-bold text-lg">
+                {orderModal.month ? `${orderModal.month.replace('-', '년 ')}월` : '해당 월'} 멤버십 활성화가 필요해요
+              </h3>
+              <p className="text-gray-600 text-xs mt-2 whitespace-pre-line">{orderModal.message}</p>
+            </div>
+
+            <div className="bg-amber-50 rounded-lg p-3 space-y-1 text-[11px] text-amber-700">
+              <p>• 스마트스토어에서 <strong>{orderModal.month ? orderModal.month.replace('-', '년 ') + '월 ' : ''}멤버십</strong>을 결제해주세요</p>
+              <p>• 주문번호를 입력하면 자동으로 활성화되고 예약이 완료돼요</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs text-gray-600">스마트스토어 주문번호</label>
+              <input
+                type="text"
+                value={orderInput}
+                onChange={(e) => setOrderInput(e.target.value)}
+                placeholder="예: 2026XXXXXXXXXXXXXXX"
+                className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-800 placeholder-gray-400"
+                autoFocus
+              />
+              <a
+                href="https://smartstore.naver.com/wellmoment"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-center text-xs text-amber-700 underline"
+              >
+                스마트스토어에서 결제하러 가기 →
+              </a>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setOrderModal(null); setOrderInput(''); }}
+                className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleOrderSubmit}
+                disabled={!orderInput.trim() || orderSubmitting}
+                className="flex-1 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-sm font-semibold disabled:opacity-50 transition active:scale-95"
+              >
+                {orderSubmitting ? '확인 중...' : '활성화하고 예약'}
+              </button>
+            </div>
+
+            <p className="text-center text-[11px] text-gray-400">문의: 카카오톡 well__moment</p>
+          </div>
+        </div>
+      )}
+
       <h2 className="text-xl font-bold text-amber-100">스팟 선택</h2>
       <p className="text-xs text-gray-400">{date}</p>
 
