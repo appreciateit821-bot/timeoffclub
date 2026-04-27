@@ -1,0 +1,29 @@
+name: Attendance Check Cron
+
+on:
+  schedule:
+    # 매 30분마다 실행 (UTC 기준)
+    - cron: '*/30 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger attendance check
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "APP_URL 또는 CRON_SECRET 미설정"
+            exit 1
+          fi
+          response=$(curl -sS -w "\n%{http_code}" -X GET \
+            -H "X-Cron-Secret: $CRON_SECRET" \
+            "$APP_URL/api/admin/attendance-check")
+          body=$(echo "$response" | sed '$d')
+          status=$(echo "$response" | tail -n1)
+          echo "Status: $status"
+          echo "Body: $body"
+          [ "$status" = "200" ]

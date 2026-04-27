@@ -1,10 +1,236 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDB } from '@/lib/db';
 import { getSession } from '@/lib/auth';
-import { SPOT_DETAILS } from '@/lib/constants';
+import { SPOT_DETAILS, getSessionStartTime, getDeadlineText, AVAILABLE_DAYS } from '@/lib/constants';
+import { sendEmail, buildAttendanceCheckEmail } from '@/lib/email';
+import { getRequestContext } from '@cloudflare/next-on-pages';
 
 export const runtime = 'edge';
 
+const NOTIFICATION_TYPE = 'attendance_check_3h';
+
+type Channel = 'email' | 'push' | 'sms' | 'inapp';
+
+type MemberInfo = {
+  name: string;
+  phone: string | null;
+  email: string | null;
+  pushSubscription: { endpoint: string; p256dh: string; auth: string } | null;
+};
+
+async function alreadySent(db: D1Database, date: string, spot: string, member: string, channel: Channel): Promise<boolean> {
+  const row = await db.prepare(
+    'SELECT 1 FROM notification_logs WHERE date = ? AND spot = ? AND member_name = ? AND notification_type = ? AND channel = ? LIMIT 1'
+  ).bind(date, spot, member, NOTIFICATION_TYPE, channel).first();
+  return !!row;
+}
+
+async function logSent(
+  db: D1Database,
+  date: string,
+  spot: string,
+  member: string,
+  channel: Channel,
+  success: boolean,
+  errorMessage?: string
+) {
+  try {
+    await db.prepare(
+      `INSERT OR IGNORE INTO notification_logs (date, spot, member_name, notification_type, channel, success, error_message)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`
+    ).bind(date, spot, member, NOTIFICATION_TYPE, channel, success ? 1 : 0, errorMessage ?? null).run();
+  } catch (e) {
+    console.error('logSent failed:', e);
+  }
+}
+
+async function getMemberInfo(db: D1Database, name: string): Promise<MemberInfo | null> {
+  const row = await db.prepare(
+    `SELECT m.name, m.phone, m.email, ps.endpoint, ps.p256dh, ps.auth
+     FROM members m
+     LEFT JOIN push_subscriptions ps ON ps.member_id = m.id AND ps.active = 1
+     WHERE m.name = ?`
+  ).bind(name).first() as any;
+  if (!row) return null;
+  return {
+    name: row.name,
+    phone: row.phone ?? null,
+    email: row.email ?? null,
+    pushSubscription: row.endpoint ? { endpoint: row.endpoint, p256dh: row.p256dh, auth: row.auth } : null,
+  };
+}
+
+async function processAttendanceCheck(db: D1Database, targetDate: string, originUrl: string) {
+  const reservations = await db.prepare(`
+    SELECT spot, COUNT(*) as count, GROUP_CONCAT(user_name) as members
+    FROM reservations
+    WHERE date = ? AND mode = 'smalltalk'
+    GROUP BY spot
+  `).bind(targetDate).all();
+
+  const riskySpots: Array<{ spot: string; spotName: string; count: number; members: string[] }> = [];
+  const notificationResults: Array<{
+    member: string;
+    spot: string;
+    channels: { channel: Channel; status: 'sent' | 'skipped' | 'failed'; error?: string }[];
+  }> = [];
+
+  let emailSent = 0;
+  let pushSent = 0;
+  let smsSent = 0;
+  let inappSent = 0;
+
+  const sessionStart = getSessionStartTime(targetDate);
+  const sessionTimeStr = sessionStart.toLocaleString('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  const deadlineText = getDeadlineText(targetDate);
+
+  for (const res of (reservations.results as any[]) ?? []) {
+    if (res.count > 2) continue;
+    const memberNames: string[] = String(res.members ?? '').split(',').map(s => s.trim()).filter(Boolean);
+    const spotInfo = SPOT_DETAILS.find(s => s.id === res.spot);
+    const spotName = spotInfo?.name ?? res.spot;
+
+    riskySpots.push({ spot: res.spot, spotName, count: res.count, members: memberNames });
+
+    for (const memberName of memberNames) {
+      const info = await getMemberInfo(db, memberName);
+      if (!info) continue;
+
+      const channelResults: { channel: Channel; status: 'sent' | 'skipped' | 'failed'; error?: string }[] = [];
+
+      // 1. 이메일 (메인 채널)
+      if (info.email) {
+        if (await alreadySent(db, targetDate, res.spot, memberName, 'email')) {
+          channelResults.push({ channel: 'email', status: 'skipped' });
+        } else {
+          const { subject, html } = buildAttendanceCheckEmail({
+            memberName,
+            spotName,
+            sessionDate: targetDate,
+            sessionTime: sessionTimeStr,
+            currentCount: res.count,
+            deadlineText,
+          });
+          const result = await sendEmail({ to: info.email, subject, html });
+          await logSent(db, targetDate, res.spot, memberName, 'email', result.ok, result.ok ? undefined : result.error);
+          if (result.ok) {
+            emailSent++;
+            channelResults.push({ channel: 'email', status: 'sent' });
+          } else {
+            channelResults.push({ channel: 'email', status: 'failed', error: result.error });
+          }
+        }
+      }
+
+      // 2. 웹 푸시
+      if (info.pushSubscription) {
+        if (await alreadySent(db, targetDate, res.spot, memberName, 'push')) {
+          channelResults.push({ channel: 'push', status: 'skipped' });
+        } else {
+          try {
+            const pushRes = await fetch(`${originUrl}/api/push/send`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                subscription: info.pushSubscription,
+                payload: {
+                  title: '⚠️ 참석 확인 필요',
+                  body: `${spotName} 세션이 현재 ${res.count}명 — 참석 확인 부탁드려요.`,
+                  url: '/calendar',
+                  urgent: true,
+                },
+              }),
+            });
+            const ok = pushRes.ok;
+            await logSent(db, targetDate, res.spot, memberName, 'push', ok, ok ? undefined : `HTTP ${pushRes.status}`);
+            if (ok) {
+              pushSent++;
+              channelResults.push({ channel: 'push', status: 'sent' });
+            } else {
+              channelResults.push({ channel: 'push', status: 'failed', error: `HTTP ${pushRes.status}` });
+            }
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            await logSent(db, targetDate, res.spot, memberName, 'push', false, msg);
+            channelResults.push({ channel: 'push', status: 'failed', error: msg });
+          }
+        }
+      }
+
+      // 3. SMS (전화번호 있을 때)
+      if (info.phone && info.phone.length > 8) {
+        if (await alreadySent(db, targetDate, res.spot, memberName, 'sms')) {
+          channelResults.push({ channel: 'sms', status: 'skipped' });
+        } else {
+          const smsBody = `[타임오프클럽] ${memberName}님, ${spotName} 세션 현재 ${res.count}명 신청. 참석 확인 부탁드려요. 변경/취소: ${deadlineText} 마감. https://time-off-club.com/calendar`;
+          try {
+            const smsRes = await fetch(`${originUrl}/api/admin/notify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: memberName, title: '타임오프클럽 참석 확인', body: smsBody, method: 'sms' }),
+            });
+            const ok = smsRes.ok;
+            await logSent(db, targetDate, res.spot, memberName, 'sms', ok, ok ? undefined : `HTTP ${smsRes.status}`);
+            if (ok) {
+              smsSent++;
+              channelResults.push({ channel: 'sms', status: 'sent' });
+            } else {
+              channelResults.push({ channel: 'sms', status: 'failed', error: `HTTP ${smsRes.status}` });
+            }
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            await logSent(db, targetDate, res.spot, memberName, 'sms', false, msg);
+            channelResults.push({ channel: 'sms', status: 'failed', error: msg });
+          }
+        }
+      }
+
+      // 4. 인앱 알림 (항상)
+      if (await alreadySent(db, targetDate, res.spot, memberName, 'inapp')) {
+        channelResults.push({ channel: 'inapp', status: 'skipped' });
+      } else {
+        try {
+          await db.prepare(
+            `INSERT INTO urgent_notifications (member_name, title, content, created_at, expires_at)
+             VALUES (?, ?, ?, datetime('now'), datetime('now', '+4 hours'))`
+          ).bind(
+            memberName,
+            '⚠️ 참석 확인 필요',
+            `${spotName} 세션 현재 ${res.count}명 — 참석 확인 부탁드려요.`
+          ).run();
+          await logSent(db, targetDate, res.spot, memberName, 'inapp', true);
+          inappSent++;
+          channelResults.push({ channel: 'inapp', status: 'sent' });
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          await logSent(db, targetDate, res.spot, memberName, 'inapp', false, msg);
+          channelResults.push({ channel: 'inapp', status: 'failed', error: msg });
+        }
+      }
+
+      notificationResults.push({ member: memberName, spot: spotName, channels: channelResults });
+    }
+  }
+
+  return {
+    targetDate,
+    riskySpots,
+    totalRiskySpots: riskySpots.length,
+    emailSent,
+    pushSent,
+    smsSent,
+    inappSent,
+    totalMembers: notificationResults.length,
+    notificationResults,
+  };
+}
+
+// 관리자 수동 트리거
 export async function POST(request: NextRequest) {
   const session = await getSession();
   if (!session?.isAdmin) {
@@ -13,224 +239,99 @@ export async function POST(request: NextRequest) {
 
   try {
     const { targetDate } = await request.json();
-    
     const db = getDB();
-    if (!db) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 500 });
-    }
+    if (!db) return NextResponse.json({ error: 'Database not available' }, { status: 500 });
+    if (!targetDate) return NextResponse.json({ error: 'targetDate required' }, { status: 400 });
 
-    // 해당 날짜의 스몰토크 예약 현황 조회
-    const reservations = await db.prepare(`
-      SELECT 
-        spot,
-        COUNT(*) as count,
-        GROUP_CONCAT(name) as members
-      FROM reservations 
-      WHERE date = ? AND mode = 'smalltalk'
-      GROUP BY spot
-    `).bind(targetDate).all();
-
-    const riskySpots: any[] = [];
-    const pushTargets: any[] = [];
-
-    for (const res of reservations.results as any[]) {
-      if (res.count === 1) {
-        const spotInfo = SPOT_DETAILS.find(s => s.id === res.spot);
-        riskySpots.push({
-          spot: res.spot,
-          spotName: spotInfo?.name || res.spot,
-          member: res.members,
-          count: res.count
-        });
-
-        // 해당 멤버의 연락처 정보 조회 (푸시 구독 + 휴대폰)
-        const memberInfo = await db.prepare(`
-          SELECT m.name, m.phone, ps.endpoint, ps.p256dh, ps.auth
-          FROM members m
-          LEFT JOIN push_subscriptions ps ON ps.member_id = m.id AND ps.active = 1
-          WHERE m.name = ?
-        `).bind(res.members).first() as any;
-
-        if (memberInfo) {
-          pushTargets.push({
-            member: res.members,
-            spot: res.spot,
-            spotName: spotInfo?.name || res.spot,
-            phone: memberInfo.phone,
-            hasPushSubscription: !!memberInfo.endpoint,
-            subscription: memberInfo.endpoint ? {
-              endpoint: memberInfo.endpoint,
-              p256dh: memberInfo.p256dh,
-              auth: memberInfo.auth
-            } : null
-          });
-        }
-      }
-    }
-
-    // 다양한 방법으로 알림 발송
-    let pushedCount = 0;
-    let smsCount = 0;
-    let emailCount = 0;
-    const notificationResults = [];
-
-    for (const target of pushTargets) {
-      const alertMessage = `⚠️ 타임오프클럽 참석 확인\n\n안녕하세요 ${target.member}님!\n\n오늘 세션에 ${target.spotName}에 혼자 예약되어 계신데, 스몰토크는 2명 이상이어야 진행됩니다.\n\n참석 가능하시다면 그대로 두시고, 참석이 어려우시다면 예약을 취소해주세요.\n\n예약 변경: https://timeoffclub.pages.dev/calendar`;
-
-      let methodsUsed = [];
-
-      // 1. 웹 푸시 알림 시도
-      if (target.hasPushSubscription && target.subscription) {
-        try {
-          const pushResponse = await fetch('/api/push/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              subscription: target.subscription,
-              payload: {
-                title: '⚠️ 참석 확인 필요',
-                body: `${target.spotName}에 혼자 예약되어 있습니다. 참석 가능하신지 확인해주세요!`,
-                url: '/calendar',
-                urgent: true
-              }
-            })
-          });
-
-          if (pushResponse.ok) {
-            pushedCount++;
-            methodsUsed.push('푸시');
-          }
-        } catch (error) {
-          console.error(`Push failed for ${target.member}:`, error);
-        }
-      }
-
-      // 2. SMS 발송 (휴대폰 번호가 있는 경우)
-      if (target.phone && target.phone.length > 8) {
-        try {
-          const smsResponse = await fetch('/api/admin/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: target.member,
-              title: '타임오프클럽 참석 확인',
-              body: alertMessage,
-              method: 'sms' // SMS 전송 지정
-            })
-          });
-
-          if (smsResponse.ok) {
-            smsCount++;
-            methodsUsed.push('SMS');
-          }
-        } catch (error) {
-          console.error(`SMS failed for ${target.member}:`, error);
-        }
-      }
-
-      // 3. 대체 방법: 인앱 알림 (다음 로그인 시 표시)
-      try {
-        await db.prepare(`
-          INSERT INTO urgent_notifications (member_name, title, content, created_at, expires_at) 
-          VALUES (?, ?, ?, datetime('now'), datetime('now', '+4 hours'))
-        `).bind(
-          target.member,
-          '⚠️ 참석 확인 필요',
-          `${target.spotName}에 혼자 예약되어 있습니다. 참석 가능하신지 확인해주세요!`
-        ).run();
-        methodsUsed.push('인얁알림');
-      } catch (error) {
-        console.error(`In-app notification failed for ${target.member}:`, error);
-      }
-
-      notificationResults.push({
-        member: target.member,
-        spot: target.spotName,
-        methods: methodsUsed,
-        phone: target.phone ? `${target.phone.slice(0, 3)}-****-${target.phone.slice(-4)}` : '없음',
-        pushEnabled: target.hasPushSubscription
-      });
-    }
+    const originUrl = request.url.split('/api/')[0];
+    const result = await processAttendanceCheck(db, targetDate, originUrl);
 
     return NextResponse.json({
       success: true,
-      targetDate,
-      riskySpots,
-      totalRiskySpots: riskySpots.length,
-      pushSent: pushedCount,
-      smsSent: smsCount,
-      emailSent: emailCount,
-      totalTargets: pushTargets.length,
-      notificationResults,
-      message: `${targetDate} 세션 확인: ${riskySpots.length}개 스팟에서 1명 예약 발견, 알림 발송 (푸시: ${pushedCount}명, SMS: ${smsCount}명)`
+      message: `${targetDate}: ${result.totalRiskySpots}개 스팟에서 ≤2명 신청, 이메일 ${result.emailSent} / 푸시 ${result.pushSent} / SMS ${result.smsSent} / 인앱 ${result.inappSent}건 발송`,
+      ...result,
     });
-
   } catch (error) {
-    console.error('Attendance check error:', error);
-    return NextResponse.json({ 
+    console.error('Attendance check (POST) error:', error);
+    return NextResponse.json({
       error: '참석 확인 오류',
-      details: error instanceof Error ? error.message : String(error)
+      details: error instanceof Error ? error.message : String(error),
     }, { status: 500 });
   }
 }
 
-// 자동 호출용 GET 엔드포인트 (크론잡에서 사용)
+// 자동 cron 트리거 (GitHub Actions 등 외부에서 호출)
 export async function GET(request: NextRequest) {
+  // CRON_SECRET 검증
+  let expectedSecret: string | undefined;
+  try {
+    const { env } = getRequestContext();
+    expectedSecret = (env as any).CRON_SECRET;
+  } catch {
+    expectedSecret = process.env.CRON_SECRET;
+  }
+  if (!expectedSecret) {
+    return NextResponse.json({ error: 'CRON_SECRET not configured on server' }, { status: 500 });
+  }
+  const provided = request.headers.get('X-Cron-Secret');
+  if (provided !== expectedSecret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const db = getDB();
-    if (!db) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 500 });
+    if (!db) return NextResponse.json({ error: 'Database not available' }, { status: 500 });
+
+    const now = Date.now();
+    const candidates: string[] = [];
+    // 오늘과 내일을 후보로 (cron이 자정 직전에 도는 경우 대비)
+    for (let i = 0; i < 2; i++) {
+      const d = new Date(now + i * 24 * 60 * 60 * 1000);
+      const kstNow = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+      const yyyy = kstNow.getUTCFullYear();
+      const mm = String(kstNow.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(kstNow.getUTCDate()).padStart(2, '0');
+      candidates.push(`${yyyy}-${mm}-${dd}`);
     }
 
-    // 오늘과 내일의 세션 날짜들 확인
-    const today = new Date();
-    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-    const dayAfterTomorrow = new Date(today.getTime() + 48 * 60 * 60 * 1000);
-    
-    const dates = [today, tomorrow, dayAfterTomorrow].map(date => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    });
+    const triggered: any[] = [];
+    const skipped: { date: string; reason: string }[] = [];
+    const originUrl = request.url.split('/api/')[0];
 
-    let totalChecked = 0;
-    let totalAlerts = 0;
-    const results = [];
-
-    for (const dateStr of dates) {
-      const dayOfWeek = new Date(dateStr + 'T00:00:00').getDay();
-      // 수요일(3) 또는 일요일(0)만 체크
-      if (dayOfWeek !== 3 && dayOfWeek !== 0) continue;
-
-      // 각 날짜별로 체크
-      const checkResponse = await fetch(`${request.url.split('/attendance-check')[0]}/attendance-check`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ targetDate: dateStr })
-      });
-
-      if (checkResponse.ok) {
-        const result = await checkResponse.json();
-        totalChecked += result.totalRiskySpots || 0;
-        totalAlerts += result.pushSent || 0;
-        results.push(result);
+    for (const dateStr of candidates) {
+      const dayOfWeek = new Date(dateStr + 'T00:00:00Z').getUTCDay();
+      if (dayOfWeek !== AVAILABLE_DAYS.WEDNESDAY && dayOfWeek !== AVAILABLE_DAYS.SUNDAY) {
+        skipped.push({ date: dateStr, reason: '세션 없는 요일' });
+        continue;
       }
+
+      const sessionStart = getSessionStartTime(dateStr).getTime();
+      const hoursUntilStart = (sessionStart - now) / (1000 * 60 * 60);
+
+      // T-3.5h ~ T-2h 윈도우에서만 발송 (cron 30분 간격이라 최소 30분 윈도우 필요)
+      if (hoursUntilStart > 3.5 || hoursUntilStart <= 2) {
+        skipped.push({ date: dateStr, reason: `T-3h 윈도우 밖 (남은 시간 ${hoursUntilStart.toFixed(2)}h)` });
+        continue;
+      }
+
+      const result = await processAttendanceCheck(db, dateStr, originUrl);
+      triggered.push(result);
     }
 
     return NextResponse.json({
       success: true,
-      message: `자동 참석 확인 완료: ${totalChecked}개 위험 스팟, ${totalAlerts}명에게 알림`,
-      results,
-      totalChecked,
-      totalAlerts
+      now: new Date(now).toISOString(),
+      triggered,
+      skipped,
+      summary: triggered.length === 0
+        ? '발송 대상 세션 없음'
+        : `${triggered.length}개 세션 처리: 이메일 ${triggered.reduce((s, r) => s + r.emailSent, 0)} / 푸시 ${triggered.reduce((s, r) => s + r.pushSent, 0)} / SMS ${triggered.reduce((s, r) => s + r.smsSent, 0)} / 인앱 ${triggered.reduce((s, r) => s + r.inappSent, 0)}`,
     });
-
   } catch (error) {
     console.error('Auto attendance check error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: '자동 참석 확인 오류',
-      details: error instanceof Error ? error.message : String(error)
+      details: error instanceof Error ? error.message : String(error),
     }, { status: 500 });
   }
 }
